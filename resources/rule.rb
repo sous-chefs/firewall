@@ -35,6 +35,7 @@ attribute :position, :kind_of => Integer
 def initialize(name, run_context=nil)
   super
   set_platform_default_providers
+  @action = :reject
 end
 
 private
