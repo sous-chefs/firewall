@@ -69,7 +69,7 @@ def apply_rule(type=nil)
 
     Chef::Log.info("#{@new_resource} #{type} rule added")
     shell_out!("ufw status verbose") # purely for the Chef::Log.debug output
-    @new_resource.updated_by_last_action(true)
+    new_resource.updated_by_last_action(true)
   else
     Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")
   end
