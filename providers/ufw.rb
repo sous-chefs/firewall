@@ -43,6 +43,11 @@ action :disable do
     Chef::Log.debug("#{@new_resource} already disabled.")
   end
 end
+
+action :reset do
+  shell_out!("ufw --force reset")
+  Chef::Log.info("#{@new_resource} reset")
+end
   
 private
 def active?

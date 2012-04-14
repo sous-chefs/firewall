@@ -31,6 +31,7 @@ Resources/Providers
 
 - :enable: enable the firewall.  this will make any rules that have been defined 'active'.
 - :disable: disable the firewall. drop any rules and put the node in an unprotected state.
+- :reset: disables and resets firewall to installation defaults.
 
 ### Attribute Parameters
 
