@@ -25,6 +25,7 @@ attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :f
 def initialize(name, run_context=nil)
   super
   set_platform_default_providers
+  @action = :enable
 end
 
 private
