@@ -29,7 +29,7 @@ Resources/Providers
 
 ### Actions
 
-- :enable: enable the firewall.  this will make any rules that have been defined 'active'.
+- :enable: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
 - :disable: disable the firewall. drop any rules and put the node in an unprotected state.
 
 ### Attribute Parameters
@@ -62,7 +62,7 @@ Resources/Providers
 
 - :allow: the rule should allow incoming traffic.
 - :deny: the rule should deny incoming traffic.
-- :reject: the rule should reject incoming traffic.
+- :reject: *Default action: the rule should reject incoming traffic.
 
 ### Attribute Parameters
 
