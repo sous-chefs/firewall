@@ -28,6 +28,11 @@ action :enable do
       shell_out!("ufw logging #{@new_resource.log_level}") 
       Chef::Log.info("#{@new_resource} logging enabled at '#{@new_resource.log_level}' level")
     end
+
+    if @new_resource.default
+      shell_out!("ufw default #{@new_resource.default}")
+      Chef::Log.info("#{@new_resource} default mode at '#{@new_resource.default}'")
+    end
     new_resource.updated_by_last_action(true)
   else
     Chef::Log.debug("#{@new_resource} already enabled.")
