@@ -1,3 +1,7 @@
+## v0.9.2:
+
+* [COOK-1615] - Firewall example docs have incorrect direction syntax
+
 ## v0.9.0:
 
 The default action for firewall LWRP is now :enable, the default
