@@ -62,7 +62,13 @@ def apply_rule(type=nil)
     else
       ufw_command << "to any "
     end
-    ufw_command << "port #{@new_resource.port} " if @new_resource.port
+    if @new_resource.port
+      ufw_command << "port #{@new_resource.port} "
+    elsif @new_resource.ports
+      ufw_command << "port #{@new_resource.ports.join(',')} "
+    elsif @new_resource.port_range
+      ufw_command << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
+    end
 
     Chef::Log.debug("ufw: #{ufw_command}")
     shell_out!(ufw_command)
