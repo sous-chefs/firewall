@@ -32,19 +32,6 @@ attribute :logging, :kind_of => Symbol, :equal_to => [ :connections, :packets ]
 attribute :source, :regex => IP_CIDR_VALID_REGEX
 attribute :destination, :regex => IP_CIDR_VALID_REGEX
 attribute :dest_port, :kind_of => Integer
+attribute :dest_interface, :kind_of => String
 attribute :position, :kind_of => Integer
-
-def initialize(name, run_context=nil)
-  super
-  set_platform_default_providers
-  @action = :reject
-end
-
-private
-def set_platform_default_providers
-  Chef::Platform.set(
-    :platform => :ubuntu,
-    :resource => :firewall_rule,
-    :provider => Chef::Provider::FirewallRuleUfw
-  )
-end
+attribute :stateful, :kind_of => String
