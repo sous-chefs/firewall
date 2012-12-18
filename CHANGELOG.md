@@ -1,3 +1,7 @@
+## v0.10.0:
+
+* [COOK-1234] - allow multiple ports per rule
+
 ## v0.9.2:
 
 * [COOK-1615] - Firewall example docs have incorrect direction syntax
