@@ -70,8 +70,8 @@ Resources/Providers
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
 - protocol: valid values are: :udp, :tcp. default is all protocols
 - port: incoming port number (ie. 22 to allow inbound SSH)
-- ports: array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS)
-- port_range: range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell)
+- ports: array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with `ports`
+- port_range: range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol` attribute is required with `port_range`
 - source: ip address or subnet to filter on incoming traffic. default is `0.0.0.0/0` (ie Anywhere)
 - destination: ip address or subnet to filter on outgoing traffic.
 - dest_port: outgoing port number.
@@ -111,10 +111,19 @@ Resources/Providers
       action :allow
     end
 
-    # open UDP ports 60000..61000 for mobile shell (mosh.mit.edu)
+    # open UDP ports 60000..61000 for mobile shell (mosh.mit.edu), note
+    # that the protocol attribute is required when using port_range
     firewall_rule "mosh" do
       protocol :udp
       port_range 60000..61000
+      action :allow
+    end
+
+    # open multiple ports for http/https, note that the protocol
+    # attribute is required when using ports
+    firewall_rule "http/https" do
+      protocol :tcp
+      ports [ 80, 443 ]
       action :allow
     end
 
