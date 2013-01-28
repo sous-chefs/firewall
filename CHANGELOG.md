@@ -1,3 +1,7 @@
+## v0.10.2:
+
+* [COOK-2250] - improve readme
+
 ## v0.10.0:
 
 * [COOK-1234] - allow multiple ports per rule
