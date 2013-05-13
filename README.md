@@ -15,12 +15,14 @@ Platform
 --------
 
 * Ubuntu
+* Debian
 
 Tested on:
 
 * Ubuntu 10.04
 * Ubuntu 11.04
 * Ubuntu 11.10
+* Debian 7.0
 
 Resources/Providers
 ===================
