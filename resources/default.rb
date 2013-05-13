@@ -30,9 +30,11 @@ end
 
 private
 def set_platform_default_providers
-  Chef::Platform.set(
-    :platform => :ubuntu,
-    :resource => :firewall,
-    :provider => Chef::Provider::FirewallUfw
-  )
+  [:ubuntu, :debian].each do |platform|
+    Chef::Platform.set(
+      :platform => platform,
+      :resource => :firewall,
+      :provider => Chef::Provider::FirewallUfw
+    )
+  end
 end
