@@ -20,6 +20,9 @@
 
 include Chef::Mixin::ShellOut
 
+action :flush do 
+end
+
 action :enable do
   unless active?
     shell_out!("echo yes | ufw enable")

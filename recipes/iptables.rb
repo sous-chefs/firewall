@@ -1,9 +1,8 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Cookbook Name:: firwall
-# Resource:: default
+# Cookbook Name:: firewall
+# Recipe:: iptables
 #
-# Copyright:: 2011, Opscode, Inc.
+# Copyright 2012, computerlyrik
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +16,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+package "iptables"
 
-actions :enable, :disable, :flush
+Chef::Platform.set(
+  :resource => :firewall_rule,
+  :provider => Chef::Provider::FirewallRuleIptables
+)
 
-attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
+Chef::Platform.set(
+  :resource => :firewall,
+  :provider => Chef::Provider::FirewallIptables
+)
+
+
