@@ -21,6 +21,9 @@
 actions :enable, :disable
 
 attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
+attribute :incoming,  :kind_of => Symbol, :equal_to => [:allow, :deny, :reject],      :default => :deny
+attribute :outgoing,  :kind_of => Symbol, :equal_to => [:allow, :deny, :reject],      :default => :allow
+
 
 def initialize(name, run_context=nil)
   super

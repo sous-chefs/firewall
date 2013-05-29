@@ -22,6 +22,8 @@ include Chef::Mixin::ShellOut
 
 action :enable do
   unless active?
+    shell_out!("ufw default #{@new_resource.incoming} incoming")
+    shell_out!("ufw default #{@new_resource.outgoing} outgoing")
     shell_out!("echo yes | ufw enable")
     Chef::Log.info("#{@new_resource} enabled")
     if @new_resource.log_level

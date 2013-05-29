@@ -32,6 +32,10 @@ action :reject do
   apply_rule('reject')
 end
 
+action :limit do
+  apply_rule('limit')
+end
+
 private
 # ufw allow from 192.168.0.4 to any port 22
 # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25
