@@ -1,3 +1,9 @@
+## v0.11.0:
+
+### Improvement
+
+- [COOK-2932]: ufw providers work on debian but cannot be used
+
 ## v0.10.2:
 
 * [COOK-2250] - improve readme
