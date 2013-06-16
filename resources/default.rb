@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-actions :enable, :disable
+actions :enable, :disable, :reset
 
 attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
 
