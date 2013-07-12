@@ -38,6 +38,7 @@ Resources/Providers
 ### Attribute Parameters
 
 - name: name attribute. arbitrary name to uniquely identify this resource
+- default: default behavior on all incoming connections. valid values are: :allow, :deny.
 - log_level: level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full. default is :low.
 
 ### Providers
@@ -55,6 +56,12 @@ Resources/Providers
     # increase logging past default of 'low'
     firewall "debug firewalls" do
       log_level :high
+      action :enable
+    end
+
+    # allow all incoming connections by default
+    firewall "open" do
+      default :allow
       action :enable
     end
 

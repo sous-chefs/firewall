@@ -20,6 +20,7 @@
 
 actions :enable, :disable
 
+attribute :default, :kind_of => Symbol, :equal_to => [:allow, :deny], :default => :deny
 attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
 
 def initialize(name, run_context=nil)
