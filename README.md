@@ -24,6 +24,14 @@ Tested on:
 * Ubuntu 11.10
 * Debian 7.0
 
+Recipes
+=======
+
+`default.rb`
+------------
+
+The default recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
+
 Resources/Providers
 ===================
 
