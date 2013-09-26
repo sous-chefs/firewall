@@ -21,33 +21,33 @@
 include Chef::Mixin::ShellOut
 
 action :enable do
-  unless active?
-    shell_out!("echo yes | ufw enable")
+  if active?
+    Chef::Log.debug("#{@new_resource} already enabled.")
+  else
+    shell_out!('echo yes | ufw enable')
     Chef::Log.info("#{@new_resource} enabled")
     if @new_resource.log_level
-      shell_out!("ufw logging #{@new_resource.log_level}") 
+      shell_out!("ufw logging #{@new_resource.log_level}")
       Chef::Log.info("#{@new_resource} logging enabled at '#{@new_resource.log_level}' level")
     end
     new_resource.updated_by_last_action(true)
-  else
-    Chef::Log.debug("#{@new_resource} already enabled.")
   end
 end
 
 action :disable do
   if active?
-    shell_out!("ufw disable")
+    shell_out!('ufw disable')
     Chef::Log.info("#{@new_resource} disabled")
     new_resource.updated_by_last_action(true)
   else
     Chef::Log.debug("#{@new_resource} already disabled.")
   end
 end
-  
+
 private
 def active?
   @active ||= begin
-    cmd = shell_out!("ufw status")
+    cmd = shell_out!('ufw status')
     cmd.stdout =~ /^Status:\sactive/
   end
 end
