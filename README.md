@@ -1,82 +1,69 @@
-Description
-===========
+firewall Cookbook
+=================
+[![Build Status](https://secure.travis-ci.org/opscode-cookbooks/firewall.png?branch=master)](http://travis-ci.org/opscode-cookbooks/firewall)
 
 Provides a set of primitives for managing firewalls and associated rules.
 
-PLEASE NOTE - The resource/providers in this cookbook are under heavy development.
-An attempt is being made to keep the resource simple/stupid by starting with less
-sophisticated firewall implementations first and refactor/vet the resource definition
-with each successive provider.
+PLEASE NOTE - The resource/providers in this cookbook are under heavy development. An attempt is being made to keep the resource simple/stupid by starting with less sophisticated firewall implementations first and refactor/vet the resource definition with each successive provider.
+
 
 Requirements
-============
-
-Platform
---------
-
+------------
+### Platform
 * Ubuntu
 * Debian
 
 Tested on:
-
 * Ubuntu 10.04
 * Ubuntu 11.04
 * Ubuntu 11.10
 * Debian 7.0
 
+
 Recipes
-=======
-
-`default.rb`
-------------
-
+-------
+### default
 The default recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
 
+
 Resources/Providers
-===================
-
-`firewall`
-----------
-
-### Actions
-
+-------------------
+### firewall
+#### Actions
 - :enable: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
 - :disable: disable the firewall. drop any rules and put the node in an unprotected state.
 
-### Attribute Parameters
-
+#### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this resource
 - log_level: level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full. default is :low.
 
-### Providers
-
+#### Providers
 - `Chef::Provider::FirewallUfw`
     - platform default: Ubuntu
 
-### Examples
+#### Examples
 
-    # enable platform default firewall
-    firewall "ufw" do
-      action :enable
-    end
+```ruby
+# enable platform default firewall
+firewall 'ufw' do
+  action :enable
+end
 
-    # increase logging past default of 'low'
-    firewall "debug firewalls" do
-      log_level :high
-      action :enable
-    end
+# increase logging past default of 'low'
+firewall 'debug firewalls' do
+  log_level :high
+  action    :enable
+end
+```
 
-`firewall_rule`
----------------
+### firewall_rule
 
-### Actions
-
+#### Actions
 - :allow: the rule should allow incoming traffic.
 - :deny: the rule should deny incoming traffic.
 - :reject: *Default action: the rule should reject incoming traffic.
 
-### Attribute Parameters
-
+#### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
 - protocol: valid values are: :udp, :tcp. default is all protocols
 - port: incoming port number (ie. 22 to allow inbound SSH)
@@ -90,62 +77,96 @@ Resources/Providers
 - interface: interface to apply rule (ie. 'eth0').
 - logging: may be added to enable logging for a particular rule. valid values are: :connections, :packets. In the ufw provider, :connections logs new connections while :packets logs all packets.
 
-### Providers
+#### Providers
 
 - `Chef::Provider::FirewallRuleUfw`
     - platform default: Ubuntu
 
-### Examples
+#### Examples
 
-    # open standard ssh port, enable firewall
-    firewall_rule "ssh" do
-      port 22
-      action :allow
-      notifies :enable, "firewall[ufw]"
-    end
+```ruby
+# open standard ssh port, enable firewall
+firewall_rule 'ssh' do
+  port     22
+  action   :allow
+  notifies :enable, 'firewall[ufw]'
+end
 
-    # open standard http port to tcp traffic only; insert as first rule
-    firewall_rule "http" do
-      port 80
-      protocol :tcp
-      position 1
-      action :allow
-    end
+# open standard http port to tcp traffic only; insert as first rule
+firewall_rule 'http' do
+  port     80
+  protocol :tcp
+  position 1
+  action   :allow
+end
 
-    # restrict port 13579 to 10.0.111.0/24 on eth0
-    firewall_rule "myapplication" do
-      port 13579
-      source '10.0.111.0/24'
-      direction :in
-      interface 'eth0'
-      action :allow
-    end
+# restrict port 13579 to 10.0.111.0/24 on eth0
+firewall_rule 'myapplication' do
+  port      13579
+  source    '10.0.111.0/24'
+  direction :in
+  interface 'eth0'
+  action    :allow
+end
 
-    # open UDP ports 60000..61000 for mobile shell (mosh.mit.edu), note
-    # that the protocol attribute is required when using port_range
-    firewall_rule "mosh" do
-      protocol :udp
-      port_range 60000..61000
-      action :allow
-    end
+# open UDP ports 60000..61000 for mobile shell (mosh.mit.edu), note
+# that the protocol attribute is required when using port_range
+firewall_rule 'mosh' do
+  protocol   :udp
+  port_range 60000..61000
+  action     :allow
+end
 
-    # open multiple ports for http/https, note that the protocol
-    # attribute is required when using ports
-    firewall_rule "http/https" do
-      protocol :tcp
-      ports [ 80, 443 ]
-      action :allow
-    end
+# open multiple ports for http/https, note that the protocol
+# attribute is required when using ports
+firewall_rule 'http/https' do
+  protocol :tcp
+  ports    [80, 443]
+  action   :allow
+end
 
-    firewall "ufw" do
-      action :nothing
-    end
+firewall 'ufw' do
+  action :nothing
+end
+```
 
-License and Author
-==================
 
-Author:: Seth Chisamore (<schisamo@opscode.com>)
+Development
+-----------
+This section details "quick development" steps. For a detailed explanation, see [[Contributing.md]].
 
+1. Clone this repository from GitHub:
+
+        $ git clone git@github.com:opscode-cookbooks/firewall.git
+
+2. Create a git branch
+
+        $ git checkout -b my_bug_fix
+
+3. Install dependencies:
+
+        $ bundle install
+
+4. Make your changes/patches/fixes, committing appropiately
+5. **Write tests**
+6. Run the tests:
+    - `bundle exec foodcritic -f any .`
+    - `bundle exec rspec`
+    - `bundle exec rubocop`
+    - `bundle exec kitchen test`
+
+  In detail:
+    - Foodcritic will catch any Chef-specific style errors
+    - RSpec will run the unit tests
+    - Rubocop will check for Ruby-specific style errors
+    - Test Kitchen will run and converge the recipes
+
+
+License & Authors
+-----------------
+- Author:: Seth Chisamore (<schisamo@opscode.com>)
+
+```text
 Copyright:: Copyright (c) 2011 Opscode, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -159,3 +180,4 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```

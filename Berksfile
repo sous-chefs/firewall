@@ -1,7 +1,7 @@
 site :opscode
-
 metadata
 
 group :integration do
-  cookbook 'firewall-test', :path => './test/cookbooks/firewall-test'
+  cookbook 'apt', '~> 2.0'
+  cookbook 'firewall-test', path: 'test/fixtures/cookbooks/fake'
 end
