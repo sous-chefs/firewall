@@ -3,6 +3,11 @@ firewall Cookbook CHANGELOG
 This file is used to list changes made in each version of the firewall cookbook.
 
 
+v0.11.2
+-------
+### Bug
+- **[COOK-3615](https://tickets.opscode.com/browse/COOK-3615)** - Install required UFW package on Debian
+
 v0.11.0
 -------
 ### Improvement
