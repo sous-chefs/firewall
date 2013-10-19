@@ -1,0 +1,15 @@
+driver_plugin: vagrant
+driver_config:
+  require_chef_omnibus: true
+
+platforms:
+  - name: ubuntu-13.04
+  - name: ubuntu-12.04
+  - name: ubuntu-10.04
+  - name: debian-7.1.0
+
+suites:
+  - name: default
+    run_list:
+      - recipe[firewall::default]
+      - recipe[firewall-test::default]
