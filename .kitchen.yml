@@ -9,7 +9,11 @@ platforms:
   - name: debian-7.1.0
 
 suites:
-  - name: default
+  - name: ufw
     run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
+      - recipe[firewall::ufw]
+      - recipe[ufw-test::default]
+  - name: iptables
+    run_list:
+      - recipe[firewall::iptables]
+      - recipe[iptables-test::default]

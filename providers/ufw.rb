@@ -20,6 +20,9 @@
 
 include Chef::Mixin::ShellOut
 
+action :flush do 
+end
+
 action :enable do
   if active?
     Chef::Log.debug("#{@new_resource} already enabled.")
