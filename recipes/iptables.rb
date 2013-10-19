@@ -18,14 +18,15 @@
 #
 package "iptables"
 
-Chef::Platform.set(
-  :resource => :firewall_rule,
-  :provider => Chef::Provider::FirewallRuleIptables
-)
-
-Chef::Platform.set(
-  :resource => :firewall,
-  :provider => Chef::Provider::FirewallIptables
-)
-
+[:ubuntu, :debian].each do |platform|
+  Chef::Platform.set(
+    :platform => platform,
+    :resource => :firewall,
+    :provider => Chef::Provider::FirewallIptables
+  )
+  Chef::Platform.set(
+    :resource => :firewall,
+    :provider => Chef::Provider::FirewallRuleIptables
+  )
+end
 

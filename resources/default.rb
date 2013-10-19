@@ -24,17 +24,5 @@ attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :f
 
 def initialize(name, run_context = nil)
   super
-  set_platform_default_providers
   @action = :enable
-end
-
-private
-def set_platform_default_providers
-  [:ubuntu, :debian].each do |platform|
-    Chef::Platform.set(
-      :platform => platform,
-      :resource => :firewall,
-      :provider => Chef::Provider::FirewallUfw
-    )
-  end
 end

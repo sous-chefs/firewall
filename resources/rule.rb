@@ -38,17 +38,5 @@ attribute :stateful, :kind_of => String
 
 def initialize(name, run_context = nil)
   super
-  set_platform_default_providers
   @action = :reject
-end
-
-private
-def set_platform_default_providers
-  [:ubuntu, :debian].each do |platform|
-    Chef::Platform.set(
-        :platform => platform,
-        :resource => :firewall_rule,
-        :provider => Chef::Provider::FirewallRuleUfw
-    )
-  end
 end

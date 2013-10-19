@@ -24,6 +24,7 @@ action :enable do
   shell_out!("iptables -P OUTPUT DROP")
   shell_out!("iptables -P FORWARD DROP")
   Chef::Log.debug("#{@new_resource} enabled.")
+  new_resource.updated_by_last_action(false)
 end
 
 action :disable do
@@ -32,9 +33,11 @@ action :disable do
   shell_out!("iptables -P FORWARD ACCEPT")
   shell_out!("iptables -F")
   Chef::Log.debug("#{@new_resource} disabled.")
+  new_resource.updated_by_last_action(false)
 end
 
 action :flush do
   shell_out!("iptables -F")
   Chef::Log.debug("#{@new_resource} flushed.")
+  new_resource.updated_by_last_action(false)
 end

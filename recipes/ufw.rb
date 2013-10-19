@@ -17,14 +17,15 @@
 # limitations under the License.
 #
 
-Chef::Platform.set(
-  :resource => :firewall_rule,
-  :provider => Chef::Provider::FirewallRuleUfw
-)
-
-Chef::Platform.set(
-  :resource => :firewall,
-  :provider => Chef::Provider::FirewallUfw
-)
-
+[:ubuntu, :debian].each do |platform|
+  Chef::Platform.set(
+    :platform => platform,
+    :resource => :firewall,
+    :provider => Chef::Provider::FirewallUfw
+  )
+  Chef::Platform.set(
+    :resource => :firewall,
+    :provider => Chef::Provider::FirewallRuleUfw
+  )
+end
 
