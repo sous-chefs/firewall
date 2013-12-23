@@ -77,10 +77,6 @@ def logging
   end
 end
 
-def port_and_proto
-  @new_resource.protocol ? "#{@new_resource.port}/#{@new_resource.protocol}" : @new_resource.port
-end
-
 def rule
   rule = ''
   rule << "#{@new_resource.direction} " if @new_resource.direction
@@ -120,5 +116,43 @@ def rule_exists?
   # --                         ------      ----
   # 22                         ALLOW       Anywhere
   # 192.168.0.1 25/tcp         DENY        10.0.0.0/8
-  shell_out!('ufw status').stdout =~ /^(#{@new_resource.destination}\s)?#{port_and_proto}\s.*(#{@new_resource.action.to_s})\s.*#{@new_resource.source || 'Anywhere'}$/i
+  # 22                         ALLOW       Anywhere
+  # 3309 on eth9               ALLOW       Anywhere
+  # Anywhere                   ALLOW       Anywhere
+  # 80                         ALLOW       Anywhere (log)
+  # 8080                       DENY        192.168.1.0/24
+  # 1.2.3.5 5469/udp           ALLOW       1.2.3.4 5469/udp
+  # 3308                       ALLOW       OUT Anywhere on eth8
+
+  to = ''
+  if @new_resource.destination
+    to << "#{Regexp.escape(@new_resource.destination)}\s"
+  end
+  if @new_resource.protocol && @new_resource.port
+    to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
+  elsif @new_resource.port
+    to << "#{Regexp.escape(@new_resource.port)}\s"
+  end
+  if to.empty?
+    to << "Anywhere\s"
+  end
+
+  action = @new_resource.action
+  action = action.first if action.is_a?(Enumerable)
+  action = "#{Regexp.escape(action.to_s.upcase)}\s"
+
+  from = ''
+  from << "#{Regexp.escape(@new_resource.source || 'Anywhere')}"
+
+  regex = /^#{to}.*#{action}.*#{from}.*$/
+
+  match = shell_out!('ufw status').stdout.lines.find do |line|
+    # TODO: support IPv6
+    return false if line =~ /\(v6\)$/
+    line =~ regex
+  end
+
+  Chef::Log.debug("ufw: found existing rule for \"#{rule}\": \"#{match.strip}\"") if match
+
+  !!match
 end
