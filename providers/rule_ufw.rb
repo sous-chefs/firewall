@@ -26,7 +26,7 @@ include Chef::Mixin::ShellOut
 
 action :allow do
   unless rule_exists?
-    converge_by("Allowing #{new_resource.source} firewall_rule") do
+    converge_by("Allowing #{rule}") do
       apply_rule('allow')
     end
   end
@@ -34,7 +34,7 @@ end
 
 action :deny do
   unless rule_exists?
-    converge_by("Denying #{new_resource.source} firewall_rule") do
+    converge_by("Denying #{rule}") do
       apply_rule('deny')
     end
   end
@@ -42,7 +42,7 @@ end
 
 action :reject do
   unless rule_exists?
-    converge_by("Rejecting #{new_resource.source} firewall_rule") do
+    converge_by("Rejecting #{rule}") do
       apply_rule('reject')
     end
   end
@@ -56,34 +56,7 @@ def apply_rule(type = nil) # rubocop:disable MethodLength
   ufw_command = 'ufw '
   ufw_command << "insert #{@new_resource.position} " if @new_resource.position
   ufw_command << "#{type} "
-  ufw_command << "#{@new_resource.direction} " if @new_resource.direction
-  if @new_resource.interface
-    if @new_resource.direction
-      ufw_command << "on #{@new_resource.interface} "
-    else
-      ufw_command << "in on #{@new_resource.interface} "
-    end
-  end
-  ufw_command << logging
-  ufw_command << "proto #{@new_resource.protocol} " if @new_resource.protocol
-  if @new_resource.source
-    ufw_command << "from #{@new_resource.source} "
-  else
-    ufw_command << 'from any '
-  end
-  ufw_command << "port #{@new_resource.dest_port} " if @new_resource.dest_port
-  if @new_resource.destination
-    ufw_command << "to #{@new_resource.destination} "
-  else
-    ufw_command << 'to any '
-  end
-  if @new_resource.port
-    ufw_command << "port #{@new_resource.port} "
-  elsif @new_resource.ports
-    ufw_command << "port #{@new_resource.ports.join(',')} "
-  elsif @new_resource.port_range
-    ufw_command << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
-  end
+  ufw_command << "#{rule} "
 
   Chef::Log.debug("ufw: #{ufw_command}")
   shell_out!(ufw_command)
@@ -106,6 +79,39 @@ end
 
 def port_and_proto
   @new_resource.protocol ? "#{@new_resource.port}/#{@new_resource.protocol}" : @new_resource.port
+end
+
+def rule
+  rule = ''
+  rule << "#{@new_resource.direction} " if @new_resource.direction
+  if @new_resource.interface
+    if @new_resource.direction
+      rule << "on #{@new_resource.interface} "
+    else
+      rule << "in on #{@new_resource.interface} "
+    end
+  end
+  rule << logging
+  rule << "proto #{@new_resource.protocol} " if @new_resource.protocol
+  if @new_resource.source
+    rule << "from #{@new_resource.source} "
+  else
+    rule << 'from any '
+  end
+  rule << "port #{@new_resource.dest_port} " if @new_resource.dest_port
+  if @new_resource.destination
+    rule << "to #{@new_resource.destination} "
+  else
+    rule << 'to any '
+  end
+  if @new_resource.port
+    rule << "port #{@new_resource.port} "
+  elsif @new_resource.ports
+    rule << "port #{@new_resource.ports.join(',')} "
+  elsif @new_resource.port_range
+    rule << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
+  end
+  rule.strip
 end
 
 # TODO: currently only works when firewall is enabled
