@@ -25,7 +25,9 @@ end
 include Chef::Mixin::ShellOut
 
 action :allow do
-  unless rule_exists?
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already allowed - skipping"
+  else
     converge_by("Allowing #{rule}") do
       apply_rule('allow')
     end
@@ -33,7 +35,9 @@ action :allow do
 end
 
 action :deny do
-  unless rule_exists?
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already denied - skipping"
+  else
     converge_by("Denying #{rule}") do
       apply_rule('deny')
     end
@@ -41,7 +45,9 @@ action :deny do
 end
 
 action :reject do
-  unless rule_exists?
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already rejected - skipping"
+  else
     converge_by("Rejecting #{rule}") do
       apply_rule('reject')
     end
