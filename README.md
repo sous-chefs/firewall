@@ -23,8 +23,16 @@ Tested on:
 Recipes
 -------
 ### default
-The default recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
+The default recipe calls the reciped named by `node['firewall']['type']`.
 
+### ufw
+The ufw recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
+
+Attributes
+----------
+
+* `default['firewall']['type']`  ufw is only supported type at this time.
+* `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 
 Resources/Providers
 -------------------

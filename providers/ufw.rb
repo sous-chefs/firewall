@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Cookbook Name:: firwall
+# Cookbook Name:: firewall
 # Provider:: ufw
 #
 # Copyright:: 2011, Opscode, Inc.
@@ -45,6 +45,7 @@ action :disable do
 end
 
 private
+
 def active?
   @active ||= begin
     cmd = shell_out!('ufw status')

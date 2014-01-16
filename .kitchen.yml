@@ -13,3 +13,9 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        ufw:
+          allow_ssh: true
+
+

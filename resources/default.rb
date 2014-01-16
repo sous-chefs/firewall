@@ -29,6 +29,7 @@ def initialize(name, run_context = nil)
 end
 
 private
+
 def set_platform_default_providers
   [:ubuntu, :debian].each do |platform|
     Chef::Platform.set(

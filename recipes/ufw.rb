@@ -17,4 +17,14 @@
 # limitations under the License.
 #
 
-include_recipe "firewall::#{node['firewall']['type']}"
+package 'ufw' do
+  action :install
+end
+
+template '/etc/default/ufw' do
+  action [:create]
+  owner  'root'
+  group  'root'
+  mode   '0644'
+  source 'ufw/default.erb'
+end

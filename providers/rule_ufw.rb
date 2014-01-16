@@ -39,10 +39,11 @@ action :reject do
 end
 
 private
+
 # ufw allow from 192.168.0.4 to any port 22
 # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25
 # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
-def apply_rule(type = nil) # rubocop:disable MethodLength
+def apply_rule(type = nil) # rubocop:disable MethodLength, CyclomaticComplexity
   if rule_exists?
     Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")
   else
