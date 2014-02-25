@@ -3,6 +3,11 @@ firewall Cookbook CHANGELOG
 This file is used to list changes made in each version of the firewall cookbook.
 
 
+v0.11.4 (2014-02-25)
+--------------------
+[COOK-4140] Only notify when a rule is actually added
+
+
 v0.11.2
 -------
 ### Bug
