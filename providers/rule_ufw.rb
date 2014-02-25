@@ -18,23 +18,39 @@
 # limitations under the License.
 #
 
+def whyrun_supported?
+  true
+end
+
 include Chef::Mixin::ShellOut
 
 action :allow do
-  converge_by("Allowing #{new_resource.source} firewall_rule") do
-    apply_rule('allow')
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already allowed - skipping"
+  else
+    converge_by("Allowing #{rule}") do
+      apply_rule('allow')
+    end
   end
 end
 
 action :deny do
-  converge_by("Denying #{new_resource.source} firewall_rule") do
-    apply_rule('deny')
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already denied - skipping"
+  else
+    converge_by("Denying #{rule}") do
+      apply_rule('deny')
+    end
   end
 end
 
 action :reject do
-  converge_by("Rejecting #{new_resource.source} firewall_rule") do
-    apply_rule('reject')
+  if rule_exists?
+    Chef::Log.debug "Rule #{rule} already rejected - skipping"
+  else
+    converge_by("Rejecting #{rule}") do
+      apply_rule('reject')
+    end
   end
 end
 
@@ -43,48 +59,17 @@ private
 # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25
 # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
 def apply_rule(type = nil) # rubocop:disable MethodLength
-  if rule_exists?
-    Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")
-  else
-    ufw_command = 'ufw '
-    ufw_command << "insert #{@new_resource.position} " if @new_resource.position
-    ufw_command << "#{type} "
-    ufw_command << "#{@new_resource.direction} " if @new_resource.direction
-    if @new_resource.interface
-      if @new_resource.direction
-        ufw_command << "on #{@new_resource.interface} "
-      else
-        ufw_command << "in on #{@new_resource.interface} "
-      end
-    end
-    ufw_command << logging
-    ufw_command << "proto #{@new_resource.protocol} " if @new_resource.protocol
-    if @new_resource.source
-      ufw_command << "from #{@new_resource.source} "
-    else
-      ufw_command << 'from any '
-    end
-    ufw_command << "port #{@new_resource.dest_port} " if @new_resource.dest_port
-    if @new_resource.destination
-      ufw_command << "to #{@new_resource.destination} "
-    else
-      ufw_command << 'to any '
-    end
-    if @new_resource.port
-      ufw_command << "port #{@new_resource.port} "
-    elsif @new_resource.ports
-      ufw_command << "port #{@new_resource.ports.join(',')} "
-    elsif @new_resource.port_range
-      ufw_command << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
-    end
+  ufw_command = 'ufw '
+  ufw_command << "insert #{@new_resource.position} " if @new_resource.position
+  ufw_command << "#{type} "
+  ufw_command << "#{rule} "
 
-    Chef::Log.debug("ufw: #{ufw_command}")
-    shell_out!(ufw_command)
+  Chef::Log.debug("ufw: #{ufw_command}")
+  shell_out!(ufw_command)
 
-    Chef::Log.info("#{@new_resource} #{type} rule added")
-    shell_out!('ufw status verbose') # purely for the Chef::Log.debug output
-    new_resource.updated_by_last_action(true)
-  end
+  Chef::Log.info("#{@new_resource} #{type} rule added")
+  shell_out!('ufw status verbose') # purely for the Chef::Log.debug output
+  new_resource.updated_by_last_action(true)
 end
 
 def logging
@@ -98,8 +83,37 @@ def logging
   end
 end
 
-def port_and_proto
-  @new_resource.protocol ? "#{@new_resource.port}/#{@new_resource.protocol}" : @new_resource.port
+def rule
+  rule = ''
+  rule << "#{@new_resource.direction} " if @new_resource.direction
+  if @new_resource.interface
+    if @new_resource.direction
+      rule << "on #{@new_resource.interface} "
+    else
+      rule << "in on #{@new_resource.interface} "
+    end
+  end
+  rule << logging
+  rule << "proto #{@new_resource.protocol} " if @new_resource.protocol
+  if @new_resource.source
+    rule << "from #{@new_resource.source} "
+  else
+    rule << 'from any '
+  end
+  rule << "port #{@new_resource.dest_port} " if @new_resource.dest_port
+  if @new_resource.destination
+    rule << "to #{@new_resource.destination} "
+  else
+    rule << 'to any '
+  end
+  if @new_resource.port
+    rule << "port #{@new_resource.port} "
+  elsif @new_resource.ports
+    rule << "port #{@new_resource.ports.join(',')} "
+  elsif @new_resource.port_range
+    rule << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
+  end
+  rule.strip
 end
 
 # TODO: currently only works when firewall is enabled
@@ -108,5 +122,43 @@ def rule_exists?
   # --                         ------      ----
   # 22                         ALLOW       Anywhere
   # 192.168.0.1 25/tcp         DENY        10.0.0.0/8
-  shell_out!('ufw status').stdout =~ /^(#{@new_resource.destination}\s)?#{port_and_proto}\s.*(#{@new_resource.action.to_s})\s.*#{@new_resource.source || 'Anywhere'}$/i
+  # 22                         ALLOW       Anywhere
+  # 3309 on eth9               ALLOW       Anywhere
+  # Anywhere                   ALLOW       Anywhere
+  # 80                         ALLOW       Anywhere (log)
+  # 8080                       DENY        192.168.1.0/24
+  # 1.2.3.5 5469/udp           ALLOW       1.2.3.4 5469/udp
+  # 3308                       ALLOW       OUT Anywhere on eth8
+
+  to = ''
+  if @new_resource.destination
+    to << "#{Regexp.escape(@new_resource.destination)}\s"
+  end
+  if @new_resource.protocol && @new_resource.port
+    to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
+  elsif @new_resource.port
+    to << "#{Regexp.escape(@new_resource.port)}\s"
+  end
+  if to.empty?
+    to << "Anywhere\s"
+  end
+
+  action = @new_resource.action
+  action = action.first if action.is_a?(Enumerable)
+  action = "#{Regexp.escape(action.to_s.upcase)}\s"
+
+  from = ''
+  from << "#{Regexp.escape(@new_resource.source || 'Anywhere')}"
+
+  regex = /^#{to}.*#{action}.*#{from}.*$/
+
+  match = shell_out!('ufw status').stdout.lines.find do |line|
+    # TODO: support IPv6
+    return false if line =~ /\(v6\)$/
+    line =~ regex
+  end
+
+  Chef::Log.debug("ufw: found existing rule for \"#{rule}\": \"#{match.strip}\"") if match
+
+  !!match
 end
