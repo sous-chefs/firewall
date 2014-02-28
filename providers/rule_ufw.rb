@@ -137,7 +137,7 @@ def rule_exists?
   if @new_resource.protocol && @new_resource.port
     to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
   elsif @new_resource.port
-    to << "#{Regexp.escape(@new_resource.port)}\s"
+    to << "#{Regexp.escape("#{@new_resource.port}")}\s"
   end
   if to.empty?
     to << "Anywhere\s"
