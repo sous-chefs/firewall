@@ -55,6 +55,7 @@ action :reject do
 end
 
 private
+
 # ufw allow from 192.168.0.4 to any port 22
 # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25
 # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
@@ -131,17 +132,15 @@ def rule_exists?
   # 3308                       ALLOW       OUT Anywhere on eth8
 
   to = ''
-  if @new_resource.destination
-    to << "#{Regexp.escape(@new_resource.destination)}\s"
-  end
+  to << "#{Regexp.escape(@new_resource.destination)}\s" if @new_resource.destination
+
   if @new_resource.protocol && @new_resource.port
     to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
   elsif @new_resource.port
     to << "#{Regexp.escape("#{@new_resource.port}")}\s"
   end
-  if to.empty?
-    to << "Anywhere\s"
-  end
+
+  to << "Anywhere\s" if to.empty?
 
   action = @new_resource.action
   action = action.first if action.is_a?(Enumerable)

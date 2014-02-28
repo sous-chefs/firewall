@@ -9,3 +9,10 @@ LineLength:
 
 HashSyntax:
   EnforcedStyle: hash_rockets
+
+CyclomaticComplexity:
+  Max: 11
+
+# Configuration parameters: CountComments.
+MethodLength:
+  Max: 30

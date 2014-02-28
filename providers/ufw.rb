@@ -45,6 +45,7 @@ action :disable do
 end
 
 private
+
 def active?
   @active ||= begin
     cmd = shell_out!('ufw status')
