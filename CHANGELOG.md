@@ -3,6 +3,11 @@ firewall Cookbook CHANGELOG
 This file is used to list changes made in each version of the firewall cookbook.
 
 
+v0.11.6 (2014-02-28)
+--------------------
+[COOK-4385] - UFW provider is broken
+
+
 v0.11.4 (2014-02-25)
 --------------------
 [COOK-4140] Only notify when a rule is actually added
