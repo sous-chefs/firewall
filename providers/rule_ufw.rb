@@ -149,7 +149,11 @@ def rule_exists?
   from = ''
   from << "#{Regexp.escape(@new_resource.source || 'Anywhere')}"
 
-  regex = /^#{to}.*#{action}.*#{from}.*$/
+  if @new_resource.direction == :out
+    regex = /^#{to}.*#{action}OUT\s.*#{from}.*$/
+  else
+    regex = /^#{to}.*#{action}.*#{from}.*$/
+  end
 
   match = shell_out!('ufw status').stdout.lines.find do |line|
     # TODO: support IPv6
