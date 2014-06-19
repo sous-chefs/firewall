@@ -62,7 +62,7 @@ def apply_rule(type=nil)
   Chef::Log.debug("#{@new_resource}: #{firewall_rule}")
   unless rule_exists?firewall_rule
     shell_out!(firewall_command+firewall_rule)
-    Chef::Log.info("#{@new_resource} #{type} rule added into iptables")
+    Chef::Log.info(firewall_rule)
     @new_resource.updated_by_last_action(true)
   else
     Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")

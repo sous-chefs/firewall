@@ -25,7 +25,7 @@ package "iptables"
     :provider => Chef::Provider::FirewallIptables
   )
   Chef::Platform.set(
-    :resource => :firewall,
+    :resource => :firewall_rule,
     :provider => Chef::Provider::FirewallRuleIptables
   )
 end
