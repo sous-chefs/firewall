@@ -12,4 +12,4 @@ suites:
   - name: default
     run_list:
       - recipe[firewall::default]
-      - recipe[firewall-test::default]
+      - recipe[fake::default]
