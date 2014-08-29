@@ -15,4 +15,14 @@ CyclomaticComplexity:
 
 # Configuration parameters: CountComments.
 MethodLength:
-  Max: 30
+  Max: 35
+
+Metrics/PerceivedComplexity:
+  Max: 15
+
+Style/DoubleNegation:
+  Enabled: false
+
+# Configuration parameters: MaxSlashes.
+Style/RegexpLiteral:
+  Enabled: false
