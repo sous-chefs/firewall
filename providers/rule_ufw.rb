@@ -150,9 +150,9 @@ def rule_exists?
   from << "#{Regexp.escape(@new_resource.source || 'Anywhere')}"
 
   if @new_resource.direction == :out
-    regex = /^#{to}.*#{action}OUT\s.*#{from}.*$/
+    regex = /^#{to}.*#{action}OUT\s.*#{from}$/
   else
-    regex = /^#{to}.*#{action}.*#{from}.*$/
+    regex = /^#{to}.*#{action}.*#{from}$/
   end
 
   match = shell_out!('ufw status').stdout.lines.find do |line|
