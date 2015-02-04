@@ -3,6 +3,7 @@ driver_config:
   require_chef_omnibus: true
 
 platforms:
+  - name: ubuntu-14.04
   - name: ubuntu-13.04
   - name: ubuntu-12.04
   - name: ubuntu-10.04
@@ -11,5 +12,6 @@ platforms:
 suites:
   - name: default
     run_list:
+      - recipe[apt]
       - recipe[firewall::default]
       - recipe[firewall-test::default]

@@ -130,6 +130,18 @@ def rule_port
   rule
 end
 
+
+def rule_logging
+  case @new_resource.logging
+  when :connections
+    'log '
+  when :packets
+    'log-all '
+  else
+    ''
+  end
+end
+
 # TODO: currently only works when firewall is enabled
 def rule_exists?
   # To                         Action      From

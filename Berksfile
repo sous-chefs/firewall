@@ -1,7 +1,8 @@
-site :opscode
+source "https://supermarket.chef.io"
+
 metadata
 
 group :integration do
   cookbook 'apt', '~> 2.0'
-  cookbook 'fake', :path => 'test/fixtures/cookbooks/fake'
+  cookbook 'firewall-test', :path => 'test/fixtures/cookbooks/firewall-test'
 end
