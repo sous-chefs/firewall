@@ -1,6 +1,6 @@
 if defined?(ChefSpec)
-  ChefSpec::Runner.define_runner_method(:firewall)
-  ChefSpec::Runner.define_runner_method(:firewall_rule)
+  ChefSpec.define_matcher(:firewall)
+  ChefSpec.define_matcher(:firewall_rule)
 
   def enable_firewall(resource)
     ChefSpec::Matchers::ResourceMatcher.new(:firewall, :enable, resource)
