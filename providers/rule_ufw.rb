@@ -73,18 +73,17 @@ def apply_rule(type = nil) # rubocop:disable MethodLength
   new_resource.updated_by_last_action(true)
 end
 
-def logging
-  case @new_resource.logging
-  when :connections
-    'log '
-  when :packets
-    'log-all '
-  else
-    ''
-  end
+def rule
+  rule = ''
+  rule << rule_interface
+  rule << rule_logging
+  rule << rule_proto
+  rule << rule_dest_port
+  rule << rule_port
+  rule.strip
 end
 
-def rule
+def rule_interface
   rule = ''
   rule << "#{@new_resource.direction} " if @new_resource.direction
   if @new_resource.interface
@@ -94,19 +93,33 @@ def rule
       rule << "in on #{@new_resource.interface} "
     end
   end
-  rule << logging
+  rule
+end
+
+def rule_proto
+  rule = ''
   rule << "proto #{@new_resource.protocol} " if @new_resource.protocol
   if @new_resource.source
     rule << "from #{@new_resource.source} "
   else
     rule << 'from any '
   end
+  rule
+end
+
+def rule_dest_port
+  rule = ''
   rule << "port #{@new_resource.dest_port} " if @new_resource.dest_port
   if @new_resource.destination
     rule << "to #{@new_resource.destination} "
   else
     rule << 'to any '
   end
+  rule
+end
+
+def rule_port
+  rule = ''
   if @new_resource.port
     rule << "port #{@new_resource.port} "
   elsif @new_resource.ports
@@ -114,7 +127,7 @@ def rule
   elsif @new_resource.port_range
     rule << "port #{@new_resource.port_range.first}:#{@new_resource.port_range.last} "
   end
-  rule.strip
+  rule
 end
 
 # TODO: currently only works when firewall is enabled
@@ -131,29 +144,10 @@ def rule_exists?
   # 1.2.3.5 5469/udp           ALLOW       1.2.3.4 5469/udp
   # 3308                       ALLOW       OUT Anywhere on eth8
 
-  to = ''
-  to << "#{Regexp.escape(@new_resource.destination)}\s" if @new_resource.destination
-
-  if @new_resource.protocol && @new_resource.port
-    to << "#{Regexp.escape("#{@new_resource.port}/#{@new_resource.protocol}")}\s"
-  elsif @new_resource.port
-    to << "#{Regexp.escape("#{@new_resource.port}")}\s"
-  end
-
-  to << "Anywhere\s" if to.empty?
-
-  action = @new_resource.action
-  action = action.first if action.is_a?(Enumerable)
-  action = "#{Regexp.escape(action.to_s.upcase)}\s"
-
-  from = ''
-  from << "#{Regexp.escape(@new_resource.source || 'Anywhere')}"
-
-  if @new_resource.direction == :out
-    regex = /^#{to}.*#{action}OUT\s.*#{from}.*$/
-  else
-    regex = /^#{to}.*#{action}.*#{from}.*$/
-  end
+  to = rule_exists_to?
+  action = rule_exists_action?
+  from = rule_exists_from?
+  regex = rule_exists_regex?(to, action, from)
 
   match = shell_out!('ufw status').stdout.lines.find do |line|
     # TODO: support IPv6
@@ -162,6 +156,51 @@ def rule_exists?
   end
 
   Chef::Log.debug("ufw: found existing rule for \"#{rule}\": \"#{match.strip}\"") if match
+  match
+end
 
-  !!match
+def rule_exists_to?
+  to = ''
+  to << rule_exists_dest?
+  to << rule_exists_proto?
+
+  if to.empty?
+    to << "Anywhere\s"
+  else
+    to
+  end
+end
+
+def rule_exists_action?
+  action = @new_resource.action
+  action = action.first if action.is_a?(Enumerable)
+  "#{Regexp.escape(action.to_s.upcase)}\s"
+end
+
+def rule_exists_from?
+  Regexp.escape(@new_resource.source || 'Anywhere')
+end
+
+def rule_exists_dest?
+  if @new_resource.destination
+    "#{Regexp.escape(@new_resource.destination)}\s"
+  else
+    ''
+  end
+end
+
+def rule_exists_regex?(to, action, from)
+  if @new_resource.direction == :out
+    /^#{to}.*#{action}OUT\s.*#{from}.*$/
+  else
+    /^#{to}.*#{action}.*#{from}.*$/
+  end
+end
+
+def rule_exists_proto?
+  if @new_resource.protocol && @new_resource.port
+    "#{Regexp.escape(@new_resource.port)}/#{Regexp.escape(@new_resource.protocol)}\s"
+  elsif @new_resource.port
+    "#{Regexp.escape("#{@new_resource.port}")}\s"
+  end
 end
