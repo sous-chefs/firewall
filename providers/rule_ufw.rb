@@ -191,9 +191,9 @@ end
 
 def rule_exists_regex?(to, action, from)
   if @new_resource.direction == :out
-    /^#{to}.*#{action}OUT\s.*#{from}.*$/
+    /^#{to}.*#{action}OUT\s.*#{from}$/
   else
-    /^#{to}.*#{action}.*#{from}.*$/
+    /^#{to}.*#{action}.*#{from}$/
   end
 end
 
