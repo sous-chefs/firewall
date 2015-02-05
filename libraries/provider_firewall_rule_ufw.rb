@@ -27,7 +27,9 @@ class Chef
       if rule_exists?
         Chef::Log.debug "Rule #{rule} already allowed - skipping"
       else
-        apply_rule('allow')
+        converge_by("Allowing #{rule}") do
+          apply_rule('allow')
+        end
       end
     end
 
@@ -35,7 +37,9 @@ class Chef
       if rule_exists?
         Chef::Log.debug "Rule #{rule} already denied - skipping"
       else
-        apply_rule('deny')
+        converge_by("Denying #{rule}") do
+          apply_rule('deny')
+        end
       end
     end
 
@@ -43,7 +47,9 @@ class Chef
       if rule_exists?
         Chef::Log.debug "Rule #{rule} already rejected - skipping"
       else
-        apply_rule('reject')
+        converge_by("Rejecting #{rule}") do
+          apply_rule('reject')
+        end
       end
     end
 
