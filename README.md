@@ -66,9 +66,7 @@ end
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
 - protocol: valid values are: :udp, :tcp. default is all protocols
-- port: incoming port number (ie. 22 to allow inbound SSH)
-- ports: array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with `ports`
-- port_range: range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol` attribute is required with `port_range`
+- port: incoming port number (ie. 22 to allow inbound SSH), or an array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with `ports`, or a range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol`, or an attribute is required with `port_range`
 - source: ip address or subnet to filter on incoming traffic. default is `0.0.0.0/0` (ie Anywhere)
 - destination: ip address or subnet to filter on outgoing traffic.
 - dest_port: outgoing port number.

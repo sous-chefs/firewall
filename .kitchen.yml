@@ -4,10 +4,8 @@ driver_config:
 
 platforms:
   - name: ubuntu-14.04
-  - name: ubuntu-13.04
   - name: ubuntu-12.04
-  - name: ubuntu-10.04
-  - name: debian-7.1.0
+  - name: debian-7.8
 
 suites:
   - name: default
