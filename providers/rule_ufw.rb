@@ -25,30 +25,30 @@ end
 include Chef::Mixin::ShellOut
 
 action :allow do
-  if rule_exists?
+  if rule_exists? && ! @new_resource.delete
     Chef::Log.debug "Rule #{rule} already allowed - skipping"
   else
-    converge_by("Allowing #{rule}") do
+    converge_by(@new_resource.delete ? "Deleting ALLOW #{rule}" : "Allowing #{rule}") do
       apply_rule('allow')
     end
   end
 end
 
 action :deny do
-  if rule_exists?
+  if rule_exists? ! @new_resource.delete
     Chef::Log.debug "Rule #{rule} already denied - skipping"
   else
-    converge_by("Denying #{rule}") do
+    converge_by(@new_resource.delete ? "Deleting DENY #{rule}" : "Denying #{rule}") do
       apply_rule('deny')
     end
   end
 end
 
 action :reject do
-  if rule_exists?
+  if rule_exists? ! @new_resource.delete
     Chef::Log.debug "Rule #{rule} already rejected - skipping"
   else
-    converge_by("Rejecting #{rule}") do
+    converge_by(@new_resource.delete ? "Deleting REJECT #{rule}" : "Rejecting #{rule}") do
       apply_rule('reject')
     end
   end
@@ -61,6 +61,7 @@ private
 # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
 def apply_rule(type = nil) # rubocop:disable MethodLength
   ufw_command = 'ufw '
+  ufw_command << 'delete ' if @new_resource.delete
   ufw_command << "insert #{@new_resource.position} " if @new_resource.position
   ufw_command << "#{type} "
   ufw_command << "#{rule} "
@@ -68,7 +69,7 @@ def apply_rule(type = nil) # rubocop:disable MethodLength
   Chef::Log.debug("ufw: #{ufw_command}")
   shell_out!(ufw_command)
 
-  Chef::Log.info("#{@new_resource} #{type} rule added")
+  Chef::Log.info("#{@new_resource} #{type} rule #{@new_resource.delete ? 'deleted' : 'added'}")
   shell_out!('ufw status verbose') # purely for the Chef::Log.debug output
   new_resource.updated_by_last_action(true)
 end

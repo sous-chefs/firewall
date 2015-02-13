@@ -33,6 +33,7 @@ attribute :source, :regex => IP_CIDR_VALID_REGEX
 attribute :destination, :regex => IP_CIDR_VALID_REGEX
 attribute :dest_port, :kind_of => Integer
 attribute :position, :kind_of => Integer
+attribute :delete, :default => false
 
 def initialize(name, run_context = nil)
   super
