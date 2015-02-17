@@ -16,7 +16,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-package 'ufw' do
-  action :install
-end
+include_recipe "firewall::#{node['platform_family']}"
