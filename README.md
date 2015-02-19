@@ -12,18 +12,23 @@ Requirements
 ### Platform
 * Ubuntu
 * Debian
+* RedHat
+* CentOs
 
 Tested on:
 * Ubuntu 10.04
 * Ubuntu 11.04
 * Ubuntu 11.10
 * Debian 7.0
-
+* RHEL 6.5
+* RHEL 7.0
+* CentoS 6.5
+* CentoS 7.0
 
 Recipes
 -------
 ### default
-The default recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
+The default recipe installs the `ufw`, `iptables` or `firewalld` package based on OS, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
 
 
 Resources/Providers
@@ -40,6 +45,10 @@ Resources/Providers
 #### Providers
 - `Chef::Provider::FirewallUfw`
     - platform default: Ubuntu
+- `Chef::Provider::FirewallIptables`
+    - platform default: Redhat and Centos < version 7
+- `Chef::Provider::FirewallFirewalld`
+    - platform default: Redhat and Centos >= version 7
 
 #### Examples
 
@@ -76,11 +85,18 @@ end
 - direction: direction of the rule. valid values are: :in, :out, default is :in
 - interface: interface to apply rule (ie. 'eth0').
 - logging: may be added to enable logging for a particular rule. valid values are: :connections, :packets. In the ufw provider, :connections logs new connections while :packets logs all packets.
+- description: a description of the rule (defaults to name)
+- raw: provide a raw rule to the provider (used by the zap provider to remove existing rules that should not be there)
+- state: state or states of the packet (for examplke NEW, ESTABLISHED or RELATED)
 
 #### Providers
 
 - `Chef::Provider::FirewallRuleUfw`
     - platform default: Ubuntu
+- `Chef::Provider::FirewallRuleIptables`
+    - platform default: Redhat and Centos < version 7
+- `Chef::Provider::FirewallRuleFirewalld`
+    - platform default: Redhat and Centos >= version 7
 
 #### Examples
 
@@ -122,6 +138,13 @@ end
 firewall_rule 'http/https' do
   protocol :tcp
   ports    [80, 443]
+  action   :allow
+end
+
+# Allow established and related
+firewall_rule 'established/related' do
+  protocol :tcp
+  state    [ :established, :related]
   action   :allow
 end
 
