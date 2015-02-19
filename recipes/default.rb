@@ -17,6 +17,13 @@
 # limitations under the License.
 #
 
-package 'ufw' do
-  action :install
+case node["platform_family"]
+when "debian"
+  package 'ufw'
+when 'rhel'
+  if node["platform_version"][0].to_i >= 7
+    package 'firewalld'
+  else
+    package 'iptables'
+  end
 end
