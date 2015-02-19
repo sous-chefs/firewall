@@ -1,9 +1,7 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Cookbook Name:: firwall
-# Resource:: default
-#
-# Copyright:: 2011, Opscode, Inc.
+# Author:: Ronald Doorn (<rdoorn@schubergphilis.com)
+# Cookbook Name:: firewall
+# Resource:: zone
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,38 +16,32 @@
 # limitations under the License.
 #
 
-actions :enable, :disable, :save
+actions :set
 
-attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
+attribute :zone, :kind_of => String, :name_attribute => true
+attribute :target, :kind_of => Symbol
 
 def initialize(name, run_context = nil)
   super
   set_platform_default_providers
-  @action = :enable
+  @action = :set
 end
 
 private
 
 def set_platform_default_providers
-  [:ubuntu, :debian].each do |platform|
-    Chef::Platform.set(
-      :platform => platform,
-      :resource => :firewall,
-      :provider => Chef::Provider::FirewallUfw
-    )
-  end
   [:redhat, :centos].each do |platform|
     if node['platform_version'][0] >= "7"
       Chef::Platform.set(
-        :platform => platform,
-        :resource => :firewall,
-        :provider => Chef::Provider::FirewallFirewalld
+          :platform => platform,
+          :resource => :firewall_zone,
+          :provider => Chef::Provider::FirewallZoneFirewalld
       )
     else
       Chef::Platform.set(
-        :platform => platform,
-        :resource => :firewall,
-        :provider => Chef::Provider::FirewallIptables
+          :platform => platform,
+          :resource => :firewall_zone,
+          :provider => Chef::Provider::FirewallZoneIptables
       )
     end
   end
