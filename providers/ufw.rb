@@ -45,7 +45,7 @@ action :disable do
 end
 
 action :default do
-  shell_out!("ufw #{@new_resource.default_policy}")
+  shell_out!("ufw default #{@new_resource.default_policy}")
   Chef::Log.info("#{@new_resource} default #{@new_resource.default_policy}")
   new_resource.updated_by_last_action(true)
 end
