@@ -21,7 +21,7 @@
 actions :enable, :disable, :default
 
 attribute :default_policy, :kind_of => Symbol, :equal_to => [:allow, :deny, :reject]
-attritube :default_direction, :kind_of => Symbol, :equal_to => [:incoming, :outgoing], :default => nil
+attribute :default_direction, :kind_of => Symbol, :equal_to => [:incoming, :outgoing], :default => nil
 attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
 
 def initialize(name, run_context = nil)
