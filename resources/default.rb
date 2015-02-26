@@ -18,8 +18,9 @@
 # limitations under the License.
 #
 
-actions :enable, :disable
+actions :enable, :disable, :default
 
+attribute :default_policy, :kind_of => String
 attribute :log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low
 
 def initialize(name, run_context = nil)
