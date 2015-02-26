@@ -32,10 +32,13 @@ Resources/Providers
 #### Actions
 - :enable: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
 - :disable: disable the firewall. drop any rules and put the node in an unprotected state.
+- :default: set default policy.
 
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this resource
 - log_level: level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full. default is :low.
+- default_policy: default policy. valid values are :allow, :deny, :reject.
+- default_direction: default direction. valid values are :incoming, :outgoing.
 
 #### Providers
 - `Chef::Provider::FirewallUfw`
@@ -53,6 +56,12 @@ end
 firewall 'debug firewalls' do
   log_level :high
   action    :enable
+end
+
+# set default rule
+firewall 'ufw' do
+  default_policy :allow
+  action :default
 end
 ```
 
