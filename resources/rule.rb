@@ -20,19 +20,26 @@
 
 IP_CIDR_VALID_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b(\/[0-3]?[0-9])?/
 
-actions :allow, :deny, :reject
+actions :allow, :deny, :reject, :remove, :log
 
 attribute :port, :kind_of => Integer
 attribute :ports, :kind_of => Array
 attribute :port_range, :kind_of => Range
-attribute :protocol, :kind_of => Symbol, :equal_to => [:udp, :tcp]
+attribute :protocol, :kind_of => Symbol, :equal_to => [:tcp, :udp, :udplite, :icmp, :esp, :ah, :sctp, :all]
 attribute :direction, :kind_of => Symbol, :equal_to => [:in, :out]
 attribute :interface, :kind_of => String
 attribute :logging, :kind_of => Symbol, :equal_to => [:connections, :packets]
 attribute :source, :regex => IP_CIDR_VALID_REGEX
 attribute :destination, :regex => IP_CIDR_VALID_REGEX
 attribute :dest_port, :kind_of => Integer
+attribute :dest_ports, :kind_of => Array
 attribute :position, :kind_of => Integer
+attribute :description, :kind_of => String, :name_attribute => true
+attribute :raw, :kind_of => String
+attribute :zap, :kind_of => String
+attribute :state, :kind_of => [ Symbol, Array ] # supported states INVALID, ESTABLISHED, NEW, RELATED, UNTRACKED
+
+attr_accessor :raw, :zap
 
 def initialize(name, run_context = nil)
   super
@@ -49,5 +56,20 @@ def set_platform_default_providers
         :resource => :firewall_rule,
         :provider => Chef::Provider::FirewallRuleUfw
     )
+  end
+  [:redhat, :centos].each do |platform|
+    if node['platform_version'][0] >= "7"
+      Chef::Platform.set(
+          :platform => platform,
+          :resource => :firewall_rule,
+          :provider => Chef::Provider::FirewallRuleFirewalld
+      )
+    else
+      Chef::Platform.set(
+          :platform => platform,
+          :resource => :firewall_rule,
+          :provider => Chef::Provider::FirewallRuleIptables
+      )
+    end
   end
 end
