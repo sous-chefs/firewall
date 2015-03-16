@@ -9,3 +9,5 @@ version '0.11.9'
 supports 'ubuntu'
 
 depends 'poise', '~> 1.0'
+
+recipe "cats::sleep", "For a crazy 20 hours a day."

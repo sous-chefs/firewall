@@ -21,20 +21,27 @@ class Chef
   class Provider::FirewallIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
+    provides :firewall, os: "linux", platform_family: [ "rhel" ]
 
     def action_enable
-      # prints all the firewall rules
-      # pp @new_resource.subresources
-      log_current_iptables
-      if active?
-        Chef::Log.debug("#{@new_resource} already enabled.")
-      else
-        Chef::Log.debug("#{@new_resource} is about to be enabled")
-        shell_out!("echo iptables -P INPUT DROP")
-        shell_out!("echo iptables -P OUTPUT DROP")
-        shell_out!("echo iptables -P FORWARD DROP")
-        Chef::Log.info("#{@new_resource} enabled.")
-        new_resource.updated_by_last_action(true)
+      converge_by('install package iptables and default DROP all rules') do
+        package 'iptables' do
+          action :install
+        end
+
+        # prints all the firewall rules
+        # pp @new_resource.subresources
+        log_current_iptables
+        if active?
+          Chef::Log.debug("#{@new_resource} already enabled.")
+        else
+          Chef::Log.debug("#{@new_resource} is about to be enabled")
+          shell_out!("echo iptables -P INPUT DROP")
+          shell_out!("echo iptables -P OUTPUT DROP")
+          shell_out!("echo iptables -P FORWARD DROP")
+          Chef::Log.info("#{@new_resource} enabled.")
+          new_resource.updated_by_last_action(true)
+        end
       end
     end
 

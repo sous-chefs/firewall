@@ -12,19 +12,26 @@ Requirements
 ### Platform
 * Ubuntu
 * Debian
+* Redhat
+* CentOS
 
 Tested on:
-* Ubuntu 10.04
-* Ubuntu 11.04
-* Ubuntu 11.10
-* Debian 7.0
+* Ubuntu 12.04
+* Ubuntu 14.04
+* Debian 7.8
+* CentOS 6.5
 
 
 Recipes
 -------
 ### default
-The default recipe installs the `ufw` package, which this cookbook requires. Make sure that the firewall recipe is in the node or role run_list before any resources from this cookbook is used.
+The default recipe creates a firewall resource with action install, and if `node['firewall']['allow_ssh']`, opens port 22 from the world.
 
+
+Attributes
+----------
+
+* `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 
 Resources/Providers
 -------------------
@@ -32,6 +39,7 @@ Resources/Providers
 #### Actions
 - :enable: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
 - :disable: disable the firewall. drop any rules and put the node in an unprotected state.
+- :flush: Runs `iptables -F`. Only supported by the iptables firewall provider.
 
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this resource
@@ -39,7 +47,10 @@ Resources/Providers
 
 #### Providers
 - `Chef::Provider::FirewallUfw`
-    - platform default: Ubuntu
+    - platform_family default: debian
+
+    - `Chef::Provider::FirewallIptables`
+        - platform_family default: rhel
 
 #### Examples
 
@@ -66,7 +77,7 @@ end
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
 - protocol: valid values are: :udp, :tcp. default is all protocols
-- port: incoming port number (ie. 22 to allow inbound SSH), or an array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with `ports`, or a range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol`, or an attribute is required with `port_range`
+- port: incoming port number (ie. 22 to allow inbound SSH), or an array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with multiple ports, or a range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol`, or an attribute is required with a range of ports.
 - source: ip address or subnet to filter on incoming traffic. default is `0.0.0.0/0` (ie Anywhere)
 - destination: ip address or subnet to filter on outgoing traffic.
 - dest_port: outgoing port number.
@@ -111,7 +122,7 @@ end
 # that the protocol attribute is required when using port_range
 firewall_rule 'mosh' do
   protocol   :udp
-  port_range 60000..61000
+  port       60000..61000
   action     :allow
 end
 
@@ -119,7 +130,7 @@ end
 # attribute is required when using ports
 firewall_rule 'http/https' do
   protocol :tcp
-  ports    [80, 443]
+  port     [80, 443]
   action   :allow
 end
 
@@ -165,7 +176,7 @@ License & Authors
 - Author:: Seth Chisamore (<schisamo@opscode.com>)
 
 ```text
-Copyright:: Copyright (c) 2011 Opscode, Inc.
+Copyright:: Copyright (c) 2011-2015 Opscode, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

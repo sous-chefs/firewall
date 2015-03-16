@@ -24,17 +24,33 @@ class Chef
     provides :firewall, os: "linux", platform_family: [ "debian" ]
 
     def action_enable
-      # new_resource.subresources contains all the firewall rules
-      if active?
-        Chef::Log.debug("#{new_resource} already enabled.")
-      else
-        shell_out!('ufw', 'enable', input: 'yes')
-        Chef::Log.info("#{new_resource} enabled")
-        if new_resource.log_level
-          shell_out!('ufw', 'logging', new_resource.log_level.to_s)
-          Chef::Log.info("#{new_resource} logging enabled at '#{new_resource.log_level}' level")
+      converge_by('install ufw, template some defaults, and ufw enable') do
+        package 'ufw' do
+          action :nothing
+        end.run_action(:install) # need this now if running in a provider
+
+        template '/etc/default/ufw' do
+          action [:create]
+          owner  'root'
+          group  'root'
+          mode   '0644'
+          source 'ufw/default.erb'
+          cookbook 'firewall'
+          action :nothing
+        end.run_action(:create) # need this now if running in a provider
+
+        # new_resource.subresources contains all the firewall rules
+        if active?
+          Chef::Log.debug("#{new_resource} already enabled.")
+        else
+          shell_out!('ufw', 'enable', input: 'yes')
+          Chef::Log.info("#{new_resource} enabled")
+          if new_resource.log_level
+            shell_out!('ufw', 'logging', new_resource.log_level.to_s)
+            Chef::Log.info("#{new_resource} logging enabled at '#{new_resource.log_level}' level")
+          end
+          new_resource.updated_by_last_action(true)
         end
-        new_resource.updated_by_last_action(true)
       end
     end
 

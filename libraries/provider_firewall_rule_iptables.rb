@@ -21,6 +21,8 @@ class Chef
   class Provider::FirewallRuleIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
+    include FirewallCookbook::Helpers
+    provides :firewall_rule, os: "linux", platform_family: [ "rhel" ]
 
     def action_allow
       converge_by("Allowing #{@new_resource.name}") do
@@ -66,17 +68,17 @@ class Chef
 
       firewall_rule = ""
       if @new_resource.direction
-        firewall_rule << "#{CHAIN[@new_resource.direction]} "
+        firewall_rule << "#{CHAIN[@new_resource.direction.to_sym]} "
       else
         firewall_rule << "FORWARD "
       end
-      if [:pre, :post].include?(@new_resource.direction)
+      if [:pre, :post].include?(@new_resource.direction.to_sym)
         firewall_rule << '-t nat '
       end
       firewall_rule << "-s #{@new_resource.source} " if @new_resource.source
       firewall_rule << "-p #{@new_resource.protocol} -m tcp " if @new_resource.protocol
-      firewall_rule << "--sport #{@new_resource.port} " if @new_resource.port
-      firewall_rule << "--dport #{@new_resource.dest_port} " if @new_resource.dest_port
+      firewall_rule << "--sport #{port_to_s(@new_resource.source_port)} " if @new_resource.source_port
+      firewall_rule << "--dport #{dport_calc} " if dport_calc
       firewall_rule << "-i #{@new_resource.interface} " if @new_resource.interface
       firewall_rule << "-o #{@new_resource.dest_interface} " if @new_resource.dest_interface
       firewall_rule << "-d #{@new_resource.destination} " if @new_resource.destination
@@ -124,5 +126,8 @@ class Chef
       false
     end
 
+    def dport_calc
+      new_resource.dest_port || new_resource.port
+    end
   end
 end

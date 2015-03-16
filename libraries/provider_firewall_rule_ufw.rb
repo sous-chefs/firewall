@@ -21,11 +21,13 @@ class Chef
   class Provider::FirewallRuleUfw < Provider
     include Poise
     include Chef::Mixin::ShellOut
+    include FirewallCookbook::Helpers
     provides :firewall_rule, os: "linux", platform_family: [ "debian" ]
 
     def action_allow
+      Chef::Log.info("#{new_resource.name} action_allow")
       if rule_exists?
-        Chef::Log.debug "Rule #{rule} already allowed - skipping"
+        Chef::Log.debug("Rule #{rule} already allowed - skipping")
       else
         converge_by("Allowing #{rule}") do
           apply_rule('allow')
@@ -34,8 +36,9 @@ class Chef
     end
 
     def action_deny
+      Chef::Log.info("#{new_resource.name} action_deny")
       if rule_exists?
-        Chef::Log.debug "Rule #{rule} already denied - skipping"
+        Chef::Log.debug("Rule #{rule} already denied - skipping")
       else
         converge_by("Denying #{rule}") do
           apply_rule('deny')
@@ -44,8 +47,9 @@ class Chef
     end
 
     def action_reject
+      Chef::Log.info("#{new_resource.name} action_reject")
       if rule_exists?
-        Chef::Log.debug "Rule #{rule} already rejected - skipping"
+        Chef::Log.debug("Rule #{rule} already rejected - skipping")
       else
         converge_by("Rejecting #{rule}") do
           apply_rule('reject')
@@ -56,6 +60,9 @@ class Chef
     private
 
     def apply_rule(type = nil) # rubocop:disable MethodLength
+      Chef::Log.info("#{new_resource.name} apply_rule #{type}")
+      # if we don't do this, we may see some bugs where traffic is opened on all ports to all hosts when only RELATED,ESTABLISHED was intended
+      fail "firewall_rule[#{new_resource.name}] was asked to #{type} a stateful rule using #{new_resource.stateful} but ufw does not support this kind of rule. Consider guarding by platform_family." if new_resource.stateful
 
       # some examples:
       # ufw allow from 192.168.0.4 to any port 22
@@ -81,7 +88,7 @@ class Chef
       rule << rule_logging
       rule << rule_proto
       rule << rule_dest_port
-      rule << rule_port
+      rule << rule_source_port
       rule.strip
     end
 
@@ -101,33 +108,36 @@ class Chef
     def rule_proto
       rule = ''
       rule << "proto #{new_resource.protocol.to_s} " if new_resource.protocol
-      if new_resource.source
-        rule << "from #{new_resource.source} "
-      else
-        rule << 'from any '
-      end
       rule
     end
 
     def rule_dest_port
       rule = ''
-      rule << "port #{new_resource.dest_port} " if new_resource.dest_port
+
       if new_resource.destination
         rule << "to #{new_resource.destination} "
       else
         rule << 'to any '
       end
+
+      if dport_calc
+        rule << "port #{port_to_s(dport_calc)} "
+      end
+
       rule
     end
 
-    def rule_port
+    def rule_source_port
       rule = ''
-      if new_resource.port && new_resource.port.is_a?(Integer)
-        rule << "port #{new_resource.port} "
-      elsif new_resource.port && new_resource.port.is_a?(Array)
-        rule << "port #{new_resource.port.join(',')} "
-      elsif new_resource.port && new_resource.port.is_a?(Range)
-        rule << "port #{new_resource.port.first}:#{new_resource.port.last} "
+
+      if new_resource.source
+        rule << "from #{new_resource.source} "
+      else
+        rule << 'from any '
+      end
+
+      if new_resource.source_port
+        rule << "port #{port_to_s(new_resource.source_port)} "
       end
       rule
     end
@@ -145,6 +155,7 @@ class Chef
 
     # TODO: currently only works when firewall is enabled
     def rule_exists?
+      Chef::Log.info("#{new_resource.name} rule_exists?")
       # To                         Action      From
       # --                         ------      ----
       # 22                         ALLOW       Anywhere
@@ -175,7 +186,9 @@ class Chef
     def rule_exists_to?
       to = ''
       to << rule_exists_dest?
-      to << rule_exists_proto?
+
+      proto = rule_exists_proto?
+      to << proto if proto
 
       if to.empty?
         to << "Anywhere\s"
@@ -203,20 +216,23 @@ class Chef
     end
 
     def rule_exists_regex?(to, action, from)
-      if new_resource.direction && new_resource.direction.to_sym == :out
+      if to && new_resource.direction && new_resource.direction.to_sym == :out
         /^#{to}.*#{action}OUT\s.*#{from}$/
-      else
+      elsif to
         /^#{to}.*#{action}.*#{from}$/
       end
     end
 
     def rule_exists_proto?
-      if new_resource.protocol && new_resource.port
-        "#{Regexp.escape(new_resource.port)}/#{Regexp.escape(new_resource.protocol)}\s"
-      elsif new_resource.port
-        "#{Regexp.escape("#{new_resource.port}")}\s"
+      if new_resource.protocol && dport_calc
+        "port #{Regexp.escape(port_to_s(dport_calc))}/#{Regexp.escape(new_resource.protocol)}\s "
+      elsif dport_calc
+        "port #{Regexp.escape("#{port_to_s(dport_calc)}")}\s "
       end
     end
 
+    def dport_calc
+      new_resource.dest_port || new_resource.port
+    end
   end
 end
