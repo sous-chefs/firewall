@@ -30,9 +30,9 @@ class Chef
         Chef::Log.debug("#{@new_resource} already enabled.")
       else
         Chef::Log.debug("#{@new_resource} is about to be enabled")
-        shell_out!("echo iptables -P INPUT DROP")
-        shell_out!("echo iptables -P OUTPUT DROP")
-        shell_out!("echo iptables -P FORWARD DROP")
+        shell_out!("iptables -P INPUT DROP")
+        shell_out!("iptables -P OUTPUT DROP")
+        shell_out!("iptables -P FORWARD DROP")
         Chef::Log.info("#{@new_resource} enabled.")
         new_resource.updated_by_last_action(true)
       end
