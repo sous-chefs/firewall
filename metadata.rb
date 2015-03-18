@@ -7,5 +7,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '0.11.9'
 
 supports 'ubuntu'
+supports 'redhat'
+supports 'centos'
 
 depends 'poise', '~> 1.0'
