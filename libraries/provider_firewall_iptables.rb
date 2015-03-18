@@ -30,16 +30,16 @@ class Chef
         end
 
         # prints all the firewall rules
-        # pp @new_resource.subresources
+        # pp new_resource.subresources
         log_current_iptables
         if active?
-          Chef::Log.debug("#{@new_resource} already enabled.")
+          Chef::Log.debug("#{new_resource} already enabled.")
         else
-          Chef::Log.debug("#{@new_resource} is about to be enabled")
+          Chef::Log.debug("#{new_resource} is about to be enabled")
           shell_out!("iptables -P INPUT DROP")
           shell_out!("iptables -P OUTPUT DROP")
           shell_out!("iptables -P FORWARD DROP")
-          Chef::Log.info("#{@new_resource} enabled.")
+          Chef::Log.info("#{new_resource} enabled.")
           new_resource.updated_by_last_action(true)
         end
       end
@@ -51,21 +51,21 @@ class Chef
         shell_out!("iptables -P OUTPUT ACCEPT")
         shell_out!("iptables -P FORWARD ACCEPT")
         shell_out!("iptables -F")
-        Chef::Log.info("#{@new_resource} disabled")
+        Chef::Log.info("#{new_resource} disabled")
         new_resource.updated_by_last_action(true)
       else
-        Chef::Log.debug("#{@new_resource} already disabled.")
+        Chef::Log.debug("#{new_resource} already disabled.")
       end
     end
 
     def action_flush
       shell_out!("iptables -F")
-      Chef::Log.info("#{@new_resource} flushed.")
+      Chef::Log.info("#{new_resource} flushed.")
     end
 
     def action_save
       shell_out!("service iptables save")
-      Chef::Log.info("#{@new_resource} saved.")
+      Chef::Log.info("#{new_resource} saved.")
     end
 
     private
@@ -79,11 +79,11 @@ class Chef
 
     def log_current_iptables
       cmdstr = 'iptables -L'
-      Chef::Log.info("#{@new_resource} log_current_iptables (#{cmdstr}):")
+      Chef::Log.info("#{new_resource} log_current_iptables (#{cmdstr}):")
       cmd = shell_out!(cmdstr)
       Chef::Log.info(cmd.inspect)
     rescue
-      Chef::Log.info("#{@new_resource} log_current_iptables failed!")
+      Chef::Log.info("#{new_resource} log_current_iptables failed!")
     end
   end
 end
