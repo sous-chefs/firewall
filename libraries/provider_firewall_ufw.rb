@@ -21,7 +21,7 @@ class Chef
   class Provider::FirewallUfw < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    provides :firewall, os: "linux", platform_family: [ "debian" ]
+    provides :firewall, :os => 'linux', :platform_family => ['debian']
 
     def action_enable
       converge_by('install ufw, template some defaults, and ufw enable') do
@@ -31,9 +31,9 @@ class Chef
 
         template '/etc/default/ufw' do
           action [:create]
-          owner  'root'
-          group  'root'
-          mode   '0644'
+          owner 'root'
+          group 'root'
+          mode '0644'
           source 'ufw/default.erb'
           cookbook 'firewall'
           action :nothing
@@ -43,7 +43,7 @@ class Chef
         if active?
           Chef::Log.debug("#{new_resource} already enabled.")
         else
-          shell_out!('ufw', 'enable', input: 'yes')
+          shell_out!('ufw', 'enable', :input => 'yes')
           Chef::Log.info("#{new_resource} enabled")
           if new_resource.log_level
             shell_out!('ufw', 'logging', new_resource.log_level.to_s)
@@ -56,7 +56,7 @@ class Chef
 
     def action_disable
       if active?
-        shell_out!('ufw','disable')
+        shell_out!('ufw', 'disable')
         Chef::Log.info("#{new_resource} disabled")
         new_resource.updated_by_last_action(true)
       else
@@ -68,7 +68,7 @@ class Chef
 
     def active?
       @active ||= begin
-        cmd = shell_out!('ufw','status')
+        cmd = shell_out!('ufw', 'status')
         cmd.stdout =~ /^Status:\sactive/
       end
     end

@@ -21,10 +21,10 @@ class Chef
   class Provider::FirewallIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    provides :firewall, os: "linux", platform_family: [ "rhel" ]
+    provides :firewall, :os => 'linux', :platform_family => ['rhel']
 
     def action_enable
-      converge_by('install package iptables and default DROP all rules') do
+      converge_by('install package iptables and default DROP if no rules exist') do
         package 'iptables' do
           action :install
         end
@@ -33,12 +33,12 @@ class Chef
         # pp new_resource.subresources
         log_current_iptables
         if active?
-          Chef::Log.debug("#{new_resource} already enabled.")
+          Chef::Log.info("#{new_resource} already enabled.")
         else
           Chef::Log.debug("#{new_resource} is about to be enabled")
-          shell_out!("iptables -P INPUT DROP")
-          shell_out!("iptables -P OUTPUT DROP")
-          shell_out!("iptables -P FORWARD DROP")
+          shell_out!('iptables -P INPUT DROP')
+          shell_out!('iptables -P OUTPUT DROP')
+          shell_out!('iptables -P FORWARD DROP')
           Chef::Log.info("#{new_resource} enabled.")
           new_resource.updated_by_last_action(true)
         end
@@ -47,10 +47,10 @@ class Chef
 
     def action_disable
       if active?
-        shell_out!("iptables -P INPUT ACCEPT")
-        shell_out!("iptables -P OUTPUT ACCEPT")
-        shell_out!("iptables -P FORWARD ACCEPT")
-        shell_out!("iptables -F")
+        shell_out!('iptables -P INPUT ACCEPT')
+        shell_out!('iptables -P OUTPUT ACCEPT')
+        shell_out!('iptables -P FORWARD ACCEPT')
+        shell_out!('iptables -F')
         Chef::Log.info("#{new_resource} disabled")
         new_resource.updated_by_last_action(true)
       else
@@ -59,12 +59,12 @@ class Chef
     end
 
     def action_flush
-      shell_out!("iptables -F")
+      shell_out!('iptables -F')
       Chef::Log.info("#{new_resource} flushed.")
     end
 
     def action_save
-      shell_out!("service iptables save")
+      shell_out!('service iptables save')
       Chef::Log.info("#{new_resource} saved.")
     end
 

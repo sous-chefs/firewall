@@ -1,6 +1,6 @@
 class Chef
   class Resource::Firewall < Resource
-    include Poise(container: true)
+    include Poise(:container => true)
     provides :firewall_rule
 
     actions(:enable, :disable, :flush, :save)

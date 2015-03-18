@@ -22,7 +22,7 @@ class Chef
     include Poise
     include Chef::Mixin::ShellOut
     include FirewallCookbook::Helpers
-    provides :firewall_rule, os: "linux", platform_family: [ "debian" ]
+    provides :firewall_rule, :os => 'linux', :platform_family => ['debian']
 
     def action_allow
       Chef::Log.info("#{new_resource.name} action_allow")
@@ -62,7 +62,13 @@ class Chef
     def apply_rule(type = nil) # rubocop:disable MethodLength
       Chef::Log.info("#{new_resource.name} apply_rule #{type}")
       # if we don't do this, we may see some bugs where traffic is opened on all ports to all hosts when only RELATED,ESTABLISHED was intended
-      fail "firewall_rule[#{new_resource.name}] was asked to #{type} a stateful rule using #{new_resource.stateful} but ufw does not support this kind of rule. Consider guarding by platform_family." if new_resource.stateful
+      if new_resource.stateful
+        msg = ''
+        msg << "firewall_rule[#{new_resource.name}] was asked to "
+        msg << "#{type} a stateful rule using #{new_resource.stateful} "
+        msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
+        fail msg
+      end
 
       # some examples:
       # ufw allow from 192.168.0.4 to any port 22
@@ -94,7 +100,7 @@ class Chef
 
     def rule_interface
       rule = ''
-      rule << "#{new_resource.direction.to_s} " if new_resource.direction
+      rule << "#{new_resource.direction} " if new_resource.direction
       if new_resource.interface
         if new_resource.direction
           rule << "on #{new_resource.interface} "
@@ -107,23 +113,18 @@ class Chef
 
     def rule_proto
       rule = ''
-      rule << "proto #{new_resource.protocol.to_s} " if new_resource.protocol
+      rule << "proto #{new_resource.protocol} " if new_resource.protocol
       rule
     end
 
     def rule_dest_port
       rule = ''
-
       if new_resource.destination
         rule << "to #{new_resource.destination} "
       else
         rule << 'to any '
       end
-
-      if dport_calc
-        rule << "port #{port_to_s(dport_calc)} "
-      end
-
+      rule << "port #{port_to_s(dport_calc)} " if dport_calc
       rule
     end
 
@@ -227,7 +228,7 @@ class Chef
       if new_resource.protocol && dport_calc
         "port #{Regexp.escape(port_to_s(dport_calc))}/#{Regexp.escape(new_resource.protocol)}\s "
       elsif dport_calc
-        "port #{Regexp.escape("#{port_to_s(dport_calc)}")}\s "
+        "port #{Regexp.escape(port_to_s(dport_calc))}\s "
       end
     end
 
