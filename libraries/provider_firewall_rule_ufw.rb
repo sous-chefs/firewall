@@ -25,35 +25,26 @@ class Chef
     provides :firewall_rule, :os => 'linux', :platform_family => ['debian']
 
     def action_allow
-      Chef::Log.info("#{new_resource.name} action_allow")
       if rule_exists?
-        Chef::Log.debug("Rule #{rule} already allowed - skipping")
+        Chef::Log.info("#{new_resource.name} already allowed, skipping")
       else
-        converge_by("Allowing #{rule}") do
-          apply_rule('allow')
-        end
+        apply_rule(:allow)
       end
     end
 
     def action_deny
-      Chef::Log.info("#{new_resource.name} action_deny")
       if rule_exists?
-        Chef::Log.debug("Rule #{rule} already denied - skipping")
+        Chef::Log.info("#{new_resource.name} already denied, skipping")
       else
-        converge_by("Denying #{rule}") do
-          apply_rule('deny')
-        end
+        apply_rule(:deny)
       end
     end
 
     def action_reject
-      Chef::Log.info("#{new_resource.name} action_reject")
       if rule_exists?
-        Chef::Log.debug("Rule #{rule} already rejected - skipping")
+        Chef::Log.info("#{new_resource.name} already rejected, skipping")
       else
-        converge_by("Rejecting #{rule}") do
-          apply_rule('reject')
-        end
+        apply_rule(:reject)
       end
     end
 
@@ -77,13 +68,15 @@ class Chef
 
       ufw_command = ['ufw']
       ufw_command << 'insert' << new_resource.position if new_resource.position
-      ufw_command << type
+      ufw_command << type.to_s
       ufw_command << rule.split
 
-      converge_by("apply rule resource #{new_resource.name} #{type}: #{ufw_command.flatten}") do
+      converge_by("firewall_rule[#{new_resource.name}] #{rule}") do
         notifying_block do
+          # fail 'should be no actions'
           shell_out!(*ufw_command.flatten)
           shell_out!('ufw', 'status', 'verbose') # purely for the Chef::Log.debug output
+          new_resource.updated_by_last_action(true)
         end
       end
     end
@@ -169,9 +162,11 @@ class Chef
       # 1.2.3.5 5469/udp           ALLOW       1.2.3.4 5469/udp
       # 3308                       ALLOW       OUT Anywhere on eth8
 
-      to = rule_exists_to?
-      action = rule_exists_action?
-      from = rule_exists_from?
+      to = rule_exists_to? # col 1
+      action = rule_exists_action? # col 2
+      from = rule_exists_from? # col 3
+
+      # full regex from columns
       regex = rule_exists_regex?(to, action, from)
 
       match = shell_out!('ufw', 'status').stdout.lines.find do |line|
@@ -180,7 +175,6 @@ class Chef
         line =~ regex
       end
 
-      Chef::Log.debug("ufw: found existing rule for \"#{rule}\": \"#{match.strip}\"") if match
       match
     end
 
@@ -205,7 +199,11 @@ class Chef
     end
 
     def rule_exists_from?
-      Regexp.escape(new_resource.source || 'Anywhere')
+      if new_resource.source && new_resource.source != '0.0.0.0/0'
+        Regexp.escape(new_resource.source)
+      elsif new_resource.source
+        Regexp.escape('Anywhere')
+      end
     end
 
     def rule_exists_dest?
@@ -226,9 +224,9 @@ class Chef
 
     def rule_exists_proto?
       if new_resource.protocol && dport_calc
-        "port #{Regexp.escape(port_to_s(dport_calc))}/#{Regexp.escape(new_resource.protocol)}\s "
+        "#{Regexp.escape(port_to_s(dport_calc))}/#{Regexp.escape(new_resource.protocol)}\s "
       elsif dport_calc
-        "port #{Regexp.escape(port_to_s(dport_calc))}\s "
+        "#{Regexp.escape(port_to_s(dport_calc))}\s "
       end
     end
 

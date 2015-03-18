@@ -18,12 +18,7 @@ firewall_rule 'ssh22' do
 end
 
 firewall_rule 'ssh2222' do
-  port 2222
-  action :allow
-end
-
-firewall_rule 'ssh2200' do
-  port 2200
+  port [2222, 2200]
   action :allow
 end
 
@@ -46,4 +41,19 @@ end
 firewall_rule 'addremove2' do
   port 1236
   action :deny
+end
+
+# something to check for duplicates
+(0..1).each do |i|
+  firewall_rule "duplicate#{i}" do
+    port 1111
+    action :allow
+    description 'same comment'
+  end
+
+  firewall_rule "duplicate#{i}" do
+    port [5432, 5431]
+    action :allow
+    description 'same comment'
+  end
 end
