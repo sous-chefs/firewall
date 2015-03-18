@@ -21,7 +21,7 @@ class Chef
   class Provider::FirewallUfw < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    provides :firewall, os: "linux", platform_family: [ "debian" ]
+    #provides :firewall, os: "linux", platform_family: [ "debian" ]
 
     def action_enable
       # new_resource.subresources contains all the firewall rules

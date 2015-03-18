@@ -56,12 +56,17 @@ class Chef
       Chef::Log.info("#{@new_resource} flushed.")
     end
 
+    def action_save
+      shell_out!("service iptables save")
+      Chef::Log.info("#{@new_resource} saved.")
+    end
+
     private
 
     def active?
       @active ||= begin
-        cmd = shell_out!('iptables -L')
-        cmd.stdout =~ /^INPUT ACCEPT/
+        cmd = shell_out!('iptables -S')
+        cmd.stdout =~ /INPUT ACCEPT/
       end
     end
 

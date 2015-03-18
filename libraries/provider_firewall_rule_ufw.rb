@@ -21,7 +21,7 @@ class Chef
   class Provider::FirewallRuleUfw < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    provides :firewall_rule, os: "linux", platform_family: [ "debian" ]
+    #provides :firewall_rule, os: "linux", platform_family: [ "debian" ]
 
     def action_allow
       if rule_exists?
