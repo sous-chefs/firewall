@@ -121,7 +121,7 @@ class Chef
       end
 
       line_number = 0
-      match = shell_out!('iptables', '-S', "#{CHAIN[new_resource.direction]}").stdout.lines.find do |line|
+      match = shell_out!('iptables', '-S', CHAIN[new_resource.direction]).stdout.lines.find do |line|
         next if line[1] == 'P'
         line_number += 1
         line = "#{line_number} #{line}" if new_resource.position
