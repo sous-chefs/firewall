@@ -16,113 +16,128 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
 class Chef
   class Provider::FirewallRuleIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
+    include FirewallCookbook::Helpers
+    provides :firewall_rule, :os => 'linux', :platform_family => ['rhel']
 
     def action_allow
-      converge_by("Allowing #{@new_resource.name}") do
-        apply_rule(:allow)
-      end
+      apply_rule(:allow)
     end
 
     def action_deny
-      converge_by("Denying #{@new_resource.name}") do
-        apply_rule(:deny)
-      end
+      apply_rule(:deny)
     end
 
     def action_reject
-      converge_by("Rejecting #{@new_resource.name}") do
-        apply_rule(:reject)
-      end
+      apply_rule(:reject)
     end
 
     def action_redirect
-      converge_by("redirect #{@new_resource.name}") do
-        apply_rule(:redirect)
-      end
+      apply_rule(:redirect)
     end
 
     def action_masquerade
-      converge_by("masquerade #{@new_resource.name}") do
-        apply_rule(:masquerade)
-      end
+      apply_rule(:masquerade)
+    end
+
+    def action_log
+      apply_rule(:log)
     end
 
     private
 
-    CHAIN = { :in => "INPUT", :out => "OUTPUT", :pre => "PREROUTING", :post => "POSTROUTING"}#, nil => "FORWARD"}
-    TARGET = { :allow => "ACCEPT", :reject => "REJECT", :deny => "DROP", :masquerade => 'MASQUERADE', :redirect => 'REDIRECT' }
+    CHAIN = { :in => 'INPUT', :out => 'OUTPUT', :pre => 'PREROUTING', :post => 'POSTROUTING' } # , nil => "FORWARD"}
+    TARGET = { :allow => 'ACCEPT', :reject => 'REJECT', :deny => 'DROP', :masquerade => 'MASQUERADE', :redirect => 'REDIRECT', :log => 'LOG --log-prefix "iptables: " --log-level 7' }
 
-    def apply_rule(type=nil)
-      if @new_resource.position
-        firewall_command = "iptables -I #{@new_resource.position} "
+    def apply_rule(type = nil)
+      firewall_command = 'iptables '
+      if new_resource.position
+        firewall_command << '-I ' # {new_resource.position} "
       else
-        firewall_command = "iptables -A "
+        firewall_command << '-A '
       end
 
-      firewall_rule = ""
-      if @new_resource.direction
-        firewall_rule << "#{CHAIN[@new_resource.direction]} "
+      # TODO: implement logging for :connections :packets
+      firewall_rule = build_firewall_rule(type)
+
+      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+      if rule_exists?(firewall_rule)
+        Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
       else
-        firewall_rule << "FORWARD "
+        cmdstr = firewall_command + firewall_rule
+        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+          notifying_block do
+            shell_out!(cmdstr) # shell_out! is already logged
+            new_resource.updated_by_last_action(true)
+          end
+        end
       end
-      if [:pre, :post].include?(@new_resource.direction)
-        firewall_rule << '-t nat '
-      end
-      firewall_rule << "-s #{@new_resource.source} " if @new_resource.source
-      firewall_rule << "-p #{@new_resource.protocol} -m tcp " if @new_resource.protocol
-      firewall_rule << "--sport #{@new_resource.port} " if @new_resource.port
-      firewall_rule << "--dport #{@new_resource.dest_port} " if @new_resource.dest_port
-      firewall_rule << "-i #{@new_resource.interface} " if @new_resource.interface
-      firewall_rule << "-o #{@new_resource.dest_interface} " if @new_resource.dest_interface
-      firewall_rule << "-d #{@new_resource.destination} " if @new_resource.destination
-      firewall_rule << "-m state --state #{@new_resource.stateful} " if @new_resource.stateful
-      firewall_rule << "-j #{TARGET[type]} "
-      firewall_rule << "--to-ports #{@new_resource.redirect_port} " if type == 'redirect'
-      firewall_rule.strip!
-
-      #TODO implement logging for :connections :packets
-      log_current_iptables
-
-      Chef::Log.debug("#{@new_resource}: #{firewall_rule}")
-      unless rule_exists?(firewall_rule)
-        cmdstr = firewall_command+firewall_rule
-        cmd = shell_out!(cmdstr)
-        Chef::Log.info(cmdstr)
-        Chef::Log.info(cmd.inspect)
-        @new_resource.updated_by_last_action(true)
-      else
-        Chef::Log.debug("#{@new_resource} #{type} rule exists..skipping.")
-      end
-
-      log_current_iptables
     end
 
-    def log_current_iptables
-      cmdstr = 'iptables -L'
-      Chef::Log.info("#{@new_resource} log_current_iptables (#{cmdstr}):")
-      cmd = shell_out!(cmdstr)
-      Chef::Log.info(cmd.inspect)
-    rescue
-      Chef::Log.info("#{@new_resource} log_current_iptables failed!")
+    def build_firewall_rule(type = nil)
+      if new_resource.raw
+        firewall_rule = new_resource.raw.strip!
+      else
+        firewall_rule = ''
+        if new_resource.direction
+          firewall_rule << "#{CHAIN[new_resource.direction.to_sym]} "
+        else
+          firewall_rule << 'FORWARD '
+        end
+        firewall_rule << "#{new_resource.position} " if new_resource.position
+
+        if [:pre, :post].include?(new_resource.direction)
+          firewall_rule << '-t nat '
+        end
+        firewall_rule << "-s #{new_resource.source} " if new_resource.source && new_resource.source != '0.0.0.0/0'
+        firewall_rule << "-p #{new_resource.protocol} " if new_resource.protocol
+        firewall_rule << '-m tcp ' if new_resource.protocol.to_sym == :tcp
+
+        # using multiport here allows us to simplify our greps and rule building
+        firewall_rule << "-m multiport --sports #{port_to_s(new_resource.source_port)} " if new_resource.source_port
+        firewall_rule << "-m multiport --dports #{port_to_s(dport_calc)} " if dport_calc
+
+        firewall_rule << "-i #{new_resource.interface} " if new_resource.interface
+        firewall_rule << "-o #{new_resource.dest_interface} " if new_resource.dest_interface
+        firewall_rule << "-d #{new_resource.destination} " if new_resource.destination
+        firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.upcase} " if new_resource.stateful
+        firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
+        firewall_rule << "-j #{TARGET[type]} "
+        firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == 'redirect'
+        firewall_rule.strip!
+      end
+      firewall_rule
     end
 
     def rule_exists?(rule)
       fail 'no rule supplied' unless rule
-      cmdstr = "iptables-save | grep -q -- '#{rule}'"
-      Chef::Log.debug("#{@new_resource} executing: #{cmdstr}")
-      cmd = shell_out!(cmdstr)
-      Chef::Log.debug("#{@new_resource} executing: #{cmd.inspect}")
-      true
+      if new_resource.position
+        detect_rule = rule.gsub(/#{CHAIN[new_resource.direction]}\s(\d+)/, '\1' + " -A #{CHAIN[new_resource.direction]}")
+      else
+        detect_rule = rule
+      end
+
+      line_number = 0
+      match = shell_out!('iptables', '-S', CHAIN[new_resource.direction]).stdout.lines.find do |line|
+        next if line[1] == 'P'
+        line_number += 1
+        line = "#{line_number} #{line}" if new_resource.position
+        # Chef::Log.debug("matching: [#{detect_rule}] to [#{line.chomp.rstrip}]")
+        line =~ /#{detect_rule}/
+      end
+
+      match
     rescue Mixlib::ShellOut::ShellCommandFailed
-      Chef::Log.debug("#{@new_resource} check fails with: "+ cmd.inspect)
-      Chef::Log.debug("#{@new_resource} assuming #{rule} rule does not exist")
+      Chef::Log.debug("#{new_resource} check fails with: " + cmd.inspect)
+      Chef::Log.debug("#{new_resource} assuming #{rule} rule does not exist")
       false
     end
 
+    def dport_calc
+      new_resource.dest_port || new_resource.port
+    end
   end
 end

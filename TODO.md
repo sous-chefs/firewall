@@ -1,0 +1,3 @@
+ - iptables' `-S` not supported in libraries/provider_firewall_iptables.rb
+ - save action might not make sense for firewalls
+ - chef 11.x support / compat

@@ -16,4 +16,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-include_recipe "firewall::#{node['platform_family']}"
+
+firewall 'default' do
+  action :enable
+end
+
+firewall_rule 'allow world to ssh' do
+  port 22
+  source '0.0.0.0/0'
+  action [:allow]
+  only_if { node['firewall']['allow_ssh'] }
+end

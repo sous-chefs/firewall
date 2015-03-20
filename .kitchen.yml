@@ -14,3 +14,6 @@ suites:
       - recipe[apt]
       - recipe[firewall::default]
       - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        allow_ssh: true

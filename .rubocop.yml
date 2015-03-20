@@ -11,8 +11,33 @@ HashSyntax:
   EnforcedStyle: hash_rockets
 
 CyclomaticComplexity:
-  Max: 11
+  Max: 20
 
-# Configuration parameters: CountComments.
+AbcSize:
+  Max: 150
+
+ClassLength:
+  Max: 200
+
+LineLength:
+  Max: 250
+
 MethodLength:
-  Max: 30
+  Max: 50
+
+PerceivedComplexity:
+  Max: 50
+
+Style/Documentation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Enabled: false
+
+AllCops:
+  Include:
+    - '**/metadata.rb'
+    - '**/*.rb'
