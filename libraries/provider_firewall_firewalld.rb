@@ -1,9 +1,7 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
+# Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
 # Cookbook Name:: firewall
 # Resource:: default
-#
-# Copyright:: 2011, Opscode, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,7 +28,8 @@ class Chef
         Chef::Log.debug("#{@new_resource} already enabled.")
       else
         Chef::Log.debug("#{@new_resource} is about to be enabled")
-        shell_out!("echo firewall-cmd --set-default-zone=drop")
+        shell_out!('service', 'firewalld', 'start')
+        shell_out!('firewall-cmd', '--set-default-zone=drop')
         Chef::Log.info("#{@new_resource} enabled.")
         new_resource.updated_by_last_action(true)
       end
@@ -38,9 +37,9 @@ class Chef
 
     def action_disable
       if active?
-        shell_out!("echo firewall-cmd --set-default-zone=public")
-        shell_out!("echo firewall-cmd --remove-rules ipv4 filter INPUT")
-        shell_out!("echo firewall-cmd --remove-rules ipv4 filter OUTPUT")
+        shell_out!('firewall-cmd', '--set-default-zone=public')
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'INPUT')
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
         Chef::Log.info("#{@new_resource} disabled")
         new_resource.updated_by_last_action(true)
       else
@@ -49,16 +48,32 @@ class Chef
     end
 
     def action_flush
-      shell_out!("echo firewall-cmd --remove-rules ipv4 filter INPUT")
-      shell_out!("echo firewall-cmd --remove-rules ipv4 filter OUTPUT")
+      shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'INPUT')
+      shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
+      shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
+      shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
       Chef::Log.info("#{@new_resource} flushed.")
+    end
+
+    def action_save
+      if shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout != shell_out!('firewall-cmd', '--direct', '--permanent', '--get-all-rules').stdout
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules ipv4 filter INPUT')
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules ipv4 filter OUTPUT')
+        shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout.lines do |line|
+          shell_out!('firewall-cmd', '--direct', '--permanent', "--add-rule #{line}")
+        end
+        Chef::Log.info("#{@new_resource} saved.")
+        new_resource.updated_by_last_action(true)
+      else
+        Chef::Log.info("#{@new_resource} already up-to-date.")
+      end
     end
 
     private
 
     def active?
       @active ||= begin
-        cmd = shell_out!('firewall-cmd --state')
+        cmd = shell_out('firewall-cmd', '--state')
         cmd.stdout =~ /^running$/
       end
     end

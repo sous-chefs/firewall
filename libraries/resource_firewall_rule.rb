@@ -5,7 +5,7 @@ class Chef
 
     IP_CIDR_VALID_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b(\/[0-3]?[0-9])?/
 
-    actions(:reject, :allow, :deny, :masqerade, :redirect, :log)
+    actions(:reject, :allow, :deny, :masqerade, :redirect, :log, :remove)
 
     attribute(:protocol, :kind_of => [Symbol, String], :equal_to => [:udp, :tcp, :icmp, 'tcp', 'udp', 'icmp'], :default => :tcp)
     attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)

@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "firewall::#{node['platform_family']}"
+
 firewall 'default' do
   action :enable
 end

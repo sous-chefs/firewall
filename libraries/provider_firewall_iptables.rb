@@ -21,7 +21,7 @@ class Chef
   class Provider::FirewallIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    provides :firewall, :os => 'linux', :platform_family => ['rhel']
+    # chef 11 unfriendly - provides :firewall, :os => 'linux', :platform_family => ['rhel']
 
     def action_enable
       converge_by('install package iptables and default DROP if no rules exist') do
@@ -72,7 +72,7 @@ class Chef
 
     def active?
       @active ||= begin
-        cmd = shell_out!('iptables -S')
+        cmd = shell_out!('iptables-save')
         cmd.stdout =~ /INPUT ACCEPT/
       end
     end

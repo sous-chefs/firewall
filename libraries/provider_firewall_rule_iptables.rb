@@ -21,7 +21,7 @@ class Chef
     include Poise
     include Chef::Mixin::ShellOut
     include FirewallCookbook::Helpers
-    provides :firewall_rule, :os => 'linux', :platform_family => ['rhel']
+    # chef 11 unfriendly - provides :firewall_rule, :os => 'linux', :platform_family => ['rhel']
 
     def action_allow
       apply_rule(:allow)
@@ -47,6 +47,16 @@ class Chef
       apply_rule(:log)
     end
 
+    def action_remove
+      # TODO: specify which target to delete
+      # for now this will remove raw + all targeted lines
+      remove_rule(:allow)
+      remove_rule(:deny)
+      remove_rule(:reject)
+      remove_rule(:redirect)
+      remove_rule(:masquerade)
+    end
+
     private
 
     CHAIN = { :in => 'INPUT', :out => 'OUTPUT', :pre => 'PREROUTING', :post => 'POSTROUTING' } # , nil => "FORWARD"}
@@ -55,7 +65,7 @@ class Chef
     def apply_rule(type = nil)
       firewall_command = 'iptables '
       if new_resource.position
-        firewall_command << '-I ' # {new_resource.position} "
+        firewall_command << '-I '
       else
         firewall_command << '-A '
       end
@@ -77,6 +87,26 @@ class Chef
       end
     end
 
+    def remove_rule(type = nil)
+      firewall_command = 'iptables -D '
+
+      # TODO: implement logging for :connections :packets
+      firewall_rule = build_firewall_rule(type)
+
+      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+      if rule_exists?(firewall_rule)
+        cmdstr = firewall_command + firewall_rule
+        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+          notifying_block do
+            shell_out!(cmdstr) # shell_out! is already logged
+            new_resource.updated_by_last_action(true)
+          end
+        end
+      else
+        Chef::Log.info("#{new_resource} #{type} rule does not exist... won't remove")
+      end
+    end
+
     def build_firewall_rule(type = nil)
       if new_resource.raw
         firewall_rule = new_resource.raw.strip!
@@ -92,7 +122,15 @@ class Chef
         if [:pre, :post].include?(new_resource.direction)
           firewall_rule << '-t nat '
         end
+
+        # Iptables order of prameters is important here see example output below:
+        # -A INPUT -s 1.2.3.4/32 -d 5.6.7.8/32 -i lo -p tcp -m tcp -m state --state NEW -m comment --comment "hello" -j DROP
         firewall_rule << "-s #{new_resource.source} " if new_resource.source && new_resource.source != '0.0.0.0/0'
+        firewall_rule << "-d #{new_resource.destination} " if new_resource.destination
+
+        firewall_rule << "-i #{new_resource.interface} " if new_resource.interface
+        firewall_rule << "-o #{new_resource.dest_interface} " if new_resource.dest_interface
+
         firewall_rule << "-p #{new_resource.protocol} " if new_resource.protocol
         firewall_rule << '-m tcp ' if new_resource.protocol.to_sym == :tcp
 
@@ -100,9 +138,6 @@ class Chef
         firewall_rule << "-m multiport --sports #{port_to_s(new_resource.source_port)} " if new_resource.source_port
         firewall_rule << "-m multiport --dports #{port_to_s(dport_calc)} " if dport_calc
 
-        firewall_rule << "-i #{new_resource.interface} " if new_resource.interface
-        firewall_rule << "-o #{new_resource.dest_interface} " if new_resource.dest_interface
-        firewall_rule << "-d #{new_resource.destination} " if new_resource.destination
         firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.upcase} " if new_resource.stateful
         firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
         firewall_rule << "-j #{TARGET[type]} "
@@ -121,8 +156,9 @@ class Chef
       end
 
       line_number = 0
-      match = shell_out!('iptables', '-S', CHAIN[new_resource.direction]).stdout.lines.find do |line|
-        next if line[1] == 'P'
+      match = shell_out!('iptables-save').stdout.lines.find do |line|
+        next if line !~ /#{CHAIN[new_resource.direction]}/
+        next if line[0] != '-'
         line_number += 1
         line = "#{line_number} #{line}" if new_resource.position
         # Chef::Log.debug("matching: [#{detect_rule}] to [#{line.chomp.rstrip}]")
@@ -131,7 +167,7 @@ class Chef
 
       match
     rescue Mixlib::ShellOut::ShellCommandFailed
-      Chef::Log.debug("#{new_resource} check fails with: " + cmd.inspect)
+      Chef::Log.debug("#{new_resource} check fails with: " + match.inspect)
       Chef::Log.debug("#{new_resource} assuming #{rule} rule does not exist")
       false
     end
