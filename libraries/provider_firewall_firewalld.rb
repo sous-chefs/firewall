@@ -57,10 +57,10 @@ class Chef
 
     def action_save
       if shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout != shell_out!('firewall-cmd', '--direct', '--permanent', '--get-all-rules').stdout
-        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules ipv4 filter INPUT')
-        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules ipv4 filter OUTPUT')
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
         shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout.lines do |line|
-          shell_out!('firewall-cmd', '--direct', '--permanent', "--add-rule #{line}")
+          shell_out!("firewall-cmd --direct --permanent --add-rule #{line}")
         end
         Chef::Log.info("#{@new_resource} saved.")
         new_resource.updated_by_last_action(true)
