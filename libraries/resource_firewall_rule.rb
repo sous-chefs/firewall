@@ -2,6 +2,7 @@ class Chef
   class Resource::FirewallRule < Resource
     include Poise(Chef::Resource::Firewall)
     provides :firewall_rule
+    attr_accessor :raw
 
     IP_CIDR_VALID_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b(\/[0-3]?[0-9])?/
 

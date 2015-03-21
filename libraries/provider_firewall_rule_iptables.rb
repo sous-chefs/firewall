@@ -109,7 +109,7 @@ class Chef
 
     def build_firewall_rule(type = nil)
       if new_resource.raw
-        firewall_rule = new_resource.raw.strip!
+        firewall_rule = new_resource.raw.strip
       else
         firewall_rule = ''
         if new_resource.direction
