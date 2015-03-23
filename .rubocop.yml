@@ -41,3 +41,5 @@ AllCops:
   Include:
     - '**/metadata.rb'
     - '**/*.rb'
+  Exclude:
+    - 'libraries/z_provider_mapping.rb'

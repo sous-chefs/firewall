@@ -20,7 +20,6 @@ class Chef
     include Poise
     include Chef::Mixin::ShellOut
     include FirewallCookbook::Helpers
-    # chef 11 unfriendly - provides :firewall_rule, :os => 'linux', :platform_family => ['rhel']
 
     def action_allow
       apply_rule(:allow)

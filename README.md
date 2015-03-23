@@ -20,6 +20,7 @@ Tested on:
 * Ubuntu 14.04
 * Debian 7.8
 * CentOS 6.5
+* CentOS 7.0
 
 
 Recipes
@@ -35,22 +36,18 @@ Attributes
 
 Resources/Providers
 -------------------
+- See `librariez/z_provider_mapping.rb` for a full list of providers for each platform and version.
+
 ### firewall
 #### Actions
-- :enable: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
-- :disable: disable the firewall. drop any rules and put the node in an unprotected state.
-- :flush: Runs `iptables -F`. Only supported by the iptables firewall provider.
+- `:enable`: *Default action* enable the firewall.  this will make any rules that have been defined 'active'.
+- `:disable`: disable the firewall. drop any rules and put the node in an unprotected state.
+- `:flush`: Runs `iptables -F`. Only supported by the iptables firewall provider.
+- `:save`: Runs `service iptables save` under iptables, adds rules permanently under firewall. Not supported in ufw.
 
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this resource
 - log_level: level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full. default is :low.
-
-#### Providers
-- `Chef::Provider::FirewallUfw`
-    - platform_family default: debian
-
-    - `Chef::Provider::FirewallIptables`
-        - platform_family default: rhel
 
 #### Examples
 
@@ -70,9 +67,13 @@ end
 ### firewall_rule
 
 #### Actions
-- :allow: the rule should allow incoming traffic.
-- :deny: the rule should deny incoming traffic.
-- :reject: *Default action: the rule should reject incoming traffic.
+- `:allow`: the rule should allow incoming traffic.
+- `:deny`: the rule should deny incoming traffic.
+- `:reject`: *Default action: the rule should reject incoming traffic.
+- `:masqerade`: Add masqerade rule
+- `:redirect`: Add redirect-type rule
+- `:log`: Configure logging
+- `:remove`: Remove all rules
 
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
@@ -85,11 +86,6 @@ end
 - direction: direction of the rule. valid values are: :in, :out, default is :in
 - interface: interface to apply rule (ie. 'eth0').
 - logging: may be added to enable logging for a particular rule. valid values are: :connections, :packets. In the ufw provider, :connections logs new connections while :packets logs all packets.
-
-#### Providers
-
-- `Chef::Provider::FirewallRuleUfw`
-    - platform default: Ubuntu
 
 #### Examples
 

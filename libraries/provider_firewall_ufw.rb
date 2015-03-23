@@ -21,7 +21,6 @@ class Chef
   class Provider::FirewallUfw < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    # chef 11 unfriendly - provides :firewall, :os => 'linux', :platform_family => ['debian']
 
     def action_enable
       converge_by('install ufw, template some defaults, and ufw enable') do

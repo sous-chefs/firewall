@@ -21,7 +21,6 @@ class Chef
   class Provider::FirewallIptables < Provider
     include Poise
     include Chef::Mixin::ShellOut
-    # chef 11 unfriendly - provides :firewall, :os => 'linux', :platform_family => ['rhel']
 
     def action_enable
       converge_by('install package iptables and default DROP if no rules exist') do

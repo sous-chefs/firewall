@@ -11,7 +11,7 @@ expected_rules = [
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 1236 .*-j DROP}
 ]
 
-describe command('iptables-save'), :if => os[:family] == 'redhat' do
+describe command('iptables-save'), :if => iptables? do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_rules.each do |r|
