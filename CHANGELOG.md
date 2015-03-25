@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.0.0 (2015-03-25)
+-------------------
+* Major upgrade and rewrite as HWRP using poise
+* Adds support for iptables and firewalld
+* Modernize tests and other files
+* Fix many bugs from ufw defaults to multiport suppot
 
 v0.11.8 (2014-05-20)
 --------------------
