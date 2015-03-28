@@ -57,3 +57,10 @@ end
     description 'same comment'
   end
 end
+
+bad_ip = '192.168.99.99'
+firewall_rule "block-#{bad_ip}" do
+  source bad_ip
+  position 1
+  action :reject
+end

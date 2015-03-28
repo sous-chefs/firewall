@@ -8,7 +8,8 @@ expected_rules = [
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 2222,2200 .*-j ACCEPT},
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 1234 .*-j DROP},
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 1235 .*-j REJECT --reject-with icmp-port-unreachable},
-  %r{-A INPUT -p tcp -m tcp -m multiport --dports 1236 .*-j DROP}
+  %r{-A INPUT -p tcp -m tcp -m multiport --dports 1236 .*-j DROP},
+  %r{-A INPUT -s 192.168.99.99/32 -p tcp -m tcp .*-j REJECT --reject-with icmp-port-unreachable}
 ]
 
 describe command('iptables-save'), :if => iptables? do

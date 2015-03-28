@@ -12,6 +12,7 @@ expected_rules = [
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove2 -j DROP},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
+  %r{ipv4 filter INPUT 1 -s 192.168.99.99 -p tcp -m tcp -m comment --comment block-192.168.99.99 -j REJECT}
 ]
 
 describe command('firewall-cmd --direct --get-all-rules'), :if => firewalld? do

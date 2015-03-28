@@ -2,11 +2,12 @@
 require_relative 'spec_helper'
 
 expected_rules = [
-  %r{ 22/tcp + ALLOW IN + Anywhere},
-  %r{ 2200,2222/tcp + ALLOW IN + Anywhere},
-  %r{ 1234/tcp + DENY IN + Anywhere},
-  %r{ 1235/tcp + REJECT IN + Anywhere},
-  %r{ 1236/tcp + DENY IN + Anywhere}
+  %r{ 22/tcp + ALLOW IN +Anywhere},
+  %r{ 2200,2222/tcp + ALLOW IN +Anywhere},
+  %r{ 1234/tcp + DENY IN +Anywhere},
+  %r{ 1235/tcp + REJECT IN +Anywhere},
+  %r{ 1236/tcp + DENY IN +Anywhere},
+  %r{ Anywhere + REJECT IN +192.168.99.99/tcp}
 ]
 
 describe command('ufw status numbered'), :if => ufw? do
