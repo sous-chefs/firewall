@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.0.1 (2015-03-28)
+-------------------
+* #49 - Fix position attribute of firewall_rule providers to be correctly used as a string in commands
+
 v1.0.0 (2015-03-25)
 -------------------
 * Major upgrade and rewrite as HWRP using poise
