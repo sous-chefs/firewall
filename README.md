@@ -86,6 +86,7 @@ end
 - direction: direction of the rule. valid values are: :in, :out, default is :in
 - interface: interface to apply rule (ie. 'eth0').
 - logging: may be added to enable logging for a particular rule. valid values are: :connections, :packets. In the ufw provider, :connections logs new connections while :packets logs all packets.
+- raw: for passing a raw command to the provider (for use with custom modules, also used by zap provider to clean up non-chef managed rules)
 
 #### Examples
 
