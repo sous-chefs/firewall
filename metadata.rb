@@ -10,4 +10,4 @@ supports 'ubuntu'
 supports 'redhat'
 supports 'centos'
 
-depends 'poise', '~> 1.0'
+depends 'poise', '~> 2.0'

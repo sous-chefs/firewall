@@ -1,3 +1,5 @@
+require 'poise'
+
 class Chef
   class Resource::Firewall < Resource
     include Poise(:container => true)
