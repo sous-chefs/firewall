@@ -64,3 +64,10 @@ firewall_rule "block-#{bad_ip}" do
   position 1
   action :reject
 end
+
+ipv6_address = '2001:db8::ff00:42:8329'
+firewall_rule "allow-http-from-#{ipv6_address}" do
+  port 80
+  source ipv6_address
+  action :allow
+end
