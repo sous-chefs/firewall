@@ -1,5 +1,3 @@
-require 'ipaddr'
-
 class Chef
   class Resource::FirewallRule < Resource
     include Poise(Chef::Resource::Firewall)
@@ -10,12 +8,12 @@ class Chef
     attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)
     attribute(:logging, :kind_of => [Symbol, String], :equal_to => [:connections, :packets, 'connections', 'packets'])
 
-    attribute(:source, :callbacks => { "should be a valid ip address" => lambda { |s| IPAddr.new(s) ? true : false }})
+    attribute(:source, :callbacks => { "must be a valid ip address" => lambda { |s| begin; IPAddr.new(s) ? true : false; rescue => ex; false; end }})
     attribute(:source_port, :kind_of => [Integer, Array, Range]) # source port
     attribute(:interface, :kind_of => String)
 
     attribute(:port, :kind_of => [Integer, Array, Range]) # shorthand for dest_port
-    attribute(:destination, :callbacks => { "should be a valid ip address" => lambda { |s| IPAddr.new(s) ? true : false }})
+    attribute(:destination, :callbacks => { "must be a valid ip address" => lambda { |s| begin; IPAddr.new(s) ? true : false; rescue => ex; false; end }})
     attribute(:dest_port, :kind_of => [Integer, Array, Range])
     attribute(:dest_interface, :kind_of => String)
 
