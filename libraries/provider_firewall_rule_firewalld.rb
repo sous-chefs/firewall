@@ -61,50 +61,83 @@ class Chef
     TARGET = { :allow => 'ACCEPT', :reject => 'REJECT', :deny => 'DROP', :masquerade => 'MASQUERADE', :redirect => 'REDIRECT', :log => 'LOG --log-prefix \'iptables: \' --log-level 7' }
 
     def apply_rule(type = nil)
-      firewall_command = 'firewall-cmd --direct --add-rule '
+      ip_versions.each do |ip_version|
+        firewall_command = 'firewall-cmd --direct --add-rule '
 
-      # TODO: implement logging for :connections :packets
-      firewall_rule = build_firewall_rule(type)
+        # TODO: implement logging for :connections :packets
+        firewall_rule = build_firewall_rule(type, ip_version)
 
-      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-      if rule_exists?(firewall_rule)
-        Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
-      else
-        cmdstr = firewall_command + firewall_rule
-        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
-          notifying_block do
-            shell_out!(cmdstr) # shell_out! is already logged
-            new_resource.updated_by_last_action(true)
+        Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+        if rule_exists?(firewall_rule)
+          Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
+        else
+          cmdstr = firewall_command + firewall_rule
+          converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+            notifying_block do
+              shell_out!(cmdstr) # shell_out! is already logged
+              new_resource.updated_by_last_action(true)
+            end
           end
         end
       end
     end
 
     def remove_rule(type = nil)
-      firewall_command = 'firewall-cmd --direct --remove-rule '
+      ip_versions.each do |ip_version|
+        firewall_command = 'firewall-cmd --direct --remove-rule '
 
-      # TODO: implement logging for :connections :packets
-      firewall_rule = build_firewall_rule(type)
+        # TODO: implement logging for :connections :packets
+        firewall_rule = build_firewall_rule(type)
 
-      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-      if rule_exists?(firewall_rule)
-        cmdstr = firewall_command + firewall_rule
-        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
-          notifying_block do
-            shell_out!(cmdstr) # shell_out! is already logged
-            new_resource.updated_by_last_action(true)
+        Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+        if rule_exists?(firewall_rule)
+          cmdstr = firewall_command + firewall_rule
+          converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+            notifying_block do
+              shell_out!(cmdstr) # shell_out! is already logged
+              new_resource.updated_by_last_action(true)
+            end
           end
+        else
+          Chef::Log.info("#{new_resource} #{type} rule does not exists... won't remove")
         end
-      else
-        Chef::Log.info("#{new_resource} #{type} rule does not exists... won't remove")
       end
     end
 
-    def build_firewall_rule(type = nil)
+    def is_ipv4_rule?
+      if ((new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
+          (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?))
+        true
+      else
+        false
+      end
+    end
+
+    def is_ipv6_rule?
+      if ((new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
+          (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?))
+        true
+      else
+        false
+      end
+    end
+
+    def ip_versions
+      if is_ipv4_rule?
+        versions = ['ipv4']
+      elsif is_ipv6_rule?
+        versions = ['ipv6']
+      else # no source or destination address, add rules for both ipv4 and ipv6
+        versions = ['ipv4','ipv6']
+      end
+      versions
+    end
+
+    def build_firewall_rule(type = nil, ip_version = 'ipv4')
       if new_resource.raw
         firewall_rule = new_resource.raw.strip
       else
-        firewall_rule = 'ipv4 filter '
+        firewall_rule = "#{ip_version} filter "
         if new_resource.direction
           firewall_rule << "#{CHAIN[new_resource.direction.to_sym]} "
         else
