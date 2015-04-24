@@ -62,48 +62,83 @@ class Chef
     TARGET = { :allow => 'ACCEPT', :reject => 'REJECT', :deny => 'DROP', :masquerade => 'MASQUERADE', :redirect => 'REDIRECT', :log => 'LOG --log-prefix "iptables: " --log-level 7' }
 
     def apply_rule(type = nil)
-      firewall_command = 'iptables '
-      if new_resource.position
-        firewall_command << '-I '
-      else
-        firewall_command << '-A '
-      end
+      firewall_commands = determine_iptables_commands
+      firewall_commands.each do |firewall_command|
+        ipv6 = (firewall_command == 'ip6tables') ? true : false
+        if new_resource.position
+          firewall_command << ' -I '
+        else
+          firewall_command << ' -A '
+        end
 
-      # TODO: implement logging for :connections :packets
-      firewall_rule = build_firewall_rule(type)
+        # TODO: implement logging for :connections :packets
+        firewall_rule = build_firewall_rule(type)
 
-      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-      if rule_exists?(firewall_rule)
-        Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
-      else
-        cmdstr = firewall_command + firewall_rule
-        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
-          notifying_block do
-            shell_out!(cmdstr) # shell_out! is already logged
-            new_resource.updated_by_last_action(true)
+        Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+        if rule_exists?(firewall_rule, ipv6)
+          Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
+        else
+          cmdstr = firewall_command + firewall_rule
+          converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+            notifying_block do
+              shell_out!(cmdstr) # shell_out! is already logged
+              new_resource.updated_by_last_action(true)
+            end
           end
         end
       end
     end
 
     def remove_rule(type = nil)
-      firewall_command = 'iptables -D '
+      firewall_commands = determine_iptables_commands
+      firewall_commands.each do |firewall_command|
+        ipv6 = (firewall_command == 'ip6tables') ? true : false
 
-      # TODO: implement logging for :connections :packets
-      firewall_rule = build_firewall_rule(type)
+        # TODO: implement logging for :connections :packets
+        firewall_rule = build_firewall_rule(type)
 
-      Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-      if rule_exists?(firewall_rule)
-        cmdstr = firewall_command + firewall_rule
-        converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
-          notifying_block do
-            shell_out!(cmdstr) # shell_out! is already logged
-            new_resource.updated_by_last_action(true)
+        Chef::Log.debug("#{new_resource}: #{firewall_rule}")
+        if rule_exists?(firewall_rule, ipv6)
+          cmdstr = firewall_command + firewall_rule
+          converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
+            notifying_block do
+              shell_out!(cmdstr) # shell_out! is already logged
+              new_resource.updated_by_last_action(true)
+            end
           end
+        else
+          Chef::Log.info("#{new_resource} #{type} rule does not exist... won't remove")
         end
-      else
-        Chef::Log.info("#{new_resource} #{type} rule does not exist... won't remove")
       end
+    end
+
+    def is_ipv4_rule?
+      if ((new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
+          (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?))
+        true
+      else
+        false
+      end
+    end
+
+    def is_ipv6_rule?
+      if ((new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
+          (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?))
+        true
+      else
+        false
+      end
+    end
+
+    def determine_iptables_commands
+      if is_ipv4_rule?
+        commands = ['iptables']
+      elsif is_ipv6_rule?
+        commands = ['ip6tables']
+      else # no source or destination address, add rules for both ipv4 and ipv6
+        commands = ['iptables','ip6tables']
+      end
+      commands
     end
 
     def build_firewall_rule(type = nil)
@@ -146,7 +181,7 @@ class Chef
       firewall_rule
     end
 
-    def rule_exists?(rule)
+    def rule_exists?(rule, ipv6 = false)
       fail 'no rule supplied' unless rule
       if new_resource.position
         detect_rule = rule.gsub(/#{CHAIN[new_resource.direction]}\s(\d+)/, '\1' + " -A #{CHAIN[new_resource.direction]}")
@@ -155,7 +190,7 @@ class Chef
       end
 
       line_number = 0
-      match = shell_out!('iptables-save').stdout.lines.find do |line|
+      match = shell_out!(ipv6 ? 'ip6tables-save' : 'iptables-save').stdout.lines.find do |line|
         next if line !~ /#{CHAIN[new_resource.direction]}/
         next if line[0] != '-'
         line_number += 1

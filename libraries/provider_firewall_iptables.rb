@@ -38,6 +38,10 @@ class Chef
           shell_out!('iptables -P INPUT DROP')
           shell_out!('iptables -P OUTPUT DROP')
           shell_out!('iptables -P FORWARD DROP')
+
+          shell_out!('ip6tables -P INPUT DROP')
+          shell_out!('ip6tables -P OUTPUT DROP')
+          shell_out!('ip6tables -P FORWARD DROP')
           Chef::Log.info("#{new_resource} enabled.")
           new_resource.updated_by_last_action(true)
         end
@@ -50,6 +54,11 @@ class Chef
         shell_out!('iptables -P OUTPUT ACCEPT')
         shell_out!('iptables -P FORWARD ACCEPT')
         shell_out!('iptables -F')
+
+        shell_out!('ip6tables -P INPUT ACCEPT')
+        shell_out!('ip6tables -P OUTPUT ACCEPT')
+        shell_out!('ip6tables -P FORWARD ACCEPT')
+        shell_out!('ip6tables -F')
         Chef::Log.info("#{new_resource} disabled")
         new_resource.updated_by_last_action(true)
       else
@@ -59,11 +68,13 @@ class Chef
 
     def action_flush
       shell_out!('iptables -F')
+      shell_out!('ip6tables -F')
       Chef::Log.info("#{new_resource} flushed.")
     end
 
     def action_save
       shell_out!('service iptables save')
+      shell_out!('service ip6tables save')
       Chef::Log.info("#{new_resource} saved.")
     end
 
@@ -74,10 +85,19 @@ class Chef
         cmd = shell_out!('iptables-save')
         cmd.stdout =~ /INPUT ACCEPT/
       end
+      @active_v6 ||= begin
+        cmd = shell_out!('ip6tables-save')
+        cmd.stdout =~ /INPUT ACCEPT/
+      end
+      @active && @active_v6
     end
 
     def log_current_iptables
       cmdstr = 'iptables -L'
+      Chef::Log.info("#{new_resource} log_current_iptables (#{cmdstr}):")
+      cmd = shell_out!(cmdstr)
+      Chef::Log.info(cmd.inspect)
+      cmdstr = 'ip6tables -L'
       Chef::Log.info("#{new_resource} log_current_iptables (#{cmdstr}):")
       cmd = shell_out!(cmdstr)
       Chef::Log.info(cmd.inspect)
