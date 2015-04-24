@@ -22,4 +22,8 @@ describe 'firewall-test::default' do
 
     expect(chef_run).to deny_firewall_rule('temp1')
   end
+
+  it 'creates an ipv6 rule' do
+    expect(chef_run).to allow_firewall_rule('ipv6-source')
+  end
 end

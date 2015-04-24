@@ -7,7 +7,8 @@ expected_rules = [
   %r{ 1234/tcp + DENY IN +Anywhere},
   %r{ 1235/tcp + REJECT IN +Anywhere},
   %r{ 1236/tcp + DENY IN +Anywhere},
-  %r{ Anywhere + REJECT IN +192.168.99.99/tcp}
+  %r{ Anywhere + REJECT IN +192.168.99.99/tcp},
+  %r{ 80/tcp + ALLOW IN +2001:db8::ff00:42:8329}
 ]
 
 describe command('ufw status numbered'), :if => ufw? do
