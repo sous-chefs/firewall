@@ -2,6 +2,11 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.1.0 (2015-04-27)
+-------------------
+* #56 - Better ipv6 support for firewalld and iptables
+* #54 - Document raw parameter
+
 v1.0.2 (2015-04-03)
 -------------------
 * #52 - Typo in :masquerade action name
