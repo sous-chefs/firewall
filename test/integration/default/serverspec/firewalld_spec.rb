@@ -13,7 +13,7 @@ expected_rules = [
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -s 192.168.99.99 -p tcp -m tcp -m comment --comment block-192.168.99.99 -j REJECT},
-  #ipv6
+  # ipv6
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m state --state RELATED,ESTABLISHED -m comment --comment established -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 22 -m comment --comment ssh22 -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 2222,2200 -m comment --comment ssh2222 -j ACCEPT},

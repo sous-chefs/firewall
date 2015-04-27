@@ -83,7 +83,7 @@ class Chef
     end
 
     def remove_rule(type = nil)
-      ip_versions.each do |ip_version|
+      ip_versions.each do |_ip_version|
         firewall_command = 'firewall-cmd --direct --remove-rule '
 
         # TODO: implement logging for :connections :packets
@@ -104,18 +104,18 @@ class Chef
       end
     end
 
-    def is_ipv4_rule?
-      if ((new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
-          (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?))
+    def ipv4_rule?
+      if (new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?)
         true
       else
         false
       end
     end
 
-    def is_ipv6_rule?
-      if ((new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
-          (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?))
+    def ipv6_rule?
+      if (new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?)
         true
       else
         false
@@ -123,12 +123,12 @@ class Chef
     end
 
     def ip_versions
-      if is_ipv4_rule?
+      if ipv4_rule?
         versions = ['ipv4']
-      elsif is_ipv6_rule?
+      elsif ipv6_rule?
         versions = ['ipv6']
       else # no source or destination address, add rules for both ipv4 and ipv6
-        versions = ['ipv4','ipv6']
+        versions = %w(ipv4 ipv6)
       end
       versions
     end

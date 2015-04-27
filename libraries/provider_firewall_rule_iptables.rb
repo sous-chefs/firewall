@@ -112,18 +112,18 @@ class Chef
       end
     end
 
-    def is_ipv4_rule?
-      if ((new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
-          (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?))
+    def ipv4_rule?
+      if (new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?)
         true
       else
         false
       end
     end
 
-    def is_ipv6_rule?
-      if ((new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
-          (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?))
+    def ipv6_rule?
+      if (new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?)
         true
       else
         false
@@ -131,12 +131,12 @@ class Chef
     end
 
     def determine_iptables_commands
-      if is_ipv4_rule?
+      if ipv4_rule?
         commands = ['iptables']
-      elsif is_ipv6_rule?
+      elsif ipv6_rule?
         commands = ['ip6tables']
       else # no source or destination address, add rules for both ipv4 and ipv6
-        commands = ['iptables','ip6tables']
+        commands = %w(iptables ip6tables)
       end
       commands
     end

@@ -8,12 +8,12 @@ class Chef
     attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)
     attribute(:logging, :kind_of => [Symbol, String], :equal_to => [:connections, :packets, 'connections', 'packets'])
 
-    attribute(:source, :callbacks => { "must be a valid ip address" => lambda { |s| begin; IPAddr.new(s) ? true : false; rescue => ex; false; end }})
+    attribute(:source, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
     attribute(:source_port, :kind_of => [Integer, Array, Range]) # source port
     attribute(:interface, :kind_of => String)
 
     attribute(:port, :kind_of => [Integer, Array, Range]) # shorthand for dest_port
-    attribute(:destination, :callbacks => { "must be a valid ip address" => lambda { |s| begin; IPAddr.new(s) ? true : false; rescue => ex; false; end }})
+    attribute(:destination, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
     attribute(:dest_port, :kind_of => [Integer, Array, Range])
     attribute(:dest_interface, :kind_of => String)
 
@@ -24,5 +24,11 @@ class Chef
 
     # for when you just want to pass a raw rule
     attribute(:raw, :kind_of => String)
+
+    def self.valid_ip?(ip)
+      IPAddr.new(ip) ? true : false
+    rescue
+      false
+    end
   end
 end

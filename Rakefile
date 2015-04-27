@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 require 'foodcritic'
@@ -10,21 +11,18 @@ namespace :style do
 
   desc 'Run Chef style checks'
   FoodCritic::Rake::LintTask.new(:chef) do |t|
-    t.options = {
-      :fail_tags => ['any'],
-      :tags => [
-        '~FC002',
-        '~FC005'
-      ]
-    }
+    t.options = { search_gems: true,
+                  fail_tags: ['correctness'],
+                  chef_version: '11.6.0'
+                }
   end
 end
 
 desc 'Run all style checks'
-task :style => ['style:chef', 'style:ruby']
+task style: ['style:chef', 'style:ruby']
 
 # Rspec and ChefSpec
-desc 'Run ChefSpec examples'
+desc 'Run ChefSpec unit tests'
 RSpec::Core::RakeTask.new(:spec) do |t, args|
   t.rspec_opts = 'test/unit'
 end
@@ -41,24 +39,29 @@ namespace :integration do
 
   desc 'Run Test Kitchen with cloud plugins'
   task :cloud do
-    run_kitchen = true
-    if ENV['TRAVIS'] == 'true' && ENV['TRAVIS_PULL_REQUEST'] != 'false'
-      run_kitchen = false
-    end
-
-    if run_kitchen
+    if ENV['CI_DOES_NOT_WORK'] == 'true'
       Kitchen.logger = Kitchen.default_file_logger
-      @loader = Kitchen::Loader::YAML.new(:project_config => './.kitchen.cloud.yml')
-      config = Kitchen::Config.new(:loader => @loader)
-      config.instances.each do |instance|
-        instance.test(:always)
+      @loader = Kitchen::Loader::YAML.new(local_config: '.kitchen.cloud.yml')
+      config = Kitchen::Config.new(loader: @loader)
+      concurrency = config.instances.size
+      queue = Queue.new
+      config.instances.each {|i| queue << i }
+      concurrency.times { queue << nil }
+      threads = []
+      concurrency.times do
+        threads << Thread.new do
+          while instance = queue.pop
+            instance.test(:always)
+          end
+        end
       end
+      threads.map { |i| i.join }
     end
   end
 end
 
-desc 'Run all tests on Travis'
-task :travis => ['style', 'spec', 'integration:cloud']
+desc 'Run all tests on CI Platform'
+task ci: ['style', 'spec' ] # 'integration:cloud'
 
 # Default
-task :default => ['style', 'spec', 'integration:vagrant']
+task default: ['style', 'spec' ] # 'integration:vagrant'
