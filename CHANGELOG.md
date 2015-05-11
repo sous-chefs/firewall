@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.1.0 (2015-05-11)
+-------------------
+* #57 - Suppress warning: already initialized constant XXX while Chefspec 
+
 v1.1.0 (2015-04-27)
 -------------------
 * #56 - Better ipv6 support for firewalld and iptables
