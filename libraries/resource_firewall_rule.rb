@@ -22,6 +22,9 @@ class Chef
     attribute(:redirect_port, :kind_of => Integer)
     attribute(:description, :kind_of => String, :name_attribute => true)
 
+    # Indicate whether this rule needs to be persistent on the system
+    attribute(:persist, :kind_of => Integer, :equal_to => [0, 1], :default => 0)
+
     # for when you just want to pass a raw rule
     attribute(:raw, :kind_of => String)
 

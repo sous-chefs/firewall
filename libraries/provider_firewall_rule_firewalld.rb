@@ -62,19 +62,35 @@ class Chef
 
     def apply_rule(type = nil)
       ip_versions.each do |ip_version|
-        firewall_command = 'firewall-cmd --direct --add-rule '
+        firewall_command = 'firewall-cmd'
+        add_command = ' --direct --add-rule '
 
         # TODO: implement logging for :connections :packets
         firewall_rule = build_firewall_rule(type, ip_version)
 
+        apply_runtime = !rule_exists?(firewall_rule, false)
+        apply_persist = (new_resource.persist == 1 && !rule_exists?(firewall_rule, true))
+
         Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-        if rule_exists?(firewall_rule)
-          Chef::Log.info("#{new_resource} #{type} rule exists... won't apply")
-        else
-          cmdstr = firewall_command + firewall_rule
+        unless apply_runtime
+          Chef::Log.info("#{new_resource} #{type} rule exists in runtime... won't apply")
+        end
+
+        unless apply_persist
+          Chef::Log.info("#{new_resource} #{type} rule exists in persistent... won't apply")
+        end
+
+        if apply_runtime || apply_persist
           converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
             notifying_block do
-              shell_out!(cmdstr) # shell_out! is already logged
+              if apply_runtime
+                cmdstr = firewall_command + add_command + firewall_rule
+                shell_out!(cmdstr) # shell_out! is already logged
+              end
+              if apply_persist
+                save_cmdstr = firewall_command + ' --permanent' + add_command + firewall_rule
+                shell_out!(save_cmdstr) # shell_out! is already logged
+              end
               new_resource.updated_by_last_action(true)
             end
           end
@@ -84,22 +100,39 @@ class Chef
 
     def remove_rule(type = nil)
       ip_versions.each do |_ip_version|
-        firewall_command = 'firewall-cmd --direct --remove-rule '
+        firewall_command = 'firewall-cmd'
+        remove_command = ' --direct --remove-rule '
 
         # TODO: implement logging for :connections :packets
         firewall_rule = build_firewall_rule(type)
 
         Chef::Log.debug("#{new_resource}: #{firewall_rule}")
-        if rule_exists?(firewall_rule)
-          cmdstr = firewall_command + firewall_rule
+
+        remove_runtime = rule_exists?(firewall_rule, false)
+        remove_persist = (new_resource.persist == 1 && rule_exists?(firewall_rule, true))
+
+        unless remove_runtime
+          Chef::Log.info("#{new_resource} #{type} rule does not exists in runtime... won't remove")
+        end
+
+        unless remove_persist
+          Chef::Log.info("#{new_resource} #{type} rule does not exists in persistent... won't remove")
+        end
+
+        if remove_runtime || remove_persist
           converge_by("firewall_rule[#{new_resource.name}] #{firewall_rule}") do
             notifying_block do
-              shell_out!(cmdstr) # shell_out! is already logged
+              if remove_runtime
+                cmdstr = firewall_command + remove_command + firewall_rule
+                shell_out!(cmdstr) # shell_out! is already logged
+              end
+              if remove_persist
+                save_cmdstr = firewall_command + ' --permanent' + remove_command + firewall_rule
+                shell_out!(save_cmdstr) # shell_out! is already logged
+              end
               new_resource.updated_by_last_action(true)
             end
           end
-        else
-          Chef::Log.info("#{new_resource} #{type} rule does not exists... won't remove")
         end
       end
     end
@@ -173,14 +206,20 @@ class Chef
       firewall_rule
     end
 
-    def rule_exists?(rule)
+    def rule_exists?(rule, query_persist)
       fail 'no rule supplied' unless rule
 
       # match quotes generously
       detect_rule = rule.gsub(/'/, "'*")
       detect_rule = detect_rule.gsub(/"/, '"*')
 
-      match = shell_out!('firewall-cmd --direct --get-all-rules').stdout.lines.find do |line|
+      if query_persist
+        query_cmdstr = 'firewall-cmd --permanent --direct --get-all-rules'
+      else
+        query_cmdstr = 'firewall-cmd --direct --get-all-rules'
+      end
+
+      match = shell_out!(query_cmdstr).stdout.lines.find do |line|
         # Chef::Log.debug("matching: [#{detect_rule}] to [#{line.chomp.rstrip}]")
         line =~ /#{detect_rule}/
       end
