@@ -173,7 +173,7 @@ class Chef
         firewall_rule << "-m multiport --dports #{port_to_s(dport_calc)} " if dport_calc
 
         firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.upcase} " if new_resource.stateful
-        firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
+        firewall_rule << "-m comment --comment #{new_resource.description.index(/\s/) ? "\"" << new_resource.description << "\"" : new_resource.description} "
         firewall_rule << "-j #{TARGET[type]} "
         firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == 'redirect'
         firewall_rule.strip!
