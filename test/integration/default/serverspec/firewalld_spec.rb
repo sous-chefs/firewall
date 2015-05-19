@@ -12,7 +12,7 @@ expected_rules = [
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove2 -j DROP},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
-  %r{ipv4 filter INPUT 1 -s 192.168.99.99 -p tcp -m tcp -m comment --comment block-192.168.99.99 -j REJECT},
+  %r{ipv4 filter INPUT 1 -s 192.168.99.99/32 -p tcp -m tcp -m comment --comment block-192.168.99.99 -j REJECT},
   # ipv6
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m state --state RELATED,ESTABLISHED -m comment --comment established -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 22 -m comment --comment ssh22 -j ACCEPT},
@@ -23,7 +23,7 @@ expected_rules = [
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove2 -j DROP},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
-  %r{ipv6 filter INPUT 1 -s 2001:db8::ff00:42:8329 -p tcp -m tcp -m multiport --dports 80 -m comment --comment ipv6-source -j ACCEPT}
+  %r{ipv6 filter INPUT 1 -s 2001:db8::ff00:42:8329/128 -p tcp -m tcp -m multiport --dports 80 -m comment --comment ipv6-source -j ACCEPT}
 ]
 
 describe command('firewall-cmd --direct --get-all-rules'), :if => firewalld? do

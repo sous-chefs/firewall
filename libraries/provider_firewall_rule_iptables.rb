@@ -159,7 +159,7 @@ class Chef
 
         # Iptables order of prameters is important here see example output below:
         # -A INPUT -s 1.2.3.4/32 -d 5.6.7.8/32 -i lo -p tcp -m tcp -m state --state NEW -m comment --comment "hello" -j DROP
-        firewall_rule << "-s #{new_resource.source} " if new_resource.source && new_resource.source != '0.0.0.0/0'
+        firewall_rule << "-s #{ip_with_mask(new_resource.source)} " if new_resource.source && new_resource.source != '0.0.0.0/0'
         firewall_rule << "-d #{new_resource.destination} " if new_resource.destination
 
         firewall_rule << "-i #{new_resource.interface} " if new_resource.interface
@@ -189,6 +189,10 @@ class Chef
         detect_rule = rule
       end
 
+      # match quotes generously
+      detect_rule = detect_rule.gsub(/'/, "'*")
+      detect_rule = detect_rule.gsub(/"/, '"*')
+
       line_number = 0
       match = shell_out!(ipv6 ? 'ip6tables-save' : 'iptables-save').stdout.lines.find do |line|
         next if line !~ /#{CHAIN[new_resource.direction]}/
@@ -208,6 +212,18 @@ class Chef
 
     def dport_calc
       new_resource.dest_port || new_resource.port
+    end
+
+    def ip_with_mask(ip)
+      if ip.include?('/')
+        ip
+      elsif ipv4_rule?
+        "#{ip}/32"
+      elsif ipv6_rule?
+        "#{ip}/128"
+      else
+        ip
+      end
     end
   end
 end
