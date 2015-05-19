@@ -2,7 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
-v1.1.0 (2015-05-11)
+v1.1.2 (2015-05-19)
+-------------------
+* #60 - Always add /32 or /128 to ipv4 or ipv6 addresses, respectively.
+      - Make comment quoting optional; iptables on Ubuntu strips quotes on strings without any spaces
+
+v1.1.1 (2015-05-11)
 -------------------
 * #57 - Suppress warning: already initialized constant XXX while Chefspec 
 
