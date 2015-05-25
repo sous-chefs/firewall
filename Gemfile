@@ -9,6 +9,7 @@ group :unit do
   gem 'berkshelf'
   gem 'chefspec'
   gem 'chef-sugar'
+  gem 'git'
 end
 
 group :kitchen_common do
