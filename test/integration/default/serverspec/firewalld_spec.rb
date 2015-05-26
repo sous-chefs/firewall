@@ -10,6 +10,7 @@ expected_rules = [
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1235 -m comment --comment temp2 -j REJECT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove2 -j DROP},
+  %r{ipv4 filter INPUT 1 -p 112 -m comment --comment protocolnum -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv4 filter INPUT 1 -s 192.168.99.99/32 -p tcp -m tcp -m comment --comment block-192.168.99.99 -j REJECT},
@@ -21,6 +22,7 @@ expected_rules = [
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1235 -m comment --comment temp2 -j REJECT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1236 -m comment --comment addremove2 -j DROP},
+  %r{ipv6 filter INPUT 1 -p 112 -m comment --comment protocolnum -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv6 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv6 filter INPUT 1 -s 2001:db8::ff00:42:8329/128 -p tcp -m tcp -m multiport --dports 80 -m comment --comment ipv6-source -j ACCEPT}

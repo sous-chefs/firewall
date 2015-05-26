@@ -77,7 +77,7 @@ end
 
 #### Attribute Parameters
 - name: name attribute. arbitrary name to uniquely identify this firewall rule
-- protocol: valid values are: :udp, :tcp. default is all protocols
+- protocol: valid values are: :icmp, :udp, :tcp, or protocol number. default is :tcp. Using protocol numbers is not supported using the ufw provider (default for debian/ubuntu systems).
 - port: incoming port number (ie. 22 to allow inbound SSH), or an array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS). NOTE: `protocol` attribute is required with multiple ports, or a range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol`, or an attribute is required with a range of ports.
 - source: ip address or subnet to filter on incoming traffic. default is `0.0.0.0/0` (ie Anywhere)
 - destination: ip address or subnet to filter on outgoing traffic.
@@ -113,6 +113,19 @@ firewall_rule 'myapplication' do
   direction :in
   interface 'eth0'
   action    :allow
+end
+
+# specify a protocol number (supported on centos/redhat)
+firewall_rule 'vrrp' do
+  protocol    112
+  action      :allow
+end
+
+# use the iptables provider to specify protocol number on debian/ubuntu
+firewall_rule 'vrrp' do
+  provider    Chef::Provider::FirewallRuleIptables
+  protocol    112
+  action      :allow
 end
 
 # open UDP ports 60000..61000 for mobile shell (mosh.mit.edu), note
