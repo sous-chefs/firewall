@@ -43,6 +43,12 @@ firewall_rule 'addremove2' do
   action :deny
 end
 
+firewall_rule 'protocolnum' do
+  protocol 112
+  action :allow
+  only_if { rhel? } # debian ufw doesn't support protocol numbers
+end
+
 # something to check for duplicates
 (0..1).each do |i|
   firewall_rule "duplicate#{i}" do

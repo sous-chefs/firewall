@@ -62,6 +62,15 @@ class Chef
         fail msg
       end
 
+      # if we don't do this, ufw will fail as it does not support protocol numbers, so we'll only allow it to run if specifying icmp/tcp/udp protocol types
+      if new_resource.protocol && !new_resource.protocol.to_s.downcase.match('^(tcp|udp|icmp)$')
+        msg = ''
+        msg << "firewall_rule[#{new_resource.name}] was asked to "
+        msg << "#{type} a rule using protocol #{new_resource.protocol} "
+        msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
+        fail msg
+      end
+
       # some examples:
       # ufw allow from 192.168.0.4 to any port 22
       # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25

@@ -160,7 +160,7 @@ class Chef
         firewall_rule << "-o #{new_resource.dest_interface} " if new_resource.dest_interface
 
         firewall_rule << "-p #{new_resource.protocol} " if new_resource.protocol
-        firewall_rule << '-m tcp ' if new_resource.protocol.to_sym == :tcp
+        firewall_rule << '-m tcp ' if new_resource.protocol.to_s.to_sym == :tcp
 
         # using multiport here allows us to simplify our greps and rule building
         firewall_rule << "-m multiport --sports #{port_to_s(new_resource.source_port)} " if new_resource.source_port

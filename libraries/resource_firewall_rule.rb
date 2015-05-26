@@ -6,7 +6,7 @@ class Chef
 
     actions(:reject, :allow, :deny, :masquerade, :redirect, :log, :remove)
 
-    attribute(:protocol, :kind_of => [Symbol, String], :equal_to => [:udp, :tcp, :icmp, 'tcp', 'udp', 'icmp'], :default => :tcp)
+    attribute(:protocol, :kind_of => [Integer, Symbol, String], :callbacks => { 'must be either "tcp", "udp", "icmp" or a valid IP protocol number' => ->(p) { valid_protocol?(p) } }, :default => :tcp)
     attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)
     attribute(:logging, :kind_of => [Symbol, String], :equal_to => [:connections, :packets, 'connections', 'packets'])
 
@@ -31,6 +31,17 @@ class Chef
       IPAddr.new(ip) ? true : false
     rescue
       false
+    end
+
+    def self.valid_protocol?(p)
+      case p.to_s
+      when /^\d+$/
+        p.between?(0, 142) ? true : false
+      when /(udp|tcp|icmp)/
+        return true
+      else
+        return false
+      end
     end
   end
 end
