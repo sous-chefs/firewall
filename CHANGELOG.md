@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.2.0 (2015-05-28)
+-------------------
+* #64 - Support the newer version of poise
+
 v1.1.2 (2015-05-19)
 -------------------
 * #60 - Always add /32 or /128 to ipv4 or ipv6 addresses, respectively.
