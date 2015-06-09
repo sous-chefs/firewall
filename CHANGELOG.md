@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.3.0 (2015-06-09)
+-------------------
+* #63 - Add support for protocol numbers
+
 v1.2.0 (2015-05-28)
 -------------------
 * #64 - Support the newer version of poise
