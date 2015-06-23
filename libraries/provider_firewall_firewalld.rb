@@ -23,6 +23,11 @@ class Chef
     include Chef::Mixin::ShellOut
 
     def action_enable
+      converge_by('install package firewalld and default DROP if no rules exist') do
+        package 'firewalld' do
+          action :install
+        end
+
       # prints all the firewall rules
       # pp @new_resource.subresources
       log_current_firewalld
