@@ -27,6 +27,7 @@ class Chef
         package 'firewalld' do
           action :install
         end
+      end
 
       # prints all the firewall rules
       # pp @new_resource.subresources

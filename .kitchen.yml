@@ -6,8 +6,12 @@ platforms:
   - name: ubuntu-14.04
   - name: ubuntu-12.04
   - name: debian-7.8
-  - name: centos-6.6
-  - name: centos-7.0
+  - name: centos-70
+    driver_config:
+      box: chef/centos-7.0
+  - name: centos-66
+    driver_config:
+      box: chef/centos-6.6
 
 suites:
   - name: default
