@@ -36,7 +36,7 @@ v1.1.2 (2015-05-19)
 
 v1.1.1 (2015-05-11)
 -------------------
-* #57 - Suppress warning: already initialized constant XXX while Chefspec 
+* #57 - Suppress warning: already initialized constant XXX while Chefspec
 
 v1.1.0 (2015-04-27)
 -------------------
