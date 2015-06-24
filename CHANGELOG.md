@@ -2,6 +2,11 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.3.2 (2015-06-23)
+-------------------
+* updated firewalld logic
+
+
 v1.3.0 (2015-06-09)
 -------------------
 * #63 - Add support for protocol numbers
@@ -17,7 +22,7 @@ v1.1.2 (2015-05-19)
 
 v1.1.1 (2015-05-11)
 -------------------
-* #57 - Suppress warning: already initialized constant XXX while Chefspec 
+* #57 - Suppress warning: already initialized constant XXX while Chefspec
 
 v1.1.0 (2015-04-27)
 -------------------
