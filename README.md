@@ -19,6 +19,7 @@ Tested on:
 * Ubuntu 12.04
 * Ubuntu 14.04
 * Debian 7.8
+* CentOS 5.11
 * CentOS 6.5
 * CentOS 7.0
 

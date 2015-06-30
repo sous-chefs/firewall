@@ -74,7 +74,7 @@ class Chef
         end
 
         # TODO: implement logging for :connections :packets
-        firewall_rule = build_firewall_rule(type)
+        firewall_rule = build_firewall_rule(type, ipv6)
 
         Chef::Log.debug("#{new_resource}: #{firewall_rule}")
         if rule_exists?(firewall_rule, ipv6)
@@ -97,7 +97,7 @@ class Chef
         ipv6 = (firewall_command == 'ip6tables') ? true : false
 
         # TODO: implement logging for :connections :packets
-        firewall_rule = build_firewall_rule(type)
+        firewall_rule = build_firewall_rule(type, ipv6)
 
         Chef::Log.debug("#{new_resource}: #{firewall_rule}")
         if rule_exists?(firewall_rule, ipv6)
@@ -143,7 +143,8 @@ class Chef
       commands
     end
 
-    def build_firewall_rule(type = nil)
+    def build_firewall_rule(type = nil, ipv6 = false)
+      el5 = ( node['platform'] == 'rhel' || node['platform'] == 'centos' ) && Gem::Dependency.new('', '~> 5.0').match?('', node['platform_version'])
       if new_resource.raw
         firewall_rule = new_resource.raw.strip
       else
@@ -175,7 +176,10 @@ class Chef
         firewall_rule << "-m multiport --dports #{port_to_s(dport_calc)} " if dport_calc
 
         firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.upcase} " if new_resource.stateful
-        firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
+        # the comments extension is not available for ip6tables on rhel/centos 5
+        if ! ( el5 && ipv6 )
+          firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
+        end
         firewall_rule << "-j #{TARGET[type]} "
         firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == 'redirect'
         firewall_rule.strip!
