@@ -51,7 +51,7 @@ class Chef
 
     private
 
-    def apply_rule(type = nil) # rubocop:disable MethodLength
+    def apply_rule(type = nil)
       Chef::Log.info("#{new_resource.name} apply_rule #{type}")
       # if we don't do this, we may see some bugs where traffic is opened on all ports to all hosts when only RELATED,ESTABLISHED was intended
       if new_resource.stateful

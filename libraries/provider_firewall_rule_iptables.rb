@@ -144,7 +144,7 @@ class Chef
     end
 
     def build_firewall_rule(type = nil, ipv6 = false)
-      el5 = ( node['platform'] == 'rhel' || node['platform'] == 'centos' ) && Gem::Dependency.new('', '~> 5.0').match?('', node['platform_version'])
+      el5 = (node['platform'] == 'rhel' || node['platform'] == 'centos') && Gem::Dependency.new('', '~> 5.0').match?('', node['platform_version'])
       if new_resource.raw
         firewall_rule = new_resource.raw.strip
       else
@@ -177,7 +177,7 @@ class Chef
 
         firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.upcase} " if new_resource.stateful
         # the comments extension is not available for ip6tables on rhel/centos 5
-        if ! ( el5 && ipv6 )
+        unless  el5 && ipv6
           firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
         end
         firewall_rule << "-j #{TARGET[type]} "
