@@ -40,3 +40,8 @@ describe command('firewall-cmd --direct --get-all-rules'), :if => firewalld? do
   duplicate_rule2 = "ipv4 filter INPUT 1 -p tcp -m tcp -m multiport --dports 5432,5431 -m comment --comment 'same comment' -j ACCEPT"
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
+
+describe service('firewalld'), :if => firewalld? do
+  it { should be_enabled }
+  it { should be_running }
+end

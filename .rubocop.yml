@@ -43,3 +43,4 @@ AllCops:
     - '**/*.rb'
   Exclude:
     - 'libraries/z_provider_mapping.rb'
+    - 'test/fixtures/cookbooks/firewall-test/recipes/debian_iptables.rb'

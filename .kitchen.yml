@@ -4,8 +4,14 @@ driver_config:
 
 platforms:
   - name: ubuntu-14.04
+    run_list:
+      - recipe[apt]
   - name: ubuntu-12.04
+    run_list:
+      - recipe[apt]
   - name: debian-7.8
+    run_list:
+      - recipe[apt]
   - name: centos-5.11
   - name: centos-6.6
   - name: centos-7.0
@@ -13,8 +19,20 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[apt]
       - recipe[firewall::default]
+      - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        allow_ssh: true
+
+  - name: iptables
+    excludes:
+      - centos-5.11
+      - centos-6.6
+      - centos-7.0
+      - debian-7.8
+    run_list:
+      - recipe[firewall-test::debian_iptables]
       - recipe[firewall-test::default]
     attributes:
       firewall:

@@ -26,6 +26,11 @@ class Chef
       # prints all the firewall rules
       # pp @new_resource.subresources
       log_current_firewalld
+
+      service 'firewalld' do
+        action [:enable, :start]
+      end
+
       if active?
         Chef::Log.debug("#{@new_resource} already enabled.")
       else
@@ -46,6 +51,10 @@ class Chef
         new_resource.updated_by_last_action(true)
       else
         Chef::Log.debug("#{@new_resource} already disabled.")
+      end
+
+      service 'firewalld' do
+        action [:disable, :stop]
       end
     end
 

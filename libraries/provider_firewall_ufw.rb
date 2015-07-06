@@ -40,6 +40,10 @@ class Chef
           action :nothing
         end.run_action(:create) # need this now if running in a provider
 
+        service 'ufw' do
+          action [:enable, :start]
+        end
+
         # new_resource.subresources contains all the firewall rules
         if active?
           Chef::Log.debug("#{new_resource} already enabled.")
@@ -62,6 +66,10 @@ class Chef
         new_resource.updated_by_last_action(true)
       else
         Chef::Log.debug("#{new_resource} already disabled.")
+      end
+
+      service 'ufw' do
+        action [:disable, :stop]
       end
     end
 

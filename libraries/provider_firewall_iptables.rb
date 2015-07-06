@@ -25,9 +25,13 @@ class Chef
     include Chef::Mixin::ShellOut
 
     def action_enable
-      converge_by('install package iptables and default DROP if no rules exist') do
-        package 'iptables' do
+      converge_by("install package #{package_name} and default DROP if no rules exist") do
+        package package_name do
           action :install
+        end
+
+        service service_name do
+          action [:enable, :start]
         end
 
         # prints all the firewall rules
@@ -66,6 +70,10 @@ class Chef
       else
         Chef::Log.debug("#{new_resource} already disabled.")
       end
+
+      service service_name do
+        action [:disable, :stop]
+      end
     end
 
     def action_flush
@@ -76,7 +84,8 @@ class Chef
 
     def action_save
       shell_out!('service iptables save')
-      shell_out!('service ip6tables save')
+      # iptables-persistent does ipv6 inside the iptables init script
+      shell_out!('service ip6tables save') unless ubuntu?
       Chef::Log.info("#{new_resource} saved.")
     end
 
@@ -105,6 +114,26 @@ class Chef
       Chef::Log.info(cmd.inspect)
     rescue
       Chef::Log.info("#{new_resource} log_current_iptables failed!")
+    end
+
+    def package_name
+      if ubuntu?
+        'iptables-persistent'
+      else
+        'iptables'
+      end
+    end
+
+    def service_name
+      if ubuntu?
+        'iptables-persistent'
+      else
+        'iptables'
+      end
+    end
+
+    def ubuntu?
+      node['platform'] == 'ubuntu'
     end
   end
 end

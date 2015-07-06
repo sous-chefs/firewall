@@ -46,3 +46,8 @@ describe command('ip6tables-save'), :if => iptables? do
     its(:stdout) { should match(r) }
   end
 end
+
+describe service('iptables'), :if => iptables? do
+  it { should be_enabled }
+  it { should be_running }
+end
