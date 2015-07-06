@@ -2,6 +2,17 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.5.0 (2015-07-06)
+-------------------
+
+* #70 - Add chef service resource to ensure firewall-related services are enabled/disabled
+*     - Add testing and support for iptables on ubuntu in iptables provider
+
+v1.4.0 (2015-06-30)
+-------------------
+
+* #69 - Support for CentOS/RHEL 5.x
+
 v1.3.0 (2015-06-09)
 -------------------
 * #63 - Add support for protocol numbers
