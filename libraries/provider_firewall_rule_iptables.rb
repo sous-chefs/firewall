@@ -181,7 +181,7 @@ class Chef
           firewall_rule << "-m comment --comment \"#{new_resource.description}\" "
         end
         firewall_rule << "-j #{TARGET[type]} "
-        firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == 'redirect'
+        firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == :redirect
         firewall_rule.strip!
       end
       firewall_rule
