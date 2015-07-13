@@ -10,6 +10,10 @@ if defined?(ChefSpec)
     ChefSpec::Matchers::ResourceMatcher.new(:firewall, :disable, resource)
   end
 
+  def save_firewall(resource)
+    ChefSpec::Matchers::ResourceMatcher.new(:firewall, :save, resource)
+  end
+
   def allow_firewall_rule(resource)
     ChefSpec::Matchers::ResourceMatcher.new(:firewall_rule, :allow, resource)
   end
