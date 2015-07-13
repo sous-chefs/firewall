@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.5.1 (2015-07-13)
+-------------------
+* #74 - add :save matcher for Chefspec
+
 v1.5.0 (2015-07-06)
 -------------------
 
