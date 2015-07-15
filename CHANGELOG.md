@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.5.2 (2015-07-15)
+-------------------
+* #75 - Use correct service in iptables save action, Add serverspec tests for iptables suite
+
 v1.5.1 (2015-07-13)
 -------------------
 * #74 - add :save matcher for Chefspec
