@@ -27,24 +27,24 @@ class Chef
         package 'firewalld' do
           action :install
         end
-      end
 
-      # prints all the firewall rules
-      # pp @new_resource.subresources
-      log_current_firewalld
+        # prints all the firewall rules
+        # pp @new_resource.subresources
+        log_current_firewalld
 
-      service 'firewalld' do
-        action [:enable, :start]
-      end
+        service 'firewalld' do
+          action [:enable, :start]
+        end
 
-      if active?
-        Chef::Log.debug("#{@new_resource} already enabled.")
-      else
-        Chef::Log.debug("#{@new_resource} is about to be enabled")
-        shell_out!('service', 'firewalld', 'start')
-        shell_out!('firewall-cmd', '--set-default-zone=drop')
-        Chef::Log.info("#{@new_resource} enabled.")
-        new_resource.updated_by_last_action(true)
+        if active?
+          Chef::Log.debug("#{@new_resource} already enabled.")
+        else
+          Chef::Log.debug("#{@new_resource} is about to be enabled")
+          shell_out!('service', 'firewalld', 'start')
+          shell_out!('firewall-cmd', '--set-default-zone=drop')
+          Chef::Log.info("#{@new_resource} enabled.")
+          new_resource.updated_by_last_action(true)
+        end
       end
     end
 
