@@ -83,7 +83,7 @@ class Chef
     end
 
     def action_save
-      shell_out!('service iptables save')
+      shell_out!("service #{service_name} save")
       # iptables-persistent does ipv6 inside the iptables init script
       shell_out!('service ip6tables save') unless ubuntu?
       Chef::Log.info("#{new_resource} saved.")
