@@ -2,6 +2,11 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.6.0 (2015-07-15)
+-------------------
+* #68 - Install firewalld when it does not exist
+* #72 - Fix symbol that was a string, breaking comparisons
+
 v1.5.2 (2015-07-15)
 -------------------
 * #75 - Use correct service in iptables save action, Add serverspec tests for iptables suite
