@@ -6,7 +6,7 @@ module FirewallCookbook
       elsif p && p.is_a?(Array)
         p.join(',')
       elsif p && p.is_a?(Range)
-        "#{p.first}:#{p.last} "
+        "#{p.first}:#{p.last}"
       end
     end
   end
