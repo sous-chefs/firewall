@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.6.1 (2015-07-24)
+-------------------
+* #80 - Remove an extra space in port range
+
 v1.6.0 (2015-07-15)
 -------------------
 * #68 - Install firewalld when it does not exist
