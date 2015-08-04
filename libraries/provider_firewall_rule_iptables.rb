@@ -67,10 +67,14 @@ class Chef
       firewall_commands = determine_iptables_commands
       firewall_commands.each do |firewall_command|
         ipv6 = (firewall_command == 'ip6tables') ? true : false
-        if new_resource.position
+
+        if new_resource.insert_at.to_sym == :top
           firewall_command << ' -I '
         else
-          firewall_command << ' -A '
+          firewall_command << ' -A ' unless new_resource.position
+        end
+        if new_resource.position
+          firewall_command << ' -I ' unless new_resource.insert_at.to_sym == :top
         end
 
         # TODO: implement logging for :connections :packets
