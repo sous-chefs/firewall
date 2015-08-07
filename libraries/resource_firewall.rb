@@ -1,10 +1,11 @@
-require 'poise'
-
 class Chef
-  class Resource::Firewall < Resource
-    include Poise(:container => true)
+  class Resource::Firewall < Chef::Resource::LWRPBase
+    resource_name(:firewall)
+    actions(:install, :restart, :disable, :flush, :save)
+    default_action(:install)
 
-    actions(:enable, :disable, :flush, :save)
-    attribute(:log_level, :kind_of => [Symbol, String], :equal_to => [:low, :medium, :high, :full, 'low', 'medium', 'high', 'full'], :default => :low)
+    attribute(:disabled, :kind_of => [TrueClass, FalseClass], :default => false)
+    attribute(:log_level, :kind_of => Symbol, :equal_to => [:low, :medium, :high, :full], :default => :low)
+    attribute(:rules, :kind_of => Hash)
   end
 end

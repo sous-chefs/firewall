@@ -9,5 +9,3 @@ version '1.6.1'
 supports 'ubuntu'
 supports 'redhat'
 supports 'centos'
-
-depends 'poise', '~> 2.0'

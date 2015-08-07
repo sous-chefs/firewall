@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 class Chef
-  class Provider::FirewallIptables < Chef::Provider::LWRPBase
+  class Provider::FirewallIptablesUbuntu < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
@@ -30,25 +30,25 @@ class Chef
       next if disabled?(new_resource)
 
       converge_by("install iptables and enable/start services") do
-        # can't pass an array without breaking chef 11 support
-        %w(iptables iptables-ipv6).each do |p|
+
+        # Can't pass an array without breaking chef 11 support
+        %w(iptables-persistent).each do |p|
           package p do
             action :install
           end
         end
 
-        %w(iptables ip6tables).each do |svc|
-
+        %w(rules.v4 rules.v6).each do |svc|
           # must create empty file for service to start
-          file "create empty /etc/sysconfig/#{svc}" do
-            path "/etc/sysconfig/#{svc}"
+          file "create empty /etc/iptables/#{svc}" do
+            path "/etc/iptables/#{svc}"
             content '# created by chef to allow service to start'
-            not_if { ::File.exists?("/etc/sysconfig/#{svc}") }
+            not_if { ::File.exists?("/etc/iptables/#{svc}") }
           end
+        end
 
-          service svc do
-            action [:enable, :start]
-          end
+        service 'iptables-persistent' do
+          action [:enable, :start]
         end
       end
     end
@@ -64,7 +64,12 @@ class Chef
       ensure_default_rules_exist(new_resource.rules)
 
       %w(iptables ip6tables).each do |iptables_type|
-        iptables_filename = "/etc/sysconfig/#{iptables_type}"
+        if iptables_type == 'ip6tables'
+          iptables_filename = "/etc/iptables/rules.v6"
+        else
+          iptables_filename = "/etc/iptables/rules.v4"
+        end
+
         # ensure a file resource exists with the current iptables rules
         begin
           iptables_file = run_context.resource_collection.find(file: iptables_filename)
@@ -79,7 +84,7 @@ class Chef
 
         # if the file was changed, restart iptables
         if iptables_file.updated_by_last_action?
-          service_affected = service iptables_type do
+          service_affected = service 'iptables-persistent' do
             action :nothing
           end
 
@@ -96,15 +101,16 @@ class Chef
       iptables_default_allow!
       new_resource.updated_by_last_action(true)
 
-      %w(iptables ip6tables).each do |svc|
-        service svc do
-          action [:disable, :stop]
-        end
+      service 'iptables-persistent' do
+        action [:disable, :stop]
+      end
 
+      %w(rules.v4 rules.v6).each do |svc|
         # must create empty file for service to start
-        file "create empty /etc/sysconfig/#{svc}" do
-          path "/etc/sysconfig/#{svc}"
+        file "create empty /etc/iptables/#{svc}" do
+          path "/etc/iptables/#{svc}"
           content '# created by chef to allow service to start'
+          action :create
         end
       end
     end
@@ -115,10 +121,12 @@ class Chef
       iptables_flush!
       new_resource.updated_by_last_action(true)
 
-      # must create empty file for service to start
-      file "create empty /etc/sysconfig/#{svc}" do
-        path "/etc/sysconfig/#{svc}"
-        content '# created by chef to allow service to start'
+      %w(rules.v4 rules.v6).each do |svc|
+        # must create empty file for service to start
+        file "create empty /etc/iptables/#{svc}" do
+          path "/etc/iptables/#{svc}"
+          content '# created by chef to allow service to start'
+        end
       end
     end
   end

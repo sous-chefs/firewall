@@ -1,7 +1,8 @@
 #
-# Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
 # Cookbook Name:: firewall
 # Provider:: rule_iptables
+#
+# Copyright 2012, computerlyrik
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,25 +17,35 @@
 # limitations under the License.
 #
 class Chef
-  class Provider::FirewallRuleFirewalld < Chef::Provider::LWRPBase
-    include FirewallCookbook::Helpers::Firewalld
+  class Provider::FirewallRuleIptablesUbuntu < Chef::Provider::LWRPBase
+    include FirewallCookbook::Helpers::Iptables
 
     action :create do
+      if ipv6_rule?(new_resource) # an ip4 specific rule
+        types = %w(ip6tables)
+      elsif ipv4_rule?(new_resource) # an ip6 specific rule
+        types = %w(iptables)
+      else # or not specific
+        types = %w(iptables ip6tables)
+      end
+
       firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules Hash.new unless firewall.rules
-      firewall.rules['firewalld'] = Hash.new unless firewall.rules['firewalld']
-      next if disabled?(firewall)
+      ensure_default_rules_exist(firewall.rules)
 
-      ip_versions(new_resource).each do |ip_version|
+      if firewall.disabled
+        Chef::Log.warn("#{firewall} has attribute 'disabled' = true, not proceeding")
+        next
+      end
 
+      types.each do |iptables_type|
         # build rules to apply with weight
-        k = "firewall-cmd --direct --add-rule #{build_firewall_rule(new_resource, ip_version)}"
+        k = "-A #{build_firewall_rule(node, new_resource, iptables_type == 'ip6tables')}"
         v = new_resource.position
 
         # unless we're adding them for the first time.... bail out.
-        unless firewall.rules['firewalld'].key?(k) && firewall.rules['firewalld'][k] == v
-          firewall.rules['firewalld'][k] = v
-
+        unless firewall.rules[iptables_type].key?(k) && firewall.rules[iptables_type][k] == v
+          firewall.rules[iptables_type][k] = v
           new_resource.notifies(:restart, firewall, :delayed)
           new_resource.updated_by_last_action(true)
         end

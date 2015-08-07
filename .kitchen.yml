@@ -1,5 +1,6 @@
 driver_plugin: vagrant
 driver_config:
+  # we should test with both 11.18.12 and latest 12.x
   require_chef_omnibus: true
 
 platforms:

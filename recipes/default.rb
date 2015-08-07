@@ -18,12 +18,13 @@
 #
 
 firewall 'default' do
-  action :enable
+  action :install
 end
 
 firewall_rule 'allow world to ssh' do
   port 22
   source '0.0.0.0/0'
-  action [:allow]
+  # default action is :create
+  # default iptables command is :append
   only_if { node['firewall']['allow_ssh'] }
 end

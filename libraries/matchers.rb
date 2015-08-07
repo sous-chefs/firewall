@@ -29,8 +29,4 @@ if defined?(ChefSpec)
   def log_firewall_rule(resource)
     ChefSpec::Matchers::ResourceMatcher.new(:firewall_rule, :log, resource)
   end
-
-  def remove_firewall_rule(resource)
-    ChefSpec::Matchers::ResourceMatcher.new(:firewall_rule, :remove, resource)
-  end
 end

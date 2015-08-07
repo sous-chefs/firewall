@@ -17,18 +17,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'poise'
-
 class Chef
-  class Provider::FirewallUfw < Provider
-    include Poise
-    include Chef::Mixin::ShellOut
+  class Provider::FirewallUfw < Chef::Provider::LWRPBase
+    include FirewallCookbook::Helpers::Ufw
 
-    def action_enable
-      converge_by('install ufw, template some defaults, and ufw enable') do
+    def whyrun_supported?
+      false
+    end
+
+    action :install do
+      next if disabled?(new_resource)
+
+      converge_by("install ufw, create template for /etc/default") do
         package 'ufw' do
-          action :nothing
-        end.run_action(:install) # need this now if running in a provider
+          action :install
+        end
 
         template '/etc/default/ufw' do
           action [:create]
@@ -37,48 +40,73 @@ class Chef
           mode '0644'
           source 'ufw/default.erb'
           cookbook 'firewall'
+        end
+
+        file "create empty #{ufw_rules_filename}" do
+          path ufw_rules_filename
+          content '# created by chef to allow service to start'
+          not_if { ::File.exists?(ufw_rules_filename) }
+        end
+      end
+    end
+
+    action :restart do
+      next if disabled?(new_resource)
+
+      # ensure it's initialized
+      new_resource.rules Hash.new unless new_resource.rules
+      new_resource.rules['ufw'] = Hash.new unless new_resource.rules['ufw']
+
+      # ensure a file resource exists with the current ufw rules
+      begin
+        ufw_file = run_context.resource_collection.find(file: ufw_rules_filename)
+      rescue
+        ufw_file = file ufw_rules_filename do
           action :nothing
-        end.run_action(:create) # need this now if running in a provider
-
-        service 'ufw' do
-          action [:enable, :start]
-        end
-
-        # new_resource.subresources contains all the firewall rules
-        if active?
-          Chef::Log.debug("#{new_resource} already enabled.")
-        else
-          shell_out!('ufw', 'enable', :input => 'yes')
-          Chef::Log.info("#{new_resource} enabled")
-          if new_resource.log_level
-            shell_out!('ufw', 'logging', new_resource.log_level.to_s)
-            Chef::Log.info("#{new_resource} logging enabled at '#{new_resource.log_level}' level")
-          end
-          new_resource.updated_by_last_action(true)
         end
       end
-    end
+      ufw_content = new_resource.rules['ufw'].sort_by { |k,v| v }.map { |k,v| k.join(' ') }.join("\n")
+      ufw_file.content "#{ufw_content}\n"
+      ufw_file.run_action(:create)
 
-    def action_disable
-      if active?
-        shell_out!('ufw', 'disable')
-        Chef::Log.info("#{new_resource} disabled")
+      # if the file was changed, restart iptables
+      if ufw_file.updated_by_last_action?
+        ufw_reset!
+        ufw_logging!(new_resource.log_level) if new_resource.log_level
+
+        new_resource.rules['ufw'].sort_by { |k,v| v }.map { |k,v| k }.each do |cmd|
+          ufw_rule!(cmd)
+        end
+
+        # ensure it's enabled _after_ rules are inputted, to catch malformed rules
+        ufw_enable! unless ufw_active?
         new_resource.updated_by_last_action(true)
-      else
-        Chef::Log.debug("#{new_resource} already disabled.")
-      end
-
-      service 'ufw' do
-        action [:disable, :stop]
       end
     end
 
-    private
+    action :disable do
+      next if disabled?(new_resource)
 
-    def active?
-      @active ||= begin
-        cmd = shell_out!('ufw', 'status')
-        cmd.stdout =~ /^Status:\sactive/
+      file "create empty #{ufw_rules_filename}" do
+        path ufw_rules_filename
+        content '# created by chef to allow service to start'
+      end
+
+      if ufw_active?
+        ufw_disable!
+        new_resource.updated_by_last_action(true)
+      end
+    end
+
+    action :flush do
+      next if disabled?(new_resource)
+
+      ufw_reset!
+      new_resource.updated_by_last_action(true)
+
+      file "create empty #{ufw_rules_filename}" do
+        path ufw_rules_filename
+        content '# created by chef to allow service to start'
       end
     end
   end

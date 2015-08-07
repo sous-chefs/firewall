@@ -2,6 +2,13 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v????? (2015-08-19)
+-------------------
+* #84, major rewrite:
+  - Allow relative positioning of rules
+  - Use delayed notifications to create one firewall ruleset instead of incremental changes
+  - Remove poise dependency
+
 v1.6.1 (2015-07-24)
 -------------------
 * #80 - Remove an extra space in port range

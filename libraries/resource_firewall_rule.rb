@@ -1,48 +1,42 @@
-require 'poise'
+require 'ipaddr'
 
 class Chef
-  class Resource::FirewallRule < Resource
-    include Poise(Chef::Resource::Firewall)
+  class Resource::FirewallRule < Chef::Resource::LWRPBase
+    include FirewallCookbook::Helpers
 
-    actions(:reject, :allow, :deny, :masquerade, :redirect, :log, :remove)
+    resource_name(:firewall_rule)
+    actions(:create)
+    default_action(:create)
 
-    attribute(:protocol, :kind_of => [Integer, Symbol, String], :callbacks => { 'must be either "tcp", "udp", "icmp" or a valid IP protocol number' => ->(p) { valid_protocol?(p) } }, :default => :tcp)
-    attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)
-    attribute(:logging, :kind_of => [Symbol, String], :equal_to => [:connections, :packets, 'connections', 'packets'])
+    attribute(:firewall_name, :kind_of => String, :default => 'default')
 
-    attribute(:source, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
+    attribute(:command, :kind_of=> Symbol, :equal_to => [:reject, :allow, :deny, :masquerade, :redirect, :log], :default => :allow)
+
+    attribute(:protocol, :kind_of => [Integer, Symbol], :default => :tcp,
+      :callbacks =>
+      { 'must be either :tcp, :udp, :icmp, :none, or a valid IP protocol number' => lambda { |p|
+        !!(p.to_s =~ /(udp|tcp|icmp|none)/ || ( p.to_s =~  /^\d+$/ && p.between?(0, 142) ))
+        }
+      }
+    )
+    attribute(:direction, :kind_of => Symbol, :equal_to => [:in, :out, :pre, :post], :default => :in)
+    attribute(:logging, :kind_of => Symbol, :equal_to => [:connections, :packets])
+
+    attribute(:source, :callbacks => { 'must be a valid ip address' => lambda { |ip| !!IPAddr.new(ip) }})
     attribute(:source_port, :kind_of => [Integer, Array, Range]) # source port
     attribute(:interface, :kind_of => String)
 
     attribute(:port, :kind_of => [Integer, Array, Range]) # shorthand for dest_port
-    attribute(:destination, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
+    attribute(:destination, :callbacks => { 'must be a valid ip address' => lambda { |ip| !!IPAddr.new(ip) }})
     attribute(:dest_port, :kind_of => [Integer, Array, Range])
     attribute(:dest_interface, :kind_of => String)
 
-    attribute(:insert_at, :kind_of => [Symbol, String], :equal_to => [:top, :bottom, 'top', 'bottom'], :default => :bottom)
-    attribute(:position, :kind_of => Integer)
-    attribute(:stateful, :kind_of => [Symbol, String, Array])
+    attribute(:position, :kind_of => Integer, :default => 50)
+    attribute(:stateful, :kind_of => [Symbol, Array])
     attribute(:redirect_port, :kind_of => Integer)
     attribute(:description, :kind_of => String, :name_attribute => true)
 
     # for when you just want to pass a raw rule
     attribute(:raw, :kind_of => String)
-
-    def self.valid_ip?(ip)
-      IPAddr.new(ip) ? true : false
-    rescue
-      false
-    end
-
-    def self.valid_protocol?(p)
-      case p.to_s
-      when /^\d+$/
-        p.between?(0, 142) ? true : false
-      when /(udp|tcp|icmp)/
-        return true
-      else
-        return false
-      end
-    end
   end
 end
