@@ -37,6 +37,7 @@ class Chef
         # prints all the firewall rules
         # pp new_resource.subresources
         log_current_iptables
+
         if active?
           Chef::Log.info("#{new_resource} already enabled.")
         else

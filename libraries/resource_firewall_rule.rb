@@ -6,17 +6,19 @@ class Chef
 
     actions(:reject, :allow, :deny, :masquerade, :redirect, :log, :remove)
 
-    attribute(:protocol, :kind_of => [Integer, Symbol, String], :callbacks => { 'must be either "tcp", "udp", "icmp" or a valid IP protocol number' => ->(p) { valid_protocol?(p) } }, :default => :tcp)
+    attribute(:protocol, :kind_of => [Integer, Symbol, String], :callbacks => { 'must be either "tcp", "udp", "icmp", "any" or a valid IP protocol number' => ->(p) { valid_protocol?(p) } }, :default => :tcp)
     attribute(:direction, :kind_of => [Symbol, String], :equal_to => [:in, :out, :pre, :post, 'in', 'out', 'pre', 'post'], :default => :in)
     attribute(:logging, :kind_of => [Symbol, String], :equal_to => [:connections, :packets, 'connections', 'packets'])
+    attribute(:program, :kind_of => String) # only used for Windows Firewalls
+    attribute(:service, :kind_of => String) # only used for Windows Firewalls
 
     attribute(:source, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
-    attribute(:source_port, :kind_of => [Integer, Array, Range]) # source port
+    attribute(:source_port, :kind_of => [Integer, Array, Range, String])
     attribute(:interface, :kind_of => String)
 
-    attribute(:port, :kind_of => [Integer, Array, Range]) # shorthand for dest_port
+    attribute(:port, :kind_of => [Integer, Array, Range, String]) # shorthand for dest_port
     attribute(:destination, :callbacks => { 'must be a valid ip address' => ->(s) { valid_ip?(s) } })
-    attribute(:dest_port, :kind_of => [Integer, Array, Range])
+    attribute(:dest_port, :kind_of => [Integer, Array, Range, String])
     attribute(:dest_interface, :kind_of => String)
 
     attribute(:position, :kind_of => Integer)
@@ -37,7 +39,7 @@ class Chef
       case p.to_s
       when /^\d+$/
         p.between?(0, 142) ? true : false
-      when /(udp|tcp|icmp)/
+      when /(udp|tcp|icmp|any)/
         return true
       else
         return false
