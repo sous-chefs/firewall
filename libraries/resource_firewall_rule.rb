@@ -36,6 +36,10 @@ class Chef
     attribute(:redirect_port, :kind_of => Integer)
     attribute(:description, :kind_of => String, :name_attribute => true)
 
+    # only used for Windows Firewalls
+    attribute(:program, :kind_of => String)
+    attribute(:service, :kind_of => String)
+
     # for when you just want to pass a raw rule
     attribute(:raw, :kind_of => String)
   end
