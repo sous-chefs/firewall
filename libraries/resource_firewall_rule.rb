@@ -19,6 +19,7 @@ class Chef
     attribute(:dest_port, :kind_of => [Integer, Array, Range])
     attribute(:dest_interface, :kind_of => String)
 
+    attribute(:insert_at, :kind_of => [Symbol, String], :equal_to => [:top, :bottom, 'top', 'bottom'], :default => :bottom)
     attribute(:position, :kind_of => Integer)
     attribute(:stateful, :kind_of => [Symbol, String, Array])
     attribute(:redirect_port, :kind_of => Integer)

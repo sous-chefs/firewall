@@ -49,6 +49,12 @@ firewall_rule 'protocolnum' do
   only_if { rhel? } # debian ufw doesn't support protocol numbers
 end
 
+firewall_rule 'prepend' do
+  port 7788
+  insert_at :top
+  action :allow
+end
+
 # something to check for duplicates
 (0..1).each do |i|
   firewall_rule "duplicate#{i}" do
