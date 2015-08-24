@@ -85,16 +85,16 @@ class Chef
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? new_resource.source : 'any'
-          parameters['localport'] = new_resource.source_port ? new_resource.source_port : 'any'
+          parameters['localport'] = port_to_s(new_resource.source_port) ? new_resource.source_port : 'any'
           parameters['interfacetype'] = new_resource.source_interface ? new_resource.source_interface : 'any'
           parameters['remoteip'] = new_resource.destination ? new_resource.destination : 'any'
-          parameters['remoteport'] = new_resource.dest_port ? new_resource.dest_port : 'any'
+          parameters['remoteport'] = port_to_s(new_resource.dest_port) ? new_resource.dest_port : 'any'
         else
           parameters['localip'] = new_resource.destination ? new_resource.destination : 'any'
-          parameters['localport'] = new_resource.dest_port ? new_resource.dest_port : 'any'
+          parameters['localport'] = port_to_s(new_resource.dest_port) ? new_resource.dest_port : 'any'
           parameters['interfacetype'] = new_resource.dest_interface ? new_resource.dest_interface : 'any'
           parameters['remoteip'] = new_resource.source ? new_resource.source : 'any'
-          parameters['remoteport'] = new_resource.source_port ? new_resource.source_port : 'any'
+          parameters['remoteport'] = port_to_s(new_resource.source_port) ? new_resource.source_port : 'any'
         end
 
         parameters['action'] = type.to_s
