@@ -10,6 +10,7 @@ Chef::Platform.set platform: :redhat, version: '< 7.0', resource: :firewall, pro
 Chef::Platform.set platform: :redhat, version: '>= 7.0', resource: :firewall, provider: Chef::Provider::FirewallFirewalld
 Chef::Platform.set platform: :debian, resource: :firewall, provider: Chef::Provider::FirewallUfw
 Chef::Platform.set platform: :ubuntu, resource: :firewall, provider: Chef::Provider::FirewallUfw
+Chef::Platform.set platform: :windows, resource: :firewall, provider: Chef::Provider::FirewallWindows
 
 #########
 # firewall_rule
@@ -20,3 +21,4 @@ Chef::Platform.set platform: :redhat, version: '< 7.0', resource: :firewall_rule
 Chef::Platform.set platform: :redhat, version: '>= 7.0', resource: :firewall_rule, provider: Chef::Provider::FirewallRuleFirewalld
 Chef::Platform.set platform: :debian, resource: :firewall_rule, provider: Chef::Provider::FirewallRuleUfw
 Chef::Platform.set platform: :ubuntu, resource: :firewall_rule, provider: Chef::Provider::FirewallRuleUfw
+Chef::Platform.set platform: :windows, resource: :firewall_rule, provider: Chef::Provider::FirewallRuleWindows
