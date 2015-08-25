@@ -40,7 +40,7 @@ class Chef
 
       types.each do |iptables_type|
         # build rules to apply with weight
-        k = "-A #{build_firewall_rule(node, new_resource, iptables_type == 'ip6tables')}"
+        k = build_firewall_rule(node, new_resource, iptables_type == 'ip6tables')
         v = new_resource.position
 
         # unless we're adding them for the first time.... bail out.

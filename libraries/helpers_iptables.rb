@@ -13,7 +13,7 @@ module FirewallCookbook
         if rule_resource.raw
           firewall_rule = rule_resource.raw.strip
         else
-          firewall_rule = ''
+          firewall_rule = '-A '
           if rule_resource.direction
             firewall_rule << "#{CHAIN[rule_resource.direction.to_sym]} "
           else
