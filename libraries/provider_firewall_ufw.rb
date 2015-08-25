@@ -65,8 +65,7 @@ class Chef
           action :nothing
         end
       end
-      ufw_content = new_resource.rules['ufw'].sort_by { |k,v| v }.map { |k,v| k.join(' ') }.join("\n")
-      ufw_file.content "#{ufw_content}\n"
+      ufw_file.content build_rule_file(new_resource.rules['ufw'])
       ufw_file.run_action(:create)
 
       # if the file was changed, restart iptables

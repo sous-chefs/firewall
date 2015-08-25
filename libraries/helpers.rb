@@ -54,5 +54,19 @@ module FirewallCookbook
     def ubuntu?(current_node)
       current_node['platform'] == 'ubuntu'
     end
+
+    def build_rule_file(rules)
+      contents = []
+      sorted_values = rules.values.sort.uniq
+      sorted_values.each do |sorted_value|
+        contents << "# position #{sorted_value}"
+        rules.each do |k,v|
+          next unless v == sorted_value
+          contents << k
+        end
+      end
+      "#{contents.join("\n")}\n"
+    end
+
   end
 end

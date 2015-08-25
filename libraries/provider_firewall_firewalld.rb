@@ -58,8 +58,7 @@ class Chef
           action :nothing
         end
       end
-      firewalld_content = new_resource.rules['firewalld'].sort_by { |k,v| v }.map { |k,v| k }.join("\n")
-      firewalld_file.content "#{firewalld_content}\n"
+      firewalld_file.content build_rule_file(new_resource.rules['firewalld'])
       firewalld_file.run_action(:create)
 
       # ensure the service is running

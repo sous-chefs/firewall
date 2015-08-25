@@ -78,8 +78,7 @@ class Chef
             action :nothing
           end
         end
-        iptables_content = new_resource.rules[iptables_type].sort_by { |k,v| v }.map { |k,v| k }.join("\n")
-        iptables_file.content "#{iptables_content}\n"
+        iptables_file.content build_rule_file(new_resource.rules[iptables_type])
         iptables_file.run_action(:create)
 
         # if the file was changed, restart iptables

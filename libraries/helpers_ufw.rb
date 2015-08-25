@@ -62,7 +62,7 @@ module FirewallCookbook
         ufw_command = ['ufw']
         ufw_command << type.to_s
         ufw_command << rule(new_resource).split
-        ufw_command.flatten
+        ufw_command.flatten.join(' ')
       end
 
       def rule(new_resource)
