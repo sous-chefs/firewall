@@ -12,12 +12,14 @@ Requirements
 * UFW - Ubuntu, Debian
 * IPTables - Red Hat & CentOS, Ubuntu
 * FirewallD - Red Hat & CentOS >= 7.0
+* Windows Advanced Firewall - 2012 R2
 
 Tested on:
 * Ubuntu 12.04 & 14.04 with iptables, ufw
 * Debian 7.8 with ufw
 * CentOS 5.11, 6.5 with iptables
 * CentOS 7.0 with firewalld
+* Windows Server 2012r2 with Windows Advanced Firewall
 
 By default, Ubuntu chooses ufw. To switch to iptables, add:
 ```
@@ -45,7 +47,9 @@ The default recipe creates a firewall resource with action install, and if `node
 # Attributes
 
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
-* `default['firewall']['allow_ssh'] = false`, set true to open port 22 when the default recipe runs
+* `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
+* `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
+
 
 # Resources
 

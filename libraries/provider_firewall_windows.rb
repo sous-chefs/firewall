@@ -15,56 +15,82 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'poise'
 
 class Chef
-  class Provider::FirewallWindows < Provider
-    include Poise
-    include Chef::Mixin::ShellOut
+  class Provider::FirewallWindows < Chef::Provider::LWRPBase
+    include FirewallCookbook::Helpers::Windows
 
-    def action_enable
-      converge_by('enable and start Windows Firewall service') do
+    def whyrun_supported?
+      false
+    end
 
+    action :install do
+      next if disabled?(new_resource)
+
+      converge_by("enable and start Windows Firewall service") do
         service 'MpsSvc' do
           action [:enable, :start]
         end
+      end
+    end
 
+    action :restart do
+      next if disabled?(new_resource)
+
+      # ensure it's initialized
+      new_resource.rules Hash.new unless new_resource.rules
+      new_resource.rules['windows'] = Hash.new unless new_resource.rules['windows']
+
+      # ensure a file resource exists with the current ufw rules
+      begin
+        windows_file = run_context.resource_collection.find(file: windows_rules_filename)
+      rescue
+        windows_file = file windows_rules_filename do
+          action :nothing
+        end
+      end
+      windows_file.content build_rule_file(new_resource.rules['windows'])
+      windows_file.run_action(:create)
+
+      # if the file was changed, restart iptables
+      if windows_file.updated_by_last_action?
+        disable! if active?
+        delete_all_rules! # clear entirely
+        reset! # populate default rules
+
+        new_resource.rules['windows'].sort_by { |k,v| v }.map { |k,v| k }.each do |cmd|
+          add_rule!(cmd)
+        end
+        # ensure it's enabled _after_ rules are inputted, to catch malformed rules
+        enable! unless active?
+
+        new_resource.updated_by_last_action(true)
+      end
+    end
+
+    action :disable do
+      next if disabled?(new_resource)
+
+      converge_by('disable and stop Windows Firewall service') do
         if active?
-          Chef::Log.debug("#{new_resource} already enabled.")
-        else
-          shell_out!('netsh advfirewall set currentprofile state on')
-          Chef::Log.info("#{new_resource} enabled.")
+          disable!
+          Chef::Log.info("#{new_resource} disabled.")
           new_resource.updated_by_last_action(true)
+        else
+          Chef::Log.debug("#{new_resource} already disabled.")
+        end
+
+        service 'MpsSvc' do
+          action [:disable, :stop]
         end
       end
     end
 
-    def action_disable
-      if active?
-        shell_out!('netsh advfirewall set currentprofile state off')
-        Chef::Log.info("#{new_resource} disabled.")
-        new_resource.updated_by_last_action(true)
-      else
-        Chef::Log.debug("#{new_resource} already disabled.")
-      end
+    action :flush do
+      next if disabled?(new_resource)
 
-      service 'MpsSvc' do
-        action [:disable, :stop]
-      end
-    end
-
-    def action_reset
-      shell_out!('netsh advfirewall reset')
+      reset!
       Chef::Log.info("#{new_resource} reset.")
-    end
-
-    private
-
-    def active?
-      @active ||= begin
-        cmd = shell_out!('netsh advfirewall show currentprofile')
-        cmd.stdout =~ /^State\sON/
-      end
     end
   end
 end

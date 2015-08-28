@@ -14,6 +14,7 @@ end
 group :kitchen_common do
   gem 'test-kitchen'
   gem 'vagrant-wrapper'
+  gem 'winrm-transport'
 end
 
 group :kitchen_vagrant do
@@ -21,8 +22,7 @@ group :kitchen_vagrant do
 end
 
 group :kitchen_cloud do
-  gem 'kitchen-digitalocean'
-  gem 'kitchen-gce'
+  gem 'kitchen-rackspace'
 end
 
 group :development do

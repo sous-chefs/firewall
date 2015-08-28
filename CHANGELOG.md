@@ -8,6 +8,7 @@ v????? (2015-08-19)
   - Allow relative positioning of rules
   - Use delayed notifications to create one firewall ruleset instead of incremental changes
   - Remove poise dependency
+* #82 - Introduce Windows firewall support and test-kitchen platform.
 
 v1.6.1 (2015-07-24)
 -------------------

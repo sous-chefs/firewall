@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe 'chef-sugar'
+
 firewall 'default' do
   action :install
 end
@@ -26,5 +28,13 @@ firewall_rule 'allow world to ssh' do
   source '0.0.0.0/0'
   # default action is :create
   # default iptables command is :append
-  only_if { node['firewall']['allow_ssh'] }
+  only_if { linux? && node['firewall']['allow_ssh'] }
+end
+
+firewall_rule 'allow world to winrm' do
+  port 5989
+  source '0.0.0.0/0'
+  # default action is :create
+  # default iptables command is :append
+  only_if { windows? && node['firewall']['allow_winrm'] }
 end
