@@ -114,10 +114,12 @@ class Chef
       iptables_flush!
       new_resource.updated_by_last_action(true)
 
-      # must create empty file for service to start
-      file "create empty /etc/sysconfig/#{svc}" do
-        path "/etc/sysconfig/#{svc}"
-        content '# created by chef to allow service to start'
+      %w(iptables ip6tables).each do |svc|
+        # must create empty file for service to start
+        file "create empty /etc/sysconfig/#{svc}" do
+          path "/etc/sysconfig/#{svc}"
+          content '# created by chef to allow service to start'
+        end
       end
     end
   end
