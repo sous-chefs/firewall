@@ -19,11 +19,11 @@ module FirewallCookbook
 
       def firewalld_default_zone?(z)
         cmd = shell_out('firewall-cmd', '--get-default-zone')
-        cmd.stdout =~ /^#{z}$/
+        cmd.stdout =~ /^#{z.to_s}$/
       end
 
       def firewalld_default_zone!(z)
-        shell_out!('firewall-cmd', "--set-default-zone=#{z}")
+        shell_out!('firewall-cmd', "--set-default-zone=#{z.to_s}")
       end
 
       def log_current_firewalld

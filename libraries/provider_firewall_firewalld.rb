@@ -67,8 +67,8 @@ class Chef
       end
 
       # mark updated if we changed the zone
-      unless firewalld_default_zone?('drop')
-        firewalld_default_zone!('drop')
+      unless firewalld_default_zone?(new_resource.enabled_zone)
+        firewalld_default_zone!(new_resource.enabled_zone)
         new_resource.updated_by_last_action(true)
       end
 
@@ -89,7 +89,7 @@ class Chef
       next if disabled?(new_resource)
 
       firewalld_flush!
-      firewalld_default_zone!('public')
+      firewalld_default_zone!(new_resource.disabled_zone)
       new_resource.updated_by_last_action(true)
 
       service 'firewalld' do
