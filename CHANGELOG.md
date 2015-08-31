@@ -2,13 +2,16 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
-v????? (2015-08-19)
+v2.0.0 (2015-08-31)
 -------------------
 * #84, major rewrite:
   - Allow relative positioning of rules
   - Use delayed notifications to create one firewall ruleset instead of incremental changes
   - Remove poise dependency
 * #82 - Introduce Windows firewall support and test-kitchen platform.
+* #73 - Add the option to disable ipv6 commands on iptables
+* #78 - Use Chef-12 style `provides` to address provider mapping issues
+* Rubocop and foodcritic cleanup
 
 v1.6.1 (2015-07-24)
 -------------------
