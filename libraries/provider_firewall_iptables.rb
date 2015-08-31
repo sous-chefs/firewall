@@ -22,6 +22,10 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
+    provides :firewall, os: "linux", platform_family: [ "rhel", "fedora" ] do |node|
+      node[:platform_version].to_f < 7.0
+    end
+
     def whyrun_supported?
       false
     end

@@ -8,10 +8,15 @@ PLEASE NOTE - The resource/providers in this cookbook are under heavy developmen
 
 Requirements
 ------------
+**Chef 12.4.x** is required. We are currently testing against 12.4.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+```
+depends 'firewall', '< 2.0'
+```
+
 ### Supported firewalls and platforms
 * UFW - Ubuntu, Debian
 * IPTables - Red Hat & CentOS, Ubuntu
-* FirewallD - Red Hat & CentOS >= 7.0
+* FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/opscode-cookbooks/firewall/issues/86))
 * Windows Advanced Firewall - 2012 R2
 
 Tested on:
@@ -21,10 +26,9 @@ Tested on:
 * CentOS 7.0 with firewalld
 * Windows Server 2012r2 with Windows Advanced Firewall
 
-By default, Ubuntu chooses ufw. To switch to iptables, add:
+By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute file:
 ```
-Chef::Platform.set platform: :ubuntu, resource: :firewall, provider: Chef::Provider::FirewallIptablesUbuntu
-Chef::Platform.set platform: :ubuntu, resource: :firewall_rule, provider: Chef::Provider::FirewallRuleIptablesUbuntu
+default['firewall']['ubuntu_iptables'] = true
 ```
 
 # Read this first

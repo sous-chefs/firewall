@@ -21,6 +21,8 @@ class Chef
   class Provider::FirewallUfw < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Ufw
 
+    provides :firewall, os: "linux", platform_family: [ "debian" ]
+
     def whyrun_supported?
       false
     end

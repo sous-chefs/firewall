@@ -10,7 +10,7 @@ firewall_rule 'established' do
   stateful [:related, :established]
   protocol :none # explicitly don't specify protocol
   command :allow
-  only_if { rhel? || node['firewall_test_iptables'] == true } # debian ufw already does this by default, can't modify it
+  only_if { rhel? || node['firewall']['ubuntu_iptables'] } # debian ufw already does this by default, can't modify it
 end
 
 firewall_rule 'ssh22' do

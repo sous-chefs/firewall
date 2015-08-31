@@ -37,5 +37,7 @@ suites:
       - debian-7.8
       - windows-2012r2
     run_list:
-      - recipe[firewall-test::debian_iptables]
       - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        ubuntu_iptables: true

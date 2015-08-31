@@ -1,6 +1,7 @@
 class Chef
   class Resource::Firewall < Chef::Resource::LWRPBase
     resource_name(:firewall)
+    provides(:firewall)
     actions(:install, :restart, :disable, :flush, :save)
     default_action(:install)
 

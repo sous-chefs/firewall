@@ -19,6 +19,8 @@ class Chef
   class Provider::FirewallFirewalld < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Firewalld
 
+    provides :firewall, os: "linux", platform_family: [ "rhel", "fedora" ]
+
     def whyrun_supported?
       false
     end

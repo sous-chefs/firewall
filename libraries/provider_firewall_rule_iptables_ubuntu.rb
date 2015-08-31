@@ -20,6 +20,10 @@ class Chef
   class Provider::FirewallRuleIptablesUbuntu < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Iptables
 
+    provides :firewall_rule, os: "linux", platform_family: [ "debian" ] do |node|
+      node['firewall'] && node['firewall']['ubuntu_iptables']
+    end
+
     action :create do
       if ipv6_rule?(new_resource) # an ip4 specific rule
         types = %w(ip6tables)

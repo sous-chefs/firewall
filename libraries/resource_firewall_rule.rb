@@ -5,6 +5,7 @@ class Chef
     include FirewallCookbook::Helpers
 
     resource_name(:firewall_rule)
+    provides(:firewall_rule)
     actions(:create)
     default_action(:create)
 
