@@ -10,24 +10,24 @@ class Chef
 
     attribute(:firewall_name, :kind_of => String, :default => 'default')
 
-    attribute(:command, :kind_of=> Symbol, :equal_to => [:reject, :allow, :deny, :masquerade, :redirect, :log], :default => :allow)
+    attribute(:command, :kind_of => Symbol, :equal_to => [:reject, :allow, :deny, :masquerade, :redirect, :log], :default => :allow)
 
     attribute(:protocol, :kind_of => [Integer, Symbol], :default => :tcp,
-      :callbacks =>
-      { 'must be either :tcp, :udp, :icmp, :none, or a valid IP protocol number' => lambda { |p|
-        !!(p.to_s =~ /(udp|tcp|icmp|none)/ || ( p.to_s =~  /^\d+$/ && p.between?(0, 142) ))
-        }
+                         :callbacks =>
+      { 'must be either :tcp, :udp, :icmp, :none, or a valid IP protocol number' => lambda do |p|
+        !!(p.to_s =~ /(udp|tcp|icmp|none)/ || (p.to_s =~ /^\d+$/ && p.between?(0, 142)))
+      end
       }
-    )
+             )
     attribute(:direction, :kind_of => Symbol, :equal_to => [:in, :out, :pre, :post], :default => :in)
     attribute(:logging, :kind_of => Symbol, :equal_to => [:connections, :packets])
 
-    attribute(:source, :callbacks => { 'must be a valid ip address' => lambda { |ip| !!IPAddr.new(ip) }})
+    attribute(:source, :callbacks => { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
     attribute(:source_port, :kind_of => [Integer, Array, Range]) # source port
     attribute(:interface, :kind_of => String)
 
     attribute(:port, :kind_of => [Integer, Array, Range]) # shorthand for dest_port
-    attribute(:destination, :callbacks => { 'must be a valid ip address' => lambda { |ip| !!IPAddr.new(ip) }})
+    attribute(:destination, :callbacks => { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
     attribute(:dest_port, :kind_of => [Integer, Array, Range])
     attribute(:dest_interface, :kind_of => String)
 

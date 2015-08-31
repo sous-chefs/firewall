@@ -58,7 +58,7 @@ module FirewallCookbook
           shell_out!("#{cmd} -L -n")
         end
       rescue
-        Chef::Log.info("log_iptables failed!")
+        Chef::Log.info('log_iptables failed!')
       end
 
       def iptables_flush!
@@ -77,17 +77,17 @@ module FirewallCookbook
 
       def default_ruleset
         {
-          "*filter" => 1,
-          ":INPUT DROP" => 2,
-          ":FORWARD DROP" => 3,
-          ":OUTPUT ACCEPT" => 4,
-          "COMMIT" => 100
+          '*filter' => 1,
+          ':INPUT DROP' => 2,
+          ':FORWARD DROP' => 3,
+          ':OUTPUT ACCEPT' => 4,
+          'COMMIT' => 100
         }
       end
 
       def ensure_default_rules_exist(input)
         %w(iptables ip6tables).each do |name|
-          input[name] = Hash.new unless input[name]
+          input[name] = {} unless input[name]
           input[name].merge!(default_ruleset)
         end
       end

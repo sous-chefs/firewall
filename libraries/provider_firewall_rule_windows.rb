@@ -21,9 +21,9 @@ class Chef
     include FirewallCookbook::Helpers::Windows
 
     action :create do
-      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
-      firewall.rules Hash.new unless firewall.rules
-      firewall.rules['windows'] = Hash.new unless firewall.rules['windows']
+      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall.rules({}) unless firewall.rules
+      firewall.rules['windows'] = {} unless firewall.rules['windows']
 
       if firewall.disabled
         Chef::Log.warn("#{firewall} has attribute 'disabled' = true, not proceeding")
@@ -41,7 +41,6 @@ class Chef
         new_resource.notifies(:restart, firewall, :delayed)
         new_resource.updated_by_last_action(true)
       end
-
     end
   end
 end

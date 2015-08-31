@@ -1,7 +1,12 @@
 driver_plugin: vagrant
-driver_config:
-  # we should test with both 11.18.12 and latest 12.x
-  require_chef_omnibus: true
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: true # we should test with both 11.18.12 and latest 12.x
+  attributes:
+    firewall:
+      allow_ssh: true
+      allow_winrm: true
 
 platforms:
   - name: ubuntu-14.04
@@ -23,10 +28,6 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-    attributes:
-      firewall:
-        allow_ssh: true
-        allow_winrm: true
 
   - name: iptables
     excludes:
@@ -38,6 +39,3 @@ suites:
     run_list:
       - recipe[firewall-test::debian_iptables]
       - recipe[firewall-test::default]
-    attributes:
-      firewall:
-        allow_ssh: true

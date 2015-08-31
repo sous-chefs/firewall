@@ -28,7 +28,7 @@ class Chef
     action :install do
       next if disabled?(new_resource)
 
-      converge_by("install ufw, create template for /etc/default") do
+      converge_by('install ufw, create template for /etc/default') do
         package 'ufw' do
           action :install
         end
@@ -45,7 +45,7 @@ class Chef
         file "create empty #{ufw_rules_filename}" do
           path ufw_rules_filename
           content '# created by chef to allow service to start'
-          not_if { ::File.exists?(ufw_rules_filename) }
+          not_if { ::File.exist?(ufw_rules_filename) }
         end
       end
     end
@@ -54,12 +54,12 @@ class Chef
       next if disabled?(new_resource)
 
       # ensure it's initialized
-      new_resource.rules Hash.new unless new_resource.rules
-      new_resource.rules['ufw'] = Hash.new unless new_resource.rules['ufw']
+      new_resource.rules({}) unless new_resource.rules
+      new_resource.rules['ufw'] = {} unless new_resource.rules['ufw']
 
       # ensure a file resource exists with the current ufw rules
       begin
-        ufw_file = run_context.resource_collection.find(file: ufw_rules_filename)
+        ufw_file = run_context.resource_collection.find(:file => ufw_rules_filename)
       rescue
         ufw_file = file ufw_rules_filename do
           action :nothing
@@ -73,7 +73,7 @@ class Chef
         ufw_reset!
         ufw_logging!(new_resource.log_level) if new_resource.log_level
 
-        new_resource.rules['ufw'].sort_by { |k,v| v }.map { |k,v| k }.each do |cmd|
+        new_resource.rules['ufw'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
           ufw_rule!(cmd)
         end
 

@@ -23,7 +23,7 @@ module FirewallCookbook
       end
 
       def firewalld_default_zone!(z)
-        shell_out!('firewall-cmd', "--set-default-zone=#{z.to_s}")
+        shell_out!('firewall-cmd', "--set-default-zone=#{z}")
       end
 
       def log_current_firewalld

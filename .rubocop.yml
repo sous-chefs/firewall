@@ -1,3 +1,10 @@
+Metrics/ModuleLength:
+  Max: 200
+
+Style/DoubleNegation:
+  Exclude:
+    - 'libraries/resource_firewall_rule.rb'
+
 AlignParameters:
   Enabled: false
 

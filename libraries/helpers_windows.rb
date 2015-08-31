@@ -12,7 +12,7 @@ module FirewallCookbook
       end
 
       def windows_rules_filename
-        "#{ENV["HOME"]}/windows-chef.rules"
+        "#{ENV['HOME']}/windows-chef.rules"
       end
 
       def active?
@@ -39,7 +39,7 @@ module FirewallCookbook
       end
 
       def delete_all_rules!
-        shell_out!("netsh advfirewall firewall delete rule name=all")
+        shell_out!('netsh advfirewall firewall delete rule name=all')
       end
 
       def to_type(new_resource)
@@ -79,7 +79,7 @@ module FirewallCookbook
 
         parameters['action'] = type.to_s
 
-        partial_command = parameters.map{|k,v| "#{k}=#{v}"}.join(' ')
+        partial_command = parameters.map { |k, v| "#{k}=#{v}" }.join(' ')
         "firewall add rule name=\"#{new_resource.name}\" #{partial_command}"
       end
 
@@ -91,7 +91,7 @@ module FirewallCookbook
       end
 
       def show_all_rules!
-        cmd = shell_out!("netsh advfirewall firewall show rule name=all")
+        cmd = shell_out!('netsh advfirewall firewall show rule name=all')
         cmd.stdout.each_line do |line|
           Chef::Log.warn(line)
         end
@@ -104,21 +104,21 @@ module FirewallCookbook
 
           cmd = shell_out!("netsh advfirewall firewall show rule name=\"#{name}\" verbose")
           cmd.stdout.each_line do |line|
-            current_parameters['description'] = "\"#{$1.chomp}\"" if line =~ /^Description:\s+(.*)$/
-            current_parameters['dir'] = $1.chomp if line =~ /^Direction:\s+(.*)$/
-            current_parameters['program'] = $1.chomp if line =~ /^Program:\s+(.*)$/
-            current_parameters['service'] = $1.chomp if line =~ /^Service:\s+(.*)$/
-            current_parameters['protocol'] = $1.chomp if line =~ /^Protocol:\s+(.*)$/
-            current_parameters['localip'] = $1.chomp if line =~ /^LocalIP:\s+(.*)$/
-            current_parameters['localport'] = $1.chomp if line =~ /^LocalPort:\s+(.*)$/
-            current_parameters['interfacetype'] = $1.chomp if line =~ /^InterfaceTypes:\s+(.*)$/
-            current_parameters['remoteip'] = $1.chomp if line =~ /^RemoteIP:\s+(.*)$/
-            current_parameters['remoteport'] = $1.chomp if line =~ /^RemotePort:\s+(.*)$/
-            current_parameters['action'] = $1.chomp if line =~ /^Action:\s+(.*)$/
+            current_parameters['description'] = "\"#{Regexp.last_match(1).chomp}\"" if line =~ /^Description:\s+(.*)$/
+            current_parameters['dir'] = Regexp.last_match(1).chomp if line =~ /^Direction:\s+(.*)$/
+            current_parameters['program'] = Regexp.last_match(1).chomp if line =~ /^Program:\s+(.*)$/
+            current_parameters['service'] = Regexp.last_match(1).chomp if line =~ /^Service:\s+(.*)$/
+            current_parameters['protocol'] = Regexp.last_match(1).chomp if line =~ /^Protocol:\s+(.*)$/
+            current_parameters['localip'] = Regexp.last_match(1).chomp if line =~ /^LocalIP:\s+(.*)$/
+            current_parameters['localport'] = Regexp.last_match(1).chomp if line =~ /^LocalPort:\s+(.*)$/
+            current_parameters['interfacetype'] = Regexp.last_match(1).chomp if line =~ /^InterfaceTypes:\s+(.*)$/
+            current_parameters['remoteip'] = Regexp.last_match(1).chomp if line =~ /^RemoteIP:\s+(.*)$/
+            current_parameters['remoteport'] = Regexp.last_match(1).chomp if line =~ /^RemotePort:\s+(.*)$/
+            current_parameters['action'] = Regexp.last_match(1).chomp if line =~ /^Action:\s+(.*)$/
           end
 
           up_to_date = true
-          desired_parameters.each do |k,v|
+          desired_parameters.each do |k, v|
             up_to_date = false if current_parameters[k] !~ /^["]?#{v}["]?$/i
           end
 

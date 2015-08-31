@@ -29,8 +29,8 @@ class Chef
         types = %w(iptables ip6tables)
       end
 
-      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
-      firewall.rules Hash.new unless firewall.rules
+      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall.rules({}) unless firewall.rules
       ensure_default_rules_exist(firewall.rules)
 
       if firewall.disabled
@@ -44,13 +44,12 @@ class Chef
         v = new_resource.position
 
         # unless we're adding them for the first time.... bail out.
-        unless firewall.rules[iptables_type].key?(k) && firewall.rules[iptables_type][k] == v
-          firewall.rules[iptables_type][k] = v
-          new_resource.notifies(:restart, firewall, :delayed)
-          new_resource.updated_by_last_action(true)
-        end
+        next if firewall.rules[iptables_type].key?(k) && firewall.rules[iptables_type][k] == v
+
+        firewall.rules[iptables_type][k] = v
+        new_resource.notifies(:restart, firewall, :delayed)
+        new_resource.updated_by_last_action(true)
       end
     end
-
   end
 end

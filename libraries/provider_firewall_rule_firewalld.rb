@@ -20,26 +20,23 @@ class Chef
     include FirewallCookbook::Helpers::Firewalld
 
     action :create do
-      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
-      firewall.rules Hash.new unless firewall.rules
-      firewall.rules['firewalld'] = Hash.new unless firewall.rules['firewalld']
+      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall.rules({}) unless firewall.rules
+      firewall.rules['firewalld'] = {} unless firewall.rules['firewalld']
       next if disabled?(firewall)
 
       ip_versions(new_resource).each do |ip_version|
-
         # build rules to apply with weight
         k = "firewall-cmd --direct --add-rule #{build_firewall_rule(new_resource, ip_version)}"
         v = new_resource.position
 
         # unless we're adding them for the first time.... bail out.
-        unless firewall.rules['firewalld'].key?(k) && firewall.rules['firewalld'][k] == v
-          firewall.rules['firewalld'][k] = v
+        next if firewall.rules['firewalld'].key?(k) && firewall.rules['firewalld'][k] == v
+        firewall.rules['firewalld'][k] = v
 
-          new_resource.notifies(:restart, firewall, :delayed)
-          new_resource.updated_by_last_action(true)
-        end
+        new_resource.notifies(:restart, firewall, :delayed)
+        new_resource.updated_by_last_action(true)
       end
     end
-
   end
 end

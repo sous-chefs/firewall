@@ -26,7 +26,7 @@ class Chef
     action :install do
       next if disabled?(new_resource)
 
-      converge_by("install firewalld, create template for /etc/sysconfig") do
+      converge_by('install firewalld, create template for /etc/sysconfig') do
         package 'firewalld' do
           action :install
         end
@@ -38,7 +38,7 @@ class Chef
         file "create empty #{firewalld_rules_filename}" do
           path firewalld_rules_filename
           content '# created by chef to allow service to start'
-          not_if { ::File.exists?(firewalld_rules_filename) }
+          not_if { ::File.exist?(firewalld_rules_filename) }
         end
       end
     end
@@ -47,12 +47,12 @@ class Chef
       next if disabled?(new_resource)
 
       # ensure it's initialized
-      new_resource.rules Hash.new unless new_resource.rules
-      new_resource.rules['firewalld'] = Hash.new unless new_resource.rules['firewalld']
+      new_resource.rules({}) unless new_resource.rules
+      new_resource.rules['firewalld'] = {} unless new_resource.rules['firewalld']
 
       # ensure a file resource exists with the current firewalld rules
       begin
-        firewalld_file = run_context.resource_collection.find(file: firewalld_rules_filename)
+        firewalld_file = run_context.resource_collection.find(:file => firewalld_rules_filename)
       rescue
         firewalld_file = file firewalld_rules_filename do
           action :nothing
@@ -75,9 +75,9 @@ class Chef
       # if the file was changed, load new ruleset
       if firewalld_file.updated_by_last_action?
         firewalld_flush!
-        # todo: support logging
+        # TODO: support logging
 
-        new_resource.rules['firewalld'].sort_by { |k,v| v }.map { |k,v| k }.each do |cmd|
+        new_resource.rules['firewalld'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
           firewalld_rule!(cmd)
         end
 
@@ -124,6 +124,5 @@ class Chef
         new_resource.updated_by_last_action(true)
       end
     end
-
   end
 end

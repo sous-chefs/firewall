@@ -27,7 +27,7 @@ class Chef
     action :install do
       next if disabled?(new_resource)
 
-      converge_by("enable and start Windows Firewall service") do
+      converge_by('enable and start Windows Firewall service') do
         service 'MpsSvc' do
           action [:enable, :start]
         end
@@ -38,12 +38,12 @@ class Chef
       next if disabled?(new_resource)
 
       # ensure it's initialized
-      new_resource.rules Hash.new unless new_resource.rules
-      new_resource.rules['windows'] = Hash.new unless new_resource.rules['windows']
+      new_resource.rules({}) unless new_resource.rules
+      new_resource.rules['windows'] = {} unless new_resource.rules['windows']
 
       # ensure a file resource exists with the current ufw rules
       begin
-        windows_file = run_context.resource_collection.find(file: windows_rules_filename)
+        windows_file = run_context.resource_collection.find(:file => windows_rules_filename)
       rescue
         windows_file = file windows_rules_filename do
           action :nothing
@@ -58,7 +58,7 @@ class Chef
         delete_all_rules! # clear entirely
         reset! # populate default rules
 
-        new_resource.rules['windows'].sort_by { |k,v| v }.map { |k,v| k }.each do |cmd|
+        new_resource.rules['windows'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
           add_rule!(cmd)
         end
         # ensure it's enabled _after_ rules are inputted, to catch malformed rules

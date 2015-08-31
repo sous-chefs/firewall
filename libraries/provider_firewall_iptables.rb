@@ -29,7 +29,7 @@ class Chef
     action :install do
       next if disabled?(new_resource)
 
-      converge_by("install iptables and enable/start services") do
+      converge_by('install iptables and enable/start services') do
         # can't pass an array without breaking chef 11 support
         %w(iptables iptables-ipv6).each do |p|
           package p do
@@ -38,12 +38,11 @@ class Chef
         end
 
         %w(iptables ip6tables).each do |svc|
-
           # must create empty file for service to start
           file "create empty /etc/sysconfig/#{svc}" do
             path "/etc/sysconfig/#{svc}"
             content '# created by chef to allow service to start'
-            not_if { ::File.exists?("/etc/sysconfig/#{svc}") }
+            not_if { ::File.exist?("/etc/sysconfig/#{svc}") }
           end
 
           service svc do
@@ -60,14 +59,14 @@ class Chef
       log_iptables
 
       # ensure it's initialized
-      new_resource.rules Hash.new unless new_resource.rules
+      new_resource.rules({}) unless new_resource.rules
       ensure_default_rules_exist(new_resource.rules)
 
       %w(iptables ip6tables).each do |iptables_type|
         iptables_filename = "/etc/sysconfig/#{iptables_type}"
         # ensure a file resource exists with the current iptables rules
         begin
-          iptables_file = run_context.resource_collection.find(file: iptables_filename)
+          iptables_file = run_context.resource_collection.find(:file => iptables_filename)
         rescue
           iptables_file = file iptables_filename do
             action :nothing
@@ -76,15 +75,15 @@ class Chef
         iptables_file.content build_rule_file(new_resource.rules[iptables_type])
         iptables_file.run_action(:create)
 
-        # if the file was changed, restart iptables
-        if iptables_file.updated_by_last_action?
-          service_affected = service iptables_type do
-            action :nothing
-          end
+        # if the file was unchanged, skip loop iteration, otherwise restart iptables
+        next unless iptables_file.updated_by_last_action?
 
-          new_resource.notifies(:restart, service_affected, :delayed)
-          new_resource.updated_by_last_action(true)
+        service_affected = service iptables_type do
+          action :nothing
         end
+
+        new_resource.notifies(:restart, service_affected, :delayed)
+        new_resource.updated_by_last_action(true)
       end
     end
 
