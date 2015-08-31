@@ -35,7 +35,7 @@ class Chef
 
       firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
-      ensure_default_rules_exist(firewall.rules)
+      ensure_default_rules_exist(firewall)
 
       if firewall.disabled
         Chef::Log.warn("#{firewall} has attribute 'disabled' = true, not proceeding")

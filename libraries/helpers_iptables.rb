@@ -53,22 +53,38 @@ module FirewallCookbook
         firewall_rule
       end
 
-      def log_iptables
-        %w(iptables ip6tables).each do |cmd|
+      def iptables_packages(new_resource)
+        if ipv6_enabled?(new_resource)
+          %w(iptables iptables-ipv6)
+        else
+          %w(iptables)
+        end
+      end
+
+      def iptables_commands(new_resource)
+        if ipv6_enabled?(new_resource)
+          %w(iptables ip6tables)
+        else
+          %w(iptables)
+        end
+      end
+
+      def log_iptables(new_resource)
+        iptables_commands(new_resource).each do |cmd|
           shell_out!("#{cmd} -L -n")
         end
       rescue
         Chef::Log.info('log_iptables failed!')
       end
 
-      def iptables_flush!
-        %w(iptables ip6tables).each do |cmd|
+      def iptables_flush!(new_resource)
+        iptables_commands(new_resource).each do |cmd|
           shell_out!("#{cmd} -F")
         end
       end
 
-      def iptables_default_allow!
-        %w(iptables ip6tables).each do |cmd|
+      def iptables_default_allow!(new_resource)
+        iptables_commands(new_resource).each do |cmd|
           shell_out!("#{cmd} -P INPUT ACCEPT")
           shell_out!("#{cmd} -P OUTPUT ACCEPT")
           shell_out!("#{cmd} -P FORWARD ACCEPT")
@@ -85,8 +101,9 @@ module FirewallCookbook
         }
       end
 
-      def ensure_default_rules_exist(input)
-        %w(iptables ip6tables).each do |name|
+      def ensure_default_rules_exist(new_resource)
+        input = new_resource.rules
+        iptables_commands(new_resource).each do |name|
           input[name] = {} unless input[name]
           input[name].merge!(default_ruleset)
         end

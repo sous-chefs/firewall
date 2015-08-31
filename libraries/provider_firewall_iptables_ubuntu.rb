@@ -60,11 +60,11 @@ class Chef
       next if disabled?(new_resource)
 
       # prints all the firewall rules
-      log_iptables
+      log_iptables(new_resource)
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
-      ensure_default_rules_exist(new_resource.rules)
+      ensure_default_rules_exist(new_resource)
 
       %w(iptables ip6tables).each do |iptables_type|
         if iptables_type == 'ip6tables'
@@ -98,8 +98,8 @@ class Chef
     action :disable do
       next if disabled?(new_resource)
 
-      iptables_flush!
-      iptables_default_allow!
+      iptables_flush!(new_resource)
+      iptables_default_allow!(new_resource)
       new_resource.updated_by_last_action(true)
 
       service 'iptables-persistent' do
@@ -119,7 +119,7 @@ class Chef
     action :flush do
       next if disabled?(new_resource)
 
-      iptables_flush!
+      iptables_flush!(new_resource)
       new_resource.updated_by_last_action(true)
 
       %w(rules.v4 rules.v6).each do |svc|

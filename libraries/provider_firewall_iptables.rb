@@ -35,13 +35,13 @@ class Chef
 
       converge_by('install iptables and enable/start services') do
         # can't pass an array without breaking chef 11 support
-        %w(iptables iptables-ipv6).each do |p|
+        iptables_packages(new_resource).each do |p|
           package p do
             action :install
           end
         end
 
-        %w(iptables ip6tables).each do |svc|
+        iptables_commands(new_resource).each do |svc|
           # must create empty file for service to start
           file "create empty /etc/sysconfig/#{svc}" do
             path "/etc/sysconfig/#{svc}"
@@ -60,13 +60,13 @@ class Chef
       next if disabled?(new_resource)
 
       # prints all the firewall rules
-      log_iptables
+      log_iptables(new_resource)
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
-      ensure_default_rules_exist(new_resource.rules)
+      ensure_default_rules_exist(new_resource)
 
-      %w(iptables ip6tables).each do |iptables_type|
+      iptables_commands(new_resource).each do |iptables_type|
         iptables_filename = "/etc/sysconfig/#{iptables_type}"
         # ensure a file resource exists with the current iptables rules
         begin
@@ -94,11 +94,11 @@ class Chef
     action :disable do
       next if disabled?(new_resource)
 
-      iptables_flush!
-      iptables_default_allow!
+      iptables_flush!(new_resource)
+      iptables_default_allow!(new_resource)
       new_resource.updated_by_last_action(true)
 
-      %w(iptables ip6tables).each do |svc|
+      iptables_commands(new_resource).each do |svc|
         service svc do
           action [:disable, :stop]
         end
@@ -114,10 +114,10 @@ class Chef
     action :flush do
       next if disabled?(new_resource)
 
-      iptables_flush!
+      iptables_flush!(new_resource)
       new_resource.updated_by_last_action(true)
 
-      %w(iptables ip6tables).each do |svc|
+      iptables_commands(new_resource).each do |svc|
         # must create empty file for service to start
         file "create empty /etc/sysconfig/#{svc}" do
           path "/etc/sysconfig/#{svc}"

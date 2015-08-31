@@ -14,6 +14,10 @@ module FirewallCookbook
       end
     end
 
+    def ipv6_enabled?(new_resource)
+      new_resource.ipv6_enabled
+    end
+
     def disabled?(new_resource)
       Chef::Log.warn("#{new_resource} has attribute 'disabled' = true, not proceeding") if new_resource.disabled
       new_resource.disabled

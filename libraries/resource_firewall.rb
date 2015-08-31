@@ -12,5 +12,8 @@ class Chef
     # for firewalld, specify the zone when firewall is disable and enabled
     attribute(:disabled_zone, :kind_of => Symbol, :default => :public)
     attribute(:enabled_zone, :kind_of => Symbol, :default => :drop)
+
+    # for firewall implementations where ipv6 can be skipped (currently iptables-specific)
+    attribute(:ipv6_enabled, :kind_of => [TrueClass, FalseClass], :default => true)
   end
 end
