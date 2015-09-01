@@ -19,10 +19,10 @@ class Chef
   class Provider::FirewallRuleFirewalld < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Firewalld
 
-    provides :firewall_rule, os: "linux", platform_family: [ "rhel", "fedora" ]
+    provides :firewall_rule, os: 'linux', platform_family: %w(rhel fedora)
 
     action :create do
-      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
       firewall.rules['firewalld'] = {} unless firewall.rules['firewalld']
       next if disabled?(firewall)

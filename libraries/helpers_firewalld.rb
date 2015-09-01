@@ -9,7 +9,7 @@ module FirewallCookbook
       end
 
       def firewalld_rule!(cmd)
-        shell_out!(cmd, :input => 'yes')
+        shell_out!(cmd, input: 'yes')
       end
 
       def firewalld_active?
@@ -62,8 +62,8 @@ module FirewallCookbook
         versions
       end
 
-      CHAIN = { :in => 'INPUT', :out => 'OUTPUT', :pre => 'PREROUTING', :post => 'POSTROUTING' } unless defined? CHAIN # , nil => "FORWARD"}
-      TARGET = { :allow => 'ACCEPT', :reject => 'REJECT', :deny => 'DROP', :masquerade => 'MASQUERADE', :redirect => 'REDIRECT', :log => 'LOG --log-prefix \'iptables: \' --log-level 7' } unless defined? TARGET
+      CHAIN = { in: 'INPUT', out: 'OUTPUT', pre: 'PREROUTING', post: 'POSTROUTING' } unless defined? CHAIN # , nil => "FORWARD"}
+      TARGET = { allow: 'ACCEPT', reject: 'REJECT', deny: 'DROP', masquerade: 'MASQUERADE', redirect: 'REDIRECT', log: 'LOG --log-prefix \'iptables: \' --log-level 7' } unless defined? TARGET
 
       def build_firewall_rule(new_resource, ip_version = 'ipv4')
         type = new_resource.command

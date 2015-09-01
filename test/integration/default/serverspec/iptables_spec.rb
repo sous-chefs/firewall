@@ -24,7 +24,7 @@ expected_ipv6_rules = [
   %r{-A INPUT -s 2001:db8::ff00:42:8329/128( -d ::/0)? -p tcp -m tcp -m multiport --dports 80 .*-j ACCEPT}
 ]
 
-describe command('iptables-save'), :if => iptables? do
+describe command('iptables-save'), if: iptables? do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_rules.each do |r|
@@ -39,7 +39,7 @@ describe command('iptables-save'), :if => iptables? do
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
 
-describe command('ip6tables-save'), :if => iptables? do
+describe command('ip6tables-save'), if: iptables? do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_ipv6_rules.each do |r|
@@ -47,7 +47,7 @@ describe command('ip6tables-save'), :if => iptables? do
   end
 end
 
-describe service('iptables'), :if => iptables? do
+describe service('iptables'), if: iptables? do
   it { should be_enabled }
   it { should be_running }
 end

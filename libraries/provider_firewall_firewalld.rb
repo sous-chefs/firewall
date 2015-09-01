@@ -19,7 +19,7 @@ class Chef
   class Provider::FirewallFirewalld < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Firewalld
 
-    provides :firewall, os: "linux", platform_family: [ "rhel", "fedora" ]
+    provides :firewall, os: 'linux', platform_family: %w(rhel fedora)
 
     def whyrun_supported?
       false
@@ -54,7 +54,7 @@ class Chef
 
       # ensure a file resource exists with the current firewalld rules
       begin
-        firewalld_file = run_context.resource_collection.find(:file => firewalld_rules_filename)
+        firewalld_file = run_context.resource_collection.find(file: firewalld_rules_filename)
       rescue
         firewalld_file = file firewalld_rules_filename do
           action :nothing

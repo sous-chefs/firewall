@@ -4,8 +4,8 @@ module FirewallCookbook
       include FirewallCookbook::Helpers
       include Chef::Mixin::ShellOut
 
-      CHAIN = { :in => 'INPUT', :out => 'OUTPUT', :pre => 'PREROUTING', :post => 'POSTROUTING' } unless defined? CHAIN # , nil => "FORWARD"}
-      TARGET = { :allow => 'ACCEPT', :reject => 'REJECT', :deny => 'DROP', :masquerade => 'MASQUERADE', :redirect => 'REDIRECT', :log => 'LOG --log-prefix "iptables: " --log-level 7' } unless defined? TARGET
+      CHAIN = { in: 'INPUT', out: 'OUTPUT', pre: 'PREROUTING', post: 'POSTROUTING' } unless defined? CHAIN # , nil => "FORWARD"}
+      TARGET = { allow: 'ACCEPT', reject: 'REJECT', deny: 'DROP', masquerade: 'MASQUERADE', redirect: 'REDIRECT', log: 'LOG --log-prefix "iptables: " --log-level 7' } unless defined? TARGET
 
       def build_firewall_rule(current_node, rule_resource, ipv6 = false)
         el5 = (current_node['platform'] == 'rhel' || current_node['platform'] == 'centos') && Gem::Dependency.new('', '~> 5.0').match?('', current_node['platform_version'])

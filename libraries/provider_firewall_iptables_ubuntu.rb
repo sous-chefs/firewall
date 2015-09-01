@@ -22,7 +22,7 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: "linux", platform_family: [ "debian" ] do |node|
+    provides :firewall, os: 'linux', platform_family: ['debian'] do |node|
       node['firewall'] && node['firewall']['ubuntu_iptables']
     end
 
@@ -75,7 +75,7 @@ class Chef
 
         # ensure a file resource exists with the current iptables rules
         begin
-          iptables_file = run_context.resource_collection.find(:file => iptables_filename)
+          iptables_file = run_context.resource_collection.find(file: iptables_filename)
         rescue
           iptables_file = file iptables_filename do
             action :nothing

@@ -20,7 +20,7 @@ class Chef
   class Provider::FirewallRuleIptablesUbuntu < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall_rule, os: "linux", platform_family: [ "debian" ] do |node|
+    provides :firewall_rule, os: 'linux', platform_family: ['debian'] do |node|
       node['firewall'] && node['firewall']['ubuntu_iptables']
     end
 
@@ -33,7 +33,7 @@ class Chef
         types = %w(iptables ip6tables)
       end
 
-      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
       ensure_default_rules_exist(firewall)
 

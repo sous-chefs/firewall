@@ -21,10 +21,10 @@ class Chef
   class Provider::FirewallRuleUfw < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Ufw
 
-    provides :firewall_rule, os: "linux", platform_family: [ "debian" ]
+    provides :firewall_rule, os: 'linux', platform_family: ['debian']
 
     action :create do
-      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
       firewall.rules['ufw'] = {} unless firewall.rules['ufw']
 

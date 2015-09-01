@@ -28,7 +28,7 @@ expected_rules = [
   %r{ipv6 filter INPUT 50 -s 2001:db8::ff00:42:8329/128 -p tcp -m tcp -m multiport --dports 80 -m comment --comment ipv6-source -j ACCEPT}
 ]
 
-describe command('firewall-cmd --direct --get-all-rules'), :if => firewalld? do
+describe command('firewall-cmd --direct --get-all-rules'), if: firewalld? do
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
@@ -41,7 +41,7 @@ describe command('firewall-cmd --direct --get-all-rules'), :if => firewalld? do
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
 
-describe service('firewalld'), :if => firewalld? do
+describe service('firewalld'), if: firewalld? do
   it { should be_enabled }
   it { should be_running }
 end

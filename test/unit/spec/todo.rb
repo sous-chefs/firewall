@@ -17,7 +17,7 @@ describe 'firewall::default' do
     allow(mock_mixlib_shellout).to receive(:stdout).and_return('false')
   end
 
-  let(:chef_run) { ChefSpec::SoloRunner.new(:step_into => %w(firewall firewall_rule)).converge(described_recipe) }
+  let(:chef_run) { ChefSpec::SoloRunner.new(step_into: %w(firewall firewall_rule)).converge(described_recipe) }
 
   it 'enables the firewall' do
     expect(chef_run).to enable_firewall('default')

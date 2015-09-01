@@ -20,10 +20,10 @@ class Chef
   class Provider::FirewallRuleWindows < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Windows
 
-    provides :firewall_rule, os: "windows"
+    provides :firewall_rule, os: 'windows'
 
     action :create do
-      firewall = run_context.resource_collection.find(:firewall => new_resource.firewall_name)
+      firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
       firewall.rules['windows'] = {} unless firewall.rules['windows']
 
