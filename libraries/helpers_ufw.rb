@@ -14,15 +14,15 @@ module FirewallCookbook
       end
 
       def ufw_disable!
-        shell_out!('ufw', 'disable', :input => 'yes')
+        shell_out!('ufw', 'disable', input: 'yes')
       end
 
       def ufw_enable!
-        shell_out!('ufw', 'enable', :input => 'yes')
+        shell_out!('ufw', 'enable', input: 'yes')
       end
 
       def ufw_reset!
-        shell_out!('ufw', 'reset', :input => 'yes')
+        shell_out!('ufw', 'reset', input: 'yes')
       end
 
       def ufw_logging!(param)
@@ -30,7 +30,7 @@ module FirewallCookbook
       end
 
       def ufw_rule!(cmd)
-        shell_out!(cmd, :input => 'yes')
+        shell_out!(cmd, input: 'yes')
       end
 
       def build_rule(new_resource)

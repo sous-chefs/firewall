@@ -85,7 +85,7 @@ module FirewallCookbook
 
       def rule_exists?(name)
         @exists ||= begin
-          cmd = shell_out!("netsh advfirewall firewall show rule name=\"#{name}\"", :returns => [0, 1])
+          cmd = shell_out!("netsh advfirewall firewall show rule name=\"#{name}\"", returns: [0, 1])
           cmd.stdout !~ /^No rules match the specified criteria/
         end
       end

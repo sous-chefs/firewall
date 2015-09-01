@@ -20,7 +20,7 @@ class Chef
   class Provider::FirewallWindows < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Windows
 
-    provides :firewall, os: "windows"
+    provides :firewall, os: 'windows'
 
     def whyrun_supported?
       false
@@ -45,7 +45,7 @@ class Chef
 
       # ensure a file resource exists with the current ufw rules
       begin
-        windows_file = run_context.resource_collection.find(:file => windows_rules_filename)
+        windows_file = run_context.resource_collection.find(file: windows_rules_filename)
       rescue
         windows_file = file windows_rules_filename do
           action :nothing

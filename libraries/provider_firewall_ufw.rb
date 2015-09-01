@@ -21,7 +21,7 @@ class Chef
   class Provider::FirewallUfw < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Ufw
 
-    provides :firewall, os: "linux", platform_family: [ "debian" ]
+    provides :firewall, os: 'linux', platform_family: ['debian']
 
     def whyrun_supported?
       false
@@ -61,7 +61,7 @@ class Chef
 
       # ensure a file resource exists with the current ufw rules
       begin
-        ufw_file = run_context.resource_collection.find(:file => ufw_rules_filename)
+        ufw_file = run_context.resource_collection.find(file: ufw_rules_filename)
       rescue
         ufw_file = file ufw_rules_filename do
           action :nothing
