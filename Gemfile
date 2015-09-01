@@ -11,10 +11,13 @@ group :unit do
   gem 'chef-sugar'
 end
 
+group :kitchen_windows do
+  gem 'winrm-transport'
+end
+
 group :kitchen_common do
   gem 'test-kitchen'
   gem 'vagrant-wrapper'
-  gem 'winrm-transport'
 end
 
 group :kitchen_vagrant do
@@ -22,7 +25,8 @@ group :kitchen_vagrant do
 end
 
 group :kitchen_cloud do
-  gem 'kitchen-rackspace'
+  gem 'kitchen-digitalocean'
+  gem 'kitchen-gce'
 end
 
 group :development do
