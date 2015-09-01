@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.0.1 (2015-09-01)
+-------------------
+* Add default related/established rule for iptables
+
 v2.0.0 (2015-08-31)
 -------------------
 * #84, major rewrite:
