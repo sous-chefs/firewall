@@ -5,14 +5,6 @@ firewall 'default' do
   action :install
 end
 
-# do SSH rules before enabling firewall
-firewall_rule 'established' do
-  stateful [:related, :established]
-  protocol :none # explicitly don't specify protocol
-  command :allow
-  only_if { rhel? || node['firewall']['ubuntu_iptables'] } # debian ufw already does this by default, can't modify it
-end
-
 firewall_rule 'ssh22' do
   port 22
   command :allow

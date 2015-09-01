@@ -53,7 +53,7 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 * `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
 * `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
-
+* `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 
 # Resources
 
