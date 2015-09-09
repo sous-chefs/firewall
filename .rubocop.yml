@@ -1,5 +1,5 @@
 Metrics/ModuleLength:
-  Max: 200
+  Enabled: false
 
 Style/DoubleNegation:
   Exclude:
@@ -12,7 +12,7 @@ Encoding:
   Enabled: false
 
 LineLength:
-  Max: 200
+  Enabled: false
 
 CyclomaticComplexity:
   Max: 25
