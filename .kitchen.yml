@@ -1,28 +1,29 @@
----
 driver:
   name: vagrant
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: true # we should test with both 11.18.12 and latest 12.x
   attributes:
     firewall:
       allow_ssh: true
       allow_winrm: true
 
 platforms:
-  - name: ubuntu-14.04
+  - name: centos-5.11
+  - name: centos-6.7
+  - name: centos-7.1
+  - name: debian-7.8
+    run_list:
+      - recipe[apt]
+  - name: debian-8.1
     run_list:
       - recipe[apt]
   - name: ubuntu-12.04
     run_list:
-      - recipe[apt]
-  - name: debian-7.8
+      - recipe[apt::default]
+  - name: ubuntu-14.04
     run_list:
-      - recipe[apt]
-  - name: centos-5.11
-  - name: centos-6.6
-  - name: centos-7.0
+      - recipe[apt::default]
   - name: windows-2012r2
 
 suites:
