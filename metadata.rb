@@ -15,7 +15,6 @@ supports 'redhat'
 supports 'scientific'
 supports 'ubuntu'
 
-
 depends 'chef-sugar'
 
 source_url 'https://github.com/chef-cookbooks/firewall' if respond_to?(:source_url)
