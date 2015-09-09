@@ -1,6 +1,8 @@
 firewall Cookbook
 =================
-[![Build Status](https://secure.travis-ci.org/opscode-cookbooks/firewall.png?branch=master)](http://travis-ci.org/opscode-cookbooks/firewall)
+
+[![Build Status](https://travis-ci.org/chef-cookbooks/firewall.svg?branch=master)](http://travis-ci.org/chef-cookbooks/firewall)
+[![Cookbook Version](https://img.shields.io/cookbook/v/firewall.svg)](https://supermarket.chef.io/cookbooks/firewall)
 
 Provides a set of primitives for managing firewalls and associated rules.
 
@@ -249,10 +251,10 @@ This section details "quick development" steps. For a detailed explanation, see 
 
 
 # License & Authors
-- Author:: Seth Chisamore (<schisamo@opscode.com>)
+- Author:: Seth Chisamore (<schisamo@chef.io>)
 
 ```text
-Copyright:: Copyright (c) 2011-2015 Opscode, Inc.
+Copyright:: 2011-2015, Chef Software, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
