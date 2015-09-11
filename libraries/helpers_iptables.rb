@@ -103,7 +103,10 @@ module FirewallCookbook
 
       def ensure_default_rules_exist(new_resource)
         input = new_resource.rules
-        iptables_commands(new_resource).each do |name|
+
+        # don't use iptables_commands here since we do populate the
+        # hash regardless of ipv6 status
+        %w(iptables ip6tables).each do |name|
           input[name] = {} unless input[name]
           input[name].merge!(default_ruleset)
         end
