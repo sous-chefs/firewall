@@ -18,7 +18,7 @@ depends 'firewall', '< 2.0'
 ### Supported firewalls and platforms
 * UFW - Ubuntu, Debian
 * IPTables - Red Hat & CentOS, Ubuntu
-* FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/opscode-cookbooks/firewall/issues/86))
+* FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
 * Windows Advanced Firewall - 2012 R2
 
 Tested on:
@@ -225,7 +225,7 @@ This section details "quick development" steps. For a detailed explanation, see 
 
 1. Clone this repository from GitHub:
 
-        $ git clone git@github.com:opscode-cookbooks/firewall.git
+        $ git clone git@github.com:chef-cookbooks/firewall.git
 
 2. Create a git branch
 
