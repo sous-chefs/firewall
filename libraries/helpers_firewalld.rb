@@ -100,7 +100,7 @@ module FirewallCookbook
           firewall_rule << "-m state --state #{new_resource.stateful.is_a?(Array) ? new_resource.stateful.join(',').upcase : new_resource.stateful.to_s.upcase} " if new_resource.stateful
           firewall_rule << "-m comment --comment '#{new_resource.description}' "
           firewall_rule << "-j #{TARGET[type]} "
-          firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == 'redirect'
+          firewall_rule << "--to-ports #{new_resource.redirect_port} " if type == :redirect
           firewall_rule.strip!
         end
         firewall_rule
