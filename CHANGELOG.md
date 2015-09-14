@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.0.3 (2015-09-14)
+-------------------
+Minor bugfix release.
+* Fix wrong conditional for firewalld ports, #93
+* Fix ipv6 command logic under iptables, #91
+
 v2.0.2 (2015-09-08)
 -------------------
 * Release with working CI, Chefspec matchers.
