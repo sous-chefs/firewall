@@ -64,7 +64,7 @@ class Chef
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
-      ensure_default_rules_exist(new_resource)
+      ensure_default_rules_exist(node, new_resource)
 
       %w(iptables ip6tables).each do |iptables_type|
         if iptables_type == 'ip6tables'

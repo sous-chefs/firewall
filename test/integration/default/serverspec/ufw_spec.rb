@@ -1,5 +1,5 @@
 # these tests only for debian/ubuntu with ufw
-require_relative 'spec_helper'
+require 'spec_helper'
 
 expected_rules = [
   %r{ 22/tcp + ALLOW IN +Anywhere},
@@ -11,7 +11,7 @@ expected_rules = [
   %r{ 80/tcp + ALLOW IN +2001:db8::ff00:42:8329}
 ]
 
-describe command('ufw status numbered'), if: ufw? do
+describe command('ufw status numbered'), if: debian? || ubuntu? do
   its(:stdout) { should match(/Status: active/) }
 
   expected_rules.each do |r|
@@ -23,7 +23,15 @@ describe command('ufw status numbered'), if: ufw? do
   its(:stdout) { should count_occurences('5431,5432/tcp ', 2) } # once for ipv4, once for ipv6
 end
 
-describe service('ufw'), if: ufw? do
+describe service('ufw'), if: ubuntu? || (debian? && !release?('8.1')) do
   it { should be_enabled.with_level('S') }
   it { should be_running }
+end
+
+# since debian 8.1 uses systemd in serverspec, but ufw is still on sysv-style
+describe service('ufw'), if: debian? && release?('8.1') do
+  describe command('/etc/init.d/ufw status 2>&1') do
+    its(:stdout) { should match(/Active: active/) }
+  end
+  # we assume ufw will start if the package is installed.
 end

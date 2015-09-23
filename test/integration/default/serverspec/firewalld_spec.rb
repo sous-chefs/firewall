@@ -1,5 +1,5 @@
 # these tests only for redhat with iptables
-require_relative 'spec_helper'
+require 'spec_helper'
 
 expected_rules = [
   %r{ipv4 filter INPUT 50 -p tcp -m tcp -m multiport --dports 22 -m comment --comment 'allow world to ssh' -j ACCEPT},

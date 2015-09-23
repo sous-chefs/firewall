@@ -91,24 +91,24 @@ module FirewallCookbook
         end
       end
 
-      def default_ruleset
+      def default_ruleset(current_node)
         {
           '*filter' => 1,
-          ':INPUT DROP' => 2,
-          ':FORWARD DROP' => 3,
-          ':OUTPUT ACCEPT' => 4,
+          ":INPUT #{current_node['firewall']['iptables']['defaults'][:policy][:input]}" => 2,
+          ":FORWARD #{current_node['firewall']['iptables']['defaults'][:policy][:forward]}" => 3,
+          ":OUTPUT #{current_node['firewall']['iptables']['defaults'][:policy][:output]}" => 4,
           'COMMIT' => 100
         }
       end
 
-      def ensure_default_rules_exist(new_resource)
+      def ensure_default_rules_exist(current_node, new_resource)
         input = new_resource.rules
 
         # don't use iptables_commands here since we do populate the
         # hash regardless of ipv6 status
         %w(iptables ip6tables).each do |name|
           input[name] = {} unless input[name]
-          input[name].merge!(default_ruleset)
+          input[name].merge!(default_ruleset(current_node))
         end
       end
     end

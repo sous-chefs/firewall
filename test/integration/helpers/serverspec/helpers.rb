@@ -3,12 +3,16 @@ def redhat?
   os[:family] == 'redhat'
 end
 
-def redhat?
-  os[:family] == 'redhat'
+def release?(test_version)
+  os[:release] == test_version
 end
 
 def debian?
-  %w(debian ubuntu).include?(os[:family])
+  %w(debian).include?(os[:family])
+end
+
+def ubuntu?
+  %w(ubuntu).include?(os[:family])
 end
 
 def firewalld?
@@ -17,8 +21,4 @@ end
 
 def iptables?
   redhat? && os[:release].to_f < 7.0
-end
-
-def ufw?
-  debian?
 end

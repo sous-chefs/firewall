@@ -35,9 +35,10 @@ suites:
   - name: iptables
     excludes:
       - centos-5.11
-      - centos-6.6
-      - centos-7.0
+      - centos-6.7
+      - centos-7.1
       - debian-7.8
+      - debian-8.1
       - windows-2012r2
     run_list:
       - recipe[firewall-test::default]

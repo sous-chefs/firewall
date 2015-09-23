@@ -1,8 +1,7 @@
 #
+# Author:: Seth Chisamore (<schisamo@opscode.com>)
 # Cookbook Name:: firewall
 # Provider:: rule_iptables
-#
-# Copyright 2012, computerlyrik
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +34,7 @@ class Chef
 
       firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
       firewall.rules({}) unless firewall.rules
-      ensure_default_rules_exist(firewall)
+      ensure_default_rules_exist(node, firewall)
 
       if firewall.disabled
         Chef::Log.warn("#{firewall} has attribute 'disabled' = true, not proceeding")

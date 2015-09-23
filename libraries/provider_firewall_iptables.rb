@@ -64,7 +64,7 @@ class Chef
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
-      ensure_default_rules_exist(new_resource)
+      ensure_default_rules_exist(node, new_resource)
 
       iptables_commands(new_resource).each do |iptables_type|
         iptables_filename = "/etc/sysconfig/#{iptables_type}"

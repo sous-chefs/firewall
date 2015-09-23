@@ -1,4 +1,4 @@
-require_relative 'spec_helper'
+require 'spec_helper'
 
 expected_rules = [
   # we included the .*-j so that we don't bother testing comments

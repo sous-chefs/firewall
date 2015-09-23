@@ -23,9 +23,9 @@ depends 'firewall', '< 2.0'
 
 Tested on:
 * Ubuntu 12.04 & 14.04 with iptables, ufw
-* Debian 7.8 with ufw
-* CentOS 5.11, 6.5 with iptables
-* CentOS 7.0 with firewalld
+* Debian 7.8, 8.1 with ufw
+* CentOS 5.11, 6.7 with iptables
+* CentOS 7.1 with firewalld
 * Windows Server 2012r2 with Windows Advanced Firewall
 
 By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute file:
@@ -53,6 +53,7 @@ The default recipe creates a firewall resource with action install, and if `node
 # Attributes
 
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
+* `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 * `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
 * `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
@@ -199,7 +200,7 @@ firewall_rule 'http/https' do
   action   :allow
 end
 
-firewall 'ufw' do
+firewall 'default' do
   disabled true
   action :nothing
 end
@@ -251,7 +252,11 @@ This section details "quick development" steps. For a detailed explanation, see 
 
 
 # License & Authors
-- Author:: Seth Chisamore (<schisamo@chef.io>)
+<!-- $ find -type f -iname "*.rb" -exec grep -i author '{}' \; | sort -k4 | uniq | sed 's/#/-/g' -->
+- Author:: Seth Chisamore (<schisamo@opscode.com>)
+- Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
+- Author:: Martin Smith (<martin@mbs3.org>)
+- Author:: Sander van Harmelen (<svanharmelen@schubergphilis.com>)
 
 ```text
 Copyright:: 2011-2015, Chef Software, Inc
