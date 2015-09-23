@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.0.4 (2015-09-23)
+-------------------
+Minor bugfix release.
+* Allow override of filter chain policies, #94
+* Fix foodcrtitic and chefspec errors
+
 v2.0.3 (2015-09-14)
 -------------------
 Minor bugfix release.
