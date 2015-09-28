@@ -65,7 +65,7 @@ The default recipe creates a firewall resource with action install, and if `node
 ***NB***: The name 'default' of this resource is important as it is used for firewall_rule providers to locate the firewall resource. If you change it, you must also supply the same value to any firewall_rule resources using the `firewall_name` parameter.
 
 #### Actions
-- `:enable` (*default action*): Enable the firewall. This will ensure the appropriate packages are installed and that any services have been started.
+- `:install` (*default action*): Install and Enable the firewall. This will ensure the appropriate packages are installed and that any services have been started.
 - `:disable`: Disable the firewall. Drop any rules and put the node in an unprotected state. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
 - `:flush`: Flush all current rules. Also erase any internal state used to detect when rules should be applied.
 - `:save`: Ensure all rules are added permanently under firewalld using `--permanent`. Not supported on ufw, iptables. You must notify this action at the end of the chef run if you want persistent firewalld rules (they are not persistent by default).
@@ -87,13 +87,13 @@ firewall 'default'
 
 # enable platform default firewall
 firewall 'default' do
-  action :enable
+  action :install
 end
 
 # increase logging past default of 'low'
 firewall 'default' do
   log_level :high
-  action    :enable
+  action    :install
 end
 ```
 
