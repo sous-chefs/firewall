@@ -1,50 +1,31 @@
-Metrics/ModuleLength:
-  Enabled: false
-
-Style/DoubleNegation:
+AllCops:
   Exclude:
-    - 'libraries/resource_firewall_rule.rb'
+    - vendor/**/*
+    - Guardfile
 
 AlignParameters:
   Enabled: false
-
+ClassLength:
+  Enabled: false
+CyclomaticComplexity:
+  Enabled: false
+Documentation:
+  Enabled: false
 Encoding:
   Enabled: false
-
+Style/FileName:
+  Enabled: false
 LineLength:
   Enabled: false
-
-CyclomaticComplexity:
-  Max: 25
-
-AbcSize:
-  Max: 150
-
-ClassLength:
-  Max: 200
-
-LineLength:
-  Max: 250
-
 MethodLength:
-  Max: 50
-
-PerceivedComplexity:
-  Max: 50
-
-Style/Documentation:
   Enabled: false
-
+Metrics/AbcSize:
+  Enabled: false
+PerceivedComplexity:
+  Enabled: false
+SingleSpaceBeforeFirstArg:
+  Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
-
-Style/RegexpLiteral:
+Style/FileName:
   Enabled: false
-
-AllCops:
-  Include:
-    - '**/metadata.rb'
-    - '**/*.rb'
-  Exclude:
-    - 'libraries/z_provider_mapping.rb'
-    - 'test/fixtures/cookbooks/firewall-test/recipes/debian_iptables.rb'
