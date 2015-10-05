@@ -21,7 +21,9 @@ class Chef
   class Provider::FirewallRuleFirewalld < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Firewalld
 
-    provides :firewall_rule, os: 'linux', platform_family: %w(rhel fedora)
+    provides :firewall_rule, os: 'linux', platform_family: %w(rhel fedora) do |node|
+      node['platform_version'].to_f >= 7.0
+    end
 
     action :create do
       firewall = run_context.resource_collection.find(firewall: new_resource.firewall_name)
