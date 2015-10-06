@@ -22,7 +22,7 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: 'linux', platform_family: ['debian'] do |node|
+    provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
       node['firewall'] && node['firewall']['ubuntu_iptables']
     end
 

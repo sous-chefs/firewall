@@ -30,8 +30,8 @@ end
 
 # since debian 8.1 uses systemd in serverspec, but ufw is still on sysv-style
 describe service('ufw'), if: debian? && release?('8.1') do
-  describe command('/etc/init.d/ufw status 2>&1') do
-    its(:stdout) { should match(/Active: active/) }
+  describe command('ufw status 2>&1') do
+    its(:stdout) { should match(/Status: active/) }
   end
   # we assume ufw will start if the package is installed.
 end
