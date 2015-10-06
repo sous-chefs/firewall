@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.0.5 (2015-10-05)
+-------------------
+Minor bugfix release.
+* Ensure provider filtering always yields 1 and only 1 provider, #97 & #98
+* Documentation update #96
+
 v2.0.4 (2015-09-23)
 -------------------
 Minor bugfix release.
