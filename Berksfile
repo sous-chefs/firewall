@@ -4,5 +4,5 @@ metadata
 
 group :integration do
   cookbook 'apt'
-  cookbook 'firewall-test', :path => 'test/fixtures/cookbooks/firewall-test'
+  cookbook 'firewall-test', path: 'test/fixtures/cookbooks/firewall-test'
 end

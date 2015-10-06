@@ -23,7 +23,7 @@ task style: ['style:chef', 'style:ruby']
 
 # Rspec and ChefSpec
 desc 'Run ChefSpec unit tests'
-RSpec::Core::RakeTask.new(:spec) do |t, args|
+RSpec::Core::RakeTask.new(:spec) do |t, _args|
   t.rspec_opts = 'test/unit'
 end
 
@@ -45,7 +45,7 @@ namespace :integration do
       config = Kitchen::Config.new(loader: @loader)
       concurrency = config.instances.size
       queue = Queue.new
-      config.instances.each {|i| queue << i }
+      config.instances.each { |i| queue << i }
       concurrency.times { queue << nil }
       threads = []
       concurrency.times do
@@ -55,13 +55,13 @@ namespace :integration do
           end
         end
       end
-      threads.map { |i| i.join }
+      threads.map(&:join)
     end
   end
 end
 
 desc 'Run all tests on CI Platform'
-task ci: ['style', 'spec' ] # 'integration:cloud'
+task ci: %w(style spec) # 'integration:cloud'
 
 # Default
-task default: ['style', 'spec' ] # 'integration:vagrant'
+task default: %w(style spec) # 'integration:vagrant'
