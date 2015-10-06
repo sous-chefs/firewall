@@ -2,6 +2,7 @@ AllCops:
   Exclude:
     - vendor/**/*
     - Guardfile
+    - Rakefile
 
 AlignParameters:
   Enabled: false
@@ -21,6 +22,8 @@ MethodLength:
   Enabled: false
 Metrics/AbcSize:
   Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
 PerceivedComplexity:
   Enabled: false
 SingleSpaceBeforeFirstArg:
@@ -28,4 +31,6 @@ SingleSpaceBeforeFirstArg:
 Style/ClassAndModuleChildren:
   Enabled: false
 Style/FileName:
+  Enabled: false
+Style/RegexpLiteral:
   Enabled: false
