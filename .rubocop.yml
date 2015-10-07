@@ -34,3 +34,5 @@ Style/FileName:
   Enabled: false
 Style/RegexpLiteral:
   Enabled: false
+Style/DoubleNegation:
+  Enabled: false
