@@ -46,3 +46,11 @@ firewall_rule 'established' do
   command :allow
   only_if { node['firewall']['allow_established'] && iptables_firewall }
 end
+
+# ipv6 needs ICMP to reliably work, so ensure it's enabled if ipv6
+# allow established connections, ufw defaults to this but iptables does not
+firewall_rule 'ipv6_icmp' do
+  protocol :'ipv6-icmp'
+  command :allow
+  only_if { node['firewall']['ipv6_enabled'] && node['firewall']['allow_established'] && iptables_firewall }
+end

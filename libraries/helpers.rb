@@ -48,7 +48,9 @@ module FirewallCookbook
     # ipv6-specific rule?
     def ipv6_rule?(new_resource)
       if (new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
-         (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?)
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?) ||
+         new_resource.protocol =~ /ipv6/ ||
+         new_resource.protocol =~ /icmpv6/
         true
       else
         false

@@ -14,8 +14,8 @@ class Chef
     attribute(:command, kind_of: Symbol, equal_to: [:reject, :allow, :deny, :masquerade, :redirect, :log], default: :allow)
 
     attribute(:protocol, kind_of: [Integer, Symbol], default: :tcp,
-                         callbacks: { 'must be either :tcp, :udp, :icmp, :none, or a valid IP protocol number' => lambda do |p|
-                           !!(p.to_s =~ /(udp|tcp|icmp|none)/ || (p.to_s =~ /^\d+$/ && p.between?(0, 142)))
+                         callbacks: { 'must be either :tcp, :udp, :icmp, :\'ipv6-icmp\', :icmpv6, :none, or a valid IP protocol number' => lambda do |p|
+                           !!(p.to_s =~ /(udp|tcp|icmp|icmpv6|ipv6-icmp|none)/ || (p.to_s =~ /^\d+$/ && p.between?(0, 142)))
                          end
       }
              )
