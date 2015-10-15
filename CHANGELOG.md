@@ -2,6 +2,11 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.1.0 (2015-10-15)
+-------------------
+Minor feature release.
+* Ensure ICMPv6 is open when `['firewall']['allow_established']` is set to true (the default). ICMPv6 is critical for most IPv6 operations.
+
 v2.0.5 (2015-10-05)
 -------------------
 Minor bugfix release.
