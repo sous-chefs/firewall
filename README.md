@@ -33,6 +33,11 @@ By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute 
 default['firewall']['ubuntu_iptables'] = true
 ```
 
+By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, set this in an attribute file:
+```
+default['firewall']['redhat7_iptables'] = true
+```
+
 # Read this first
 
 This cookbook comes with two resources, firewall and firewall rule. The typical usage scenario is as follows:
