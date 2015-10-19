@@ -59,9 +59,7 @@ module FirewallCookbook
         parameters['description'] = "\"#{new_resource.description}\""
         parameters['dir'] = new_resource.direction
 
-        if new_resource.program
-          parameters['program'] = new_resource.program
-        end
+        new_resource.program && parameters['program'] = new_resource.program
         parameters['service'] = new_resource.service ? new_resource.service : 'any'
         parameters['protocol'] = new_resource.protocol
 
