@@ -40,6 +40,11 @@ class Chef
         next if firewall.rules['firewalld'].key?(k) && firewall.rules['firewalld'][k] == v
         firewall.rules['firewalld'][k] = v
 
+	# If persistent rules is enabled (default) make sure we add a permanent rule at the same time
+        if node['firewall']['persistent']
+          k = "firewall-cmd --permanent --direct --add-rule #{build_firewall_rule(new_resource, ip_version)}"
+          firewall.rules['firewalld'][k] = v
+	end
         new_resource.notifies(:restart, firewall, :delayed)
         new_resource.updated_by_last_action(true)
       end
