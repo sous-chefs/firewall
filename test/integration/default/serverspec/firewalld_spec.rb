@@ -30,7 +30,6 @@ expected_rules = [
 ]
 
 describe command('firewall-cmd --permanent --direct --get-all-rules') do
-
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
