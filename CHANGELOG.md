@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v1.6.2 (2015-10-28)
+-------------------
+* #105 - Fix poise 2.0 pin, for chef 11.x compatibility
+
 v1.6.1 (2015-07-24)
 -------------------
 * #80 - Remove an extra space in port range
