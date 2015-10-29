@@ -1,5 +1,3 @@
-require 'poise'
-
 class Chef
   class Resource::FirewallRule < Resource
     include Poise(Chef::Resource::Firewall)
