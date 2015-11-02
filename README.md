@@ -10,7 +10,7 @@ PLEASE NOTE - The resource/providers in this cookbook are under heavy developmen
 
 Requirements
 ------------
-**Chef 12.4.x** is required. We are currently testing against 12.4.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+**Chef 12.4.x+** is required. We are currently testing against 12.5.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
 ```
 depends 'firewall', '< 2.0'
 ```
@@ -57,11 +57,19 @@ The default recipe creates a firewall resource with action install, and if `node
 
 # Attributes
 
-* `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
-* `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 * `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
 * `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
+
+* `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
+* `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
+
+* `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
+* `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
+
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
+* `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
+
+* `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
 
 # Resources
 
@@ -73,7 +81,7 @@ The default recipe creates a firewall resource with action install, and if `node
 - `:install` (*default action*): Install and Enable the firewall. This will ensure the appropriate packages are installed and that any services have been started.
 - `:disable`: Disable the firewall. Drop any rules and put the node in an unprotected state. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
 - `:flush`: Flush all current rules. Also erase any internal state used to detect when rules should be applied.
-- `:save`: Ensure all rules are added permanently under firewalld using `--permanent`. Not supported on ufw, iptables. You must notify this action at the end of the chef run if you want persistent firewalld rules (they are not persistent by default).
+- `:save`: Ensure all rules are added permanently under firewalld using `--permanent`. Not supported on ufw, iptables. You must notify this action at the end of the chef run if you want permanent firewalld rules (they are not persistent by default).
 
 #### Parameters
 

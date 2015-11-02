@@ -36,6 +36,9 @@ class Chef
     attribute(:redirect_port, kind_of: Integer)
     attribute(:description, kind_of: String, name_attribute: true)
 
+    # only used for firewalld
+    attribute(:permanent, kind_of: [TrueClass, FalseClass], default: false)
+
     # only used for Windows Firewalls
     attribute(:program, kind_of: String)
     attribute(:service, kind_of: String)

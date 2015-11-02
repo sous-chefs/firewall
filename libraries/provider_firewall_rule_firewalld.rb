@@ -41,7 +41,8 @@ class Chef
         firewall.rules['firewalld'][k] = v
 
         # If persistent rules is enabled (default) make sure we add a permanent rule at the same time
-        if node['firewall']['persistent']
+        perm_rules = node && node['firewall'] && node['firewall']['firewalld'] && node['firewall']['firewalld']['permanent']
+        if new_resource.permanent || perm_rules
           k = "firewall-cmd --permanent --direct --add-rule #{build_firewall_rule(new_resource, ip_version)}"
           firewall.rules['firewalld'][k] = v
         end

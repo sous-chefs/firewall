@@ -2,9 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
-v2.1.1 (2015-10-26)
+v2.2.0 (2015-11-02)
 -------------------
-Added permanent as default option for RHEL 7 based systems using firewall-cmd
+Added permanent as default option for RHEL 7 based systems using firewall-cmd.
+This defaults to turned off, but it will be enabled by default on the next major version bump.
 
 v2.1.0 (2015-10-15)
 -------------------

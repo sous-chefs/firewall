@@ -7,6 +7,8 @@ provisioner:
     firewall:
       allow_ssh: true
       allow_winrm: true
+      firewalld:
+        permanent: true
 
 platforms:
   - name: centos-5.11
