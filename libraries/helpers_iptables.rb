@@ -32,7 +32,7 @@ module FirewallCookbook
           firewall_rule << "-i #{rule_resource.interface} " if rule_resource.interface
           firewall_rule << "-o #{rule_resource.dest_interface} " if rule_resource.dest_interface
 
-          firewall_rule << "-p #{rule_resource.protocol} " if new_resource.protocol && new_resource.protocol.to_s.to_sym != :none
+          firewall_rule << "-p #{rule_resource.protocol} " if rule_resource.protocol && rule_resource.protocol.to_s.to_sym != :none
           firewall_rule << '-m tcp ' if rule_resource.protocol && rule_resource.protocol.to_s.to_sym == :tcp
 
           # using multiport here allows us to simplify our greps and rule building

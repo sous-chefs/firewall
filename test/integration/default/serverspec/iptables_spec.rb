@@ -10,9 +10,7 @@ expected_rules = [
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 1235 .*-j REJECT --reject-with icmp-port-unreachable},
   %r{-A INPUT -p tcp -m tcp -m multiport --dports 1236 .*-j DROP},
   %r{-A INPUT -p vrrp .*-j ACCEPT},
-  %r{-A INPUT -s 192.168.99.99(/32)? -p tcp -m tcp .*-j REJECT --reject-with icmp-port-unreachable},
-  %r{-A INPUT -p tcp -m tcp -m multiport --dports 1000:1100 .*-j ACCEPT},
-  %r{-A INPUT -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 .*-j ACCEPT}
+  %r{-A INPUT -s 192.168.99.99(/32)? -p tcp -m tcp .*-j REJECT --reject-with icmp-port-unreachable}
 ]
 
 expected_ipv6_rules = [
@@ -24,10 +22,19 @@ expected_ipv6_rules = [
   %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1235 .*-j REJECT --reject-with icmp6-port-unreachable},
   %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1236 .*-j DROP},
   %r{-A INPUT( -s ::/0 -d ::/0)? -p vrrp .*-j ACCEPT},
-  %r{-A INPUT -s 2001:db8::ff00:42:8329/128( -d ::/0)? -p tcp -m tcp -m multiport --dports 80 .*-j ACCEPT},
-  %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1000:1100 .*-j ACCEPT},
-  %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 .*-j ACCEPT}
+  %r{-A INPUT -s 2001:db8::ff00:42:8329/128( -d ::/0)? -p tcp -m tcp -m multiport --dports 80 .*-j ACCEPT}
 ]
+
+# due to bug on centos 5 on ipv6, see firewall-test::default recipe for more info
+broken_centos_ipv6_range = (os[:family] == 'redhat' && os[:release].to_f < 6)
+
+unless broken_centos_ipv6_range
+  expected_rules << %r{-A INPUT -p tcp -m tcp -m multiport --dports 1000:1100 .*-j ACCEPT}
+  expected_rules << %r{-A INPUT -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 .*-j ACCEPT}
+
+  expected_ipv6_rules << %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1000:1100 .*-j ACCEPT}
+  expected_ipv6_rules << %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 .*-j ACCEPT}
+end
 
 describe command('iptables-save'), if: iptables? do
   its(:stdout) { should match(/COMMIT/) }

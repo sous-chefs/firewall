@@ -1,10 +1,6 @@
 include_recipe 'chef-sugar'
 include_recipe 'firewall'
 
-firewall 'default' do
-  action :install
-end
-
 firewall_rule 'ssh22' do
   port 22
   command :allow
@@ -79,9 +75,17 @@ end
 firewall_rule 'range' do
   port 1000..1100
   command :allow
+
+  # centos 5 is broken for ipv6 ranges
+  # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
+  not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
 
 firewall_rule 'array' do
   port [1234, 5000..5100, '5678']
   command :allow
+
+  # centos 5 is broken for ipv6 ranges
+  # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
+  not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
