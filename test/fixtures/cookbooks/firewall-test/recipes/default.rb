@@ -15,6 +15,13 @@ firewall_rule 'ssh2222' do
   command :allow
 end
 
+firewall_rule 'compile' do
+  port 777
+  command :allow
+  ensure_applied true
+  action :nothing # has no effect with ensure_applied
+end
+
 # other rules
 firewall_rule 'temp1' do
   port 1234

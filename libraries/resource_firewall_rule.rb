@@ -45,5 +45,12 @@ class Chef
 
     # for when you just want to pass a raw rule
     attribute(:raw, kind_of: String)
+
+    # To ensure that a partially completed chef run doesn't lose any desired
+    # rules, this attribute enables appending of rule config at compile time
+    attribute(:ensure_applied, kind_of: [TrueClass, FalseClass], default: false)
+    def after_created
+      run_action(:create) if ensure_applied
+    end
   end
 end
