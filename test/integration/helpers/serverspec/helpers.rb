@@ -22,3 +22,7 @@ end
 def iptables?
   redhat? && os[:release].to_f < 7.0
 end
+
+def windows?
+  %w(windows).include?(os[:family])
+end
