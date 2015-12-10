@@ -14,7 +14,9 @@ expected_rules = [
   %r{firewall add rule name="duplicate0" description="same comment" dir=in service=any protocol=tcp localip=any localport=5431,5432 interfacetype=any remoteip=any remoteport=any action=allow},
   %r{firewall add rule name="duplicate1" description="same comment" dir=in service=any protocol=tcp localip=any localport=1111 interfacetype=any remoteip=any remoteport=any action=allow},
   %r{firewall add rule name="duplicate1" description="same comment" dir=in service=any protocol=tcp localip=any localport=5431,5432 interfacetype=any remoteip=any remoteport=any action=allow},
-  %r{firewall add rule name="ipv6-source" description="ipv6-source" dir=in service=any protocol=tcp localip=any localport=80 interfacetype=any remoteip=2001:db8::ff00:42:8329 remoteport=any action=allow}
+  %r{firewall add rule name="ipv6-source" description="ipv6-source" dir=in service=any protocol=tcp localip=any localport=80 interfacetype=any remoteip=2001:db8::ff00:42:8329 remoteport=any action=allow},
+  %r{firewall add rule name="range" description="range" dir=in service=any protocol=tcp localip=any localport=1000-1100 interfacetype=any remoteip=any remoteport=any action=allow},
+  %r{firewall add rule name="array" description="array" dir=in service=any protocol=tcp localip=any localport=1234,5000-5100,5678 interfacetype=any remoteip=any remoteport=any action=allow}
 ]
 
 describe file("#{ENV['HOME']}/windows-chef.rules"), if: windows? do

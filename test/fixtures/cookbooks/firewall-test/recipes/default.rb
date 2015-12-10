@@ -75,3 +75,13 @@ firewall_rule 'ipv6-source' do
   source '2001:db8::ff00:42:8329'
   command :allow
 end
+
+firewall_rule 'range' do
+  port 1000..1100
+  command :allow
+end
+
+firewall_rule 'array' do
+  port [1234, 5000..5100, '5678']
+  command :allow
+end
