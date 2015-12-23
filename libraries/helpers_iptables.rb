@@ -46,7 +46,7 @@ module FirewallCookbook
           end
 
           firewall_rule << "-j #{TARGET[rule_resource.command.to_sym]} "
-          firewall_rule << "--to-ports #{rule_resource.redirect_port} " if rule_resource.action == :redirect
+          firewall_rule << "--to-ports #{rule_resource.redirect_port} " if rule_resource.command == :redirect
           firewall_rule.strip!
 
         end
