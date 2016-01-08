@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.3.1 (2016-01-08)
+-------------------
+* Add raw rule support to the ufw firewall provider (#113).
+
 v2.3.0 (2015-12-23)
 -------------------
 * Refactor logic so that firewall rules don't add a string rule to the firewall
