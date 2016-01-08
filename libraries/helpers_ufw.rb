@@ -69,7 +69,7 @@ module FirewallCookbook
         return new_resource.raw.strip if new_resource.raw
 
         rule = ''
-        rule << "#{new_resource.command.to_s} "
+        rule << "#{new_resource.command} "
         rule << rule_interface(new_resource)
         rule << rule_logging(new_resource)
         rule << rule_proto(new_resource)
