@@ -197,6 +197,12 @@ firewall_rule 'vrrp' do
   command      :allow
 end
 
+# can use :raw command with UFW provider for VRRP
+firewall_rule "VRRP" do
+  command   :allow
+  raw "allow to 224.0.0.18"
+end
+
 # open UDP ports 60000..61000 for mobile shell (mosh.mit.edu), note
 # that the protocol attribute is required when using port_range
 firewall_rule 'mosh' do
