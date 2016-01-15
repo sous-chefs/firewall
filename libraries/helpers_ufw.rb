@@ -71,8 +71,6 @@ module FirewallCookbook
       end
 
       def rule(new_resource)
-        return new_resource.raw.strip if new_resource.raw
-
         rule = ''
         rule << "#{new_resource.command} "
         rule << rule_interface(new_resource)
