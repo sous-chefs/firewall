@@ -81,13 +81,8 @@ module FirewallCookbook
       def rule_interface(new_resource)
         rule = ''
         rule << "#{new_resource.direction} " if new_resource.direction
-        if new_resource.interface
-          if new_resource.direction
-            rule << "on #{new_resource.interface} "
-          else
-            rule << "in on #{new_resource.interface} "
-          end
-        end
+        rule << "on #{new_resource.interface} " if new_resource.interface && new_resource.direction
+        rule << "in on #{new_resource.interface} " if new_resource.interface && !new_resource.direction
         rule
       end
 
@@ -98,24 +93,21 @@ module FirewallCookbook
       end
 
       def rule_dest_port(new_resource)
-        rule = ''
-        if new_resource.destination
-          rule << "to #{new_resource.destination} "
-        else
-          rule << 'to any '
-        end
+        rule = if new_resource.destination
+                 "to #{new_resource.destination} "
+               else
+                 'to any '
+               end
         rule << "port #{port_to_s(dport_calc(new_resource))} " if dport_calc(new_resource)
         rule
       end
 
       def rule_source_port(new_resource)
-        rule = ''
-
-        if new_resource.source
-          rule << "from #{new_resource.source} "
-        else
-          rule << 'from any '
-        end
+        rule = if new_resource.source
+                 "from #{new_resource.source} "
+               else
+                 'from any '
+               end
 
         if new_resource.source_port
           rule << "port #{port_to_s(new_resource.source_port)} "
