@@ -61,13 +61,16 @@ module FirewallCookbook
         # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
 
         ufw_command = ['ufw']
-        ufw_command << rule(new_resource).split
+        if new_resource.raw
+          ufw_command << new_resource.raw.strip
+        else
+          ufw_command << type.to_s
+          ufw_command << rule(new_resource).split
+        end
         ufw_command.flatten.join(' ')
       end
 
       def rule(new_resource)
-        return new_resource.raw.strip if new_resource.raw
-
         rule = ''
         rule << "#{new_resource.command} "
         rule << rule_interface(new_resource)
