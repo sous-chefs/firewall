@@ -34,14 +34,13 @@ module FirewallCookbook
       end
 
       def build_rule(new_resource)
-        type = new_resource.command
-        Chef::Log.info("#{new_resource.name} apply_rule #{type}")
+        Chef::Log.info("#{new_resource.name} apply_rule #{new_resource.command}")
 
         # if we don't do this, we may see some bugs where traffic is opened on all ports to all hosts when only RELATED,ESTABLISHED was intended
         if new_resource.stateful
           msg = ''
           msg << "firewall_rule[#{new_resource.name}] was asked to "
-          msg << "#{type} a stateful rule using #{new_resource.stateful} "
+          msg << "#{new_resource.command} a stateful rule using #{new_resource.stateful} "
           msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
           fail msg
         end
@@ -50,7 +49,7 @@ module FirewallCookbook
         if new_resource.protocol && !new_resource.protocol.to_s.downcase.match('^(tcp|udp|icmp)$')
           msg = ''
           msg << "firewall_rule[#{new_resource.name}] was asked to "
-          msg << "#{type} a rule using protocol #{new_resource.protocol} "
+          msg << "#{new_resource.command} a rule using protocol #{new_resource.protocol} "
           msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
           fail msg
         end
@@ -60,14 +59,11 @@ module FirewallCookbook
         # ufw deny proto tcp from 10.0.0.0/8 to 192.168.0.1 port 25
         # ufw insert 1 allow proto tcp from 0.0.0.0/0 to 192.168.0.1 port 25
 
-        ufw_command = ['ufw']
         if new_resource.raw
-          ufw_command << new_resource.raw.strip
+          "ufw #{new_resource.raw.strip}"
         else
-          ufw_command << type.to_s
-          ufw_command << rule(new_resource).split
+          "ufw #{rule(new_resource)}"
         end
-        ufw_command.flatten.join(' ')
       end
 
       def rule(new_resource)
