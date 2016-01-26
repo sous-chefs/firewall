@@ -96,6 +96,8 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 * `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 
+* `default['firewall']['windows']['windows_default_rules'] = true`, set to false in order not to apply default Windows Firewall Rules among user defined ones
+
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 * `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
 
@@ -188,6 +190,8 @@ end
 
 - `logging`: may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
 
+- `windows_default_rules` (defaults to _true_) can be set to false in order NOT to define default Windows firewall rules provided by operating system or applications installed among user defined rules. Default behaviour is to define them. When defining multiple rules, the value of default_rules in firewall rule with highest positon will be effective.
+
 #### Examples
 
 ```ruby
@@ -252,6 +256,15 @@ end
 firewall 'default' do
   enabled false
   action :nothing
+end
+
+# While defining rule, disabling default Windows Firewall rules
+
+firewall_rule 'no_defaults' do
+  protocol      :tcp
+  port          [80,443]
+  default_rules false
+  action        :allow
 end
 ```
 
