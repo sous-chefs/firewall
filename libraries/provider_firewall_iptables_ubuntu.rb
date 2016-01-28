@@ -90,13 +90,9 @@ class Chef
         end
       end
 
-      %w(iptables ip6tables).each do |iptables_type|
-        iptables_filename = if iptables_type == 'ip6tables'
-                              '/etc/iptables/rules.v6'
-                            else
-                              '/etc/iptables/rules.v4'
-                            end
-
+      ubuntu_iptables_files(new_resource).each do |iptables_filename_part|
+        iptables_type = ubuntu_iptables_type(iptables_filename_part)
+        iptables_filename = "/etc/iptables/#{iptables_filename_part}"
         # ensure a file resource exists with the current iptables rules
         begin
           iptables_file = run_context.resource_collection.find(file: iptables_filename)

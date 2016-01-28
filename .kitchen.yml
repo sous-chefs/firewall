@@ -47,3 +47,17 @@ suites:
       firewall:
         ubuntu_iptables: true
         redhat7_iptables: true
+
+  - name: iptables_extended
+    excludes:
+      - centos-5.11
+      - centos-6.7
+      - debian-7.8
+      - debian-8.1
+      - windows-2012r2
+    run_list:
+      - recipe[firewall-test::iptables_extended]
+    attributes:
+      firewall:
+        ubuntu_iptables: true
+        redhat7_iptables: true

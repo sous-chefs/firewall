@@ -71,9 +71,9 @@ class Chef
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
-        types = if ipv6_rule?(firewall_rule) # an ip4 specific rule
+        types = if firewall_rule.ipversion.to_sym == :ipv6
                   %w(ip6tables)
-                elsif ipv4_rule?(firewall_rule) # an ip6 specific rule
+                elsif firewall_rule.ipversion.to_sym == :ipv4 # an ip4 specific rule
                   %w(iptables)
                 else # or not specific
                   %w(iptables ip6tables)

@@ -33,7 +33,7 @@ By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute 
 default['firewall']['ubuntu_iptables'] = true
 ```
 
-By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, set this in an attribute file:
+By default, Red Hat & CentOS >= 7.0 choose firewalld. To switch to iptables, set this in an attribute file:
 ```
 default['firewall']['redhat7_iptables'] = true
 ```
@@ -44,7 +44,7 @@ This cookbook comes with two resources, firewall and firewall rule. The typical 
 
 - run the `:install` action on the `firewall` resource named 'default', which installs appropriate packages and configures services to start on boot and starts them
 
-- run the `:create` action on every `firewall_rule` resource, which adds to the list of rules that should be configured on the firewall. `firewall_rule` then automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
+- run the `:create` action on every `firewall_rule` resource, which adds to the list of rules that should be configured on the firewall. `firewall` will gather up all of the `firewall_rule` resources that can be run, and apply them when it runs. It will then  send a delayed notification to restart the appropriate firewall service on the system.
 
 - run the delayed notification with action `:restart` on the `firewall` resource. if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
 
@@ -64,7 +64,7 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
 
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
-* `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
+* `default['firewall']['iptables']['defaults']` hash for default rules all iptables chains and tables (only `*filter` by default)
 
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 * `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
@@ -226,8 +226,6 @@ end
 ```
 
 #### Providers
-
-- See `libraries/z_provider_mapping.rb` for a full list of providers for each platform and version.
 
 Different providers will determine the current state of the rules differently -- parsing the output of a command, maintaining the state in a file, or some other way. If the firewall is adjusted from outside of chef (non-idempotent), it's possible that chef may be caught unaware of the current state of the firewall. The best workaround is to add a `:flush` action to the firewall resource as early as possible in the chef run, if you plan to modify the firewall state outside of chef.
 

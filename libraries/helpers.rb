@@ -36,52 +36,17 @@ module FirewallCookbook
     def ip_with_mask(new_resource, ip)
       if ip.include?('/')
         ip
-      elsif ipv4_rule?(new_resource)
+      elsif new_resource.ipversion == :ipv4
         "#{ip}/32"
-      elsif ipv6_rule?(new_resource)
+      elsif new_resource.ipversion == :ipv6
         "#{ip}/128"
       else
         ip
       end
     end
 
-    # ipv4-specific rule?
-    def ipv4_rule?(new_resource)
-      if (new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
-         (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?)
-        true
-      else
-        false
-      end
-    end
-
-    # ipv6-specific rule?
-    def ipv6_rule?(new_resource)
-      if (new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
-         (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?) ||
-         new_resource.protocol =~ /ipv6/ ||
-         new_resource.protocol =~ /icmpv6/
-        true
-      else
-        false
-      end
-    end
-
     def ubuntu?(current_node)
       current_node['platform'] == 'ubuntu'
-    end
-
-    def build_rule_file(rules)
-      contents = []
-      sorted_values = rules.values.sort.uniq
-      sorted_values.each do |sorted_value|
-        contents << "# position #{sorted_value}"
-        rules.each do |k, v|
-          next unless v == sorted_value
-          contents << k
-        end
-      end
-      "#{contents.join("\n")}\n"
     end
   end
 end

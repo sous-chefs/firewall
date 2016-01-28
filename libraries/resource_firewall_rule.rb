@@ -10,6 +10,7 @@ class Chef
     default_action(:create)
 
     attribute(:firewall_name, kind_of: String, default: 'default')
+    attribute(:ipversion, kind_of: Symbol, equal_to: [:ipv4, :ipv6, :both], default: :both)
 
     attribute(:command, kind_of: Symbol, equal_to: [:reject, :allow, :deny, :masquerade, :redirect, :log], default: :allow)
 

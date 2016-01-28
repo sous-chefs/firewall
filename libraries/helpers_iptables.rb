@@ -4,7 +4,7 @@ module FirewallCookbook
       include FirewallCookbook::Helpers
       include Chef::Mixin::ShellOut
 
-      CHAIN = { in: 'INPUT', out: 'OUTPUT', pre: 'PREROUTING', post: 'POSTROUTING' }.freeze unless defined? CHAIN # , nil => "FORWARD"}
+      CHAIN = { in: 'INPUT', out: 'OUTPUT', forward: 'FORWARD' }.freeze unless defined? CHAIN
       TARGET = { allow: 'ACCEPT', reject: 'REJECT', deny: 'DROP', masquerade: 'MASQUERADE', redirect: 'REDIRECT', log: 'LOG --log-prefix "iptables: " --log-level 7' }.freeze unless defined? TARGET
 
       def build_firewall_rule(current_node, rule_resource, ipv6 = false)
@@ -14,14 +14,10 @@ module FirewallCookbook
         firewall_rule = if rule_resource.direction
                           "-A #{CHAIN[rule_resource.direction.to_sym]} "
                         else
-                          '-A FORWARD '
+                          '-A FORWARD ' # default to forward
                         end
 
-        if [:pre, :post].include?(rule_resource.direction)
-          firewall_rule << '-t nat '
-        end
-
-        # Iptables order of prameters is important here see example output below:
+        # Iptables order of parameters is important here see example output below:
         # -A INPUT -s 1.2.3.4/32 -d 5.6.7.8/32 -i lo -p tcp -m tcp -m state --state NEW -m comment --comment "hello" -j DROP
         firewall_rule << "-s #{ip_with_mask(rule_resource, rule_resource.source)} " if rule_resource.source && rule_resource.source != '0.0.0.0/0'
         firewall_rule << "-d #{rule_resource.destination} " if rule_resource.destination
@@ -64,6 +60,22 @@ module FirewallCookbook
         end
       end
 
+      def ubuntu_iptables_files(new_resource)
+        if ipv6_enabled?(new_resource)
+          %w(rules.v4 rules.v6)
+        else
+          %w(rules.v4)
+        end
+      end
+
+      def ubuntu_iptables_type(rule_type)
+        if rule_type == 'rules.v4'
+          'iptables'
+        elsif rule_type = 'rules.v6'
+          'ip6tables'
+        end
+      end
+
       def log_iptables(new_resource)
         iptables_commands(new_resource).each do |cmd|
           shell_out!("#{cmd} -L -n")
@@ -87,13 +99,7 @@ module FirewallCookbook
       end
 
       def default_ruleset(current_node)
-        {
-          '*filter' => 1,
-          ":INPUT #{current_node['firewall']['iptables']['defaults'][:policy][:input]}" => 2,
-          ":FORWARD #{current_node['firewall']['iptables']['defaults'][:policy][:forward]}" => 3,
-          ":OUTPUT #{current_node['firewall']['iptables']['defaults'][:policy][:output]}" => 4,
-          'COMMIT' => 100
-        }
+        current_node['firewall']['iptables']['defaults']
       end
 
       def ensure_default_rules_exist(current_node, new_resource)
@@ -105,6 +111,24 @@ module FirewallCookbook
           input[name] = {} unless input[name]
           input[name].merge!(default_ruleset(current_node))
         end
+      end
+
+      def build_rule_file(rules)
+        contents = []
+
+        sorted_values = rules.values.sort.uniq
+        sorted_values.each do |sorted_value|
+          contents << "# position #{sorted_value}"
+          rules.each do |k, v|
+            next unless v == sorted_value
+            contents << if k.start_with?('COMMIT')
+              'COMMIT'
+              else
+                k
+              end
+          end
+        end
+        "#{contents.join("\n")}\n"
       end
     end
   end
