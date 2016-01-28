@@ -87,13 +87,7 @@ module FirewallCookbook
       end
 
       def default_ruleset(current_node)
-        {
-          '*filter' => 1,
-          ":INPUT #{current_node['firewall']['iptables']['defaults'][:policy][:input]}" => 2,
-          ":FORWARD #{current_node['firewall']['iptables']['defaults'][:policy][:forward]}" => 3,
-          ":OUTPUT #{current_node['firewall']['iptables']['defaults'][:policy][:output]}" => 4,
-          'COMMIT' => 100
-        }
+        current_node['firewall']['iptables']['defaults'][:ruleset]
       end
 
       def ensure_default_rules_exist(current_node, new_resource)
