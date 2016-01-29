@@ -79,10 +79,10 @@ module FirewallCookbook
         rules.each do |k, v|
           next unless v == sorted_value
           contents << if k.start_with?('COMMIT')
-            'COMMIT'
-            else
-              k
-            end
+                        'COMMIT'
+                      else
+                        k
+                      end
         end
       end
       "#{contents.join("\n")}\n"
