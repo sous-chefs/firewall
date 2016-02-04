@@ -245,7 +245,7 @@ end
 firewall_rule 'http/https' do
   protocol :tcp
   port     [80, 443]
-  action   :allow
+  command   :allow
 end
 
 firewall 'default' do
