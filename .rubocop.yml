@@ -34,3 +34,5 @@ Style/RegexpLiteral:
   Enabled: false
 Style/DoubleNegation:
   Enabled: false
+Style/NumericLiterals:
+  MinDigits: 9
