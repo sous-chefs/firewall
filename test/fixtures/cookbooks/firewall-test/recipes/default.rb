@@ -94,3 +94,14 @@ firewall_rule 'ufw raw test' do
   raw 'limit 23/tcp'
   only_if { %w(ubuntu debian).include?(node['platform_family']) && !node['firewall']['ubuntu_iptables'] }
 end
+
+firewall_rule 'RPC Port Range In' do
+  port 5000..5100
+  protocol :tcp
+  command :allow
+  direction :in
+
+  # centos 5 is broken for ipv6 ranges
+  # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
+  not_if { rhel? && node['platform_version'].to_f < 6.0 }
+end
