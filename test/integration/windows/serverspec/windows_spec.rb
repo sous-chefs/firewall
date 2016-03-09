@@ -10,7 +10,8 @@ expected_rules = [
   %r{firewall add rule name="Incomingt_Rule_5" description="Incomingt_Rule_5" dir=in service=any protocol=tcp localip=any localport=80 interfacetype=any remoteip=any remoteport=any action=allow},
   %r{firewall add rule name="allow world to winrm" description="allow world to winrm" dir=in service=any protocol=tcp localip=any localport=5989 interfacetype=any remoteip=any remoteport=any action=allow},
   %r{set currentprofile logging allowedconnections disable},
-  %r{set currentprofile logging droppedconnections enable}
+  %r{set currentprofile logging droppedconnections enable},
+  %r{set currentprofile firewallpolicy blockinbound,blockoutbound}
 ]
 
 describe file("#{ENV['HOME']}/windows-chef.rules"), if: windows? do
@@ -29,4 +30,8 @@ end
 
 describe command('netsh advfirewall show currentprofile logging | findstr LogAllowedConnections'), if: windows? do
   its(:stdout) { should match('Disable') }
+end
+
+describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"'), if: windows? do
+  its(:stdout) { should match('BlockInbound,BlockOutbound') }
 end

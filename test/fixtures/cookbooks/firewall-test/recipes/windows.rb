@@ -1,6 +1,14 @@
 include_recipe 'chef-sugar'
 include_recipe 'firewall'
 
+node.override['firewall']['windows']['defaults'] = {
+  policy: {
+    input: 'blockinbound',
+    output: 'blockoutbound'
+  }
+}
+node.override['firewall']['windows']['default_rules'] = false
+
 firewall_rule 'Outgoing_Rule_0' do
   command :allow
   dest_port 8080
