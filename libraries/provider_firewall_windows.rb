@@ -64,6 +64,10 @@ class Chef
         new_resource.rules['windows']['set currentprofile logging allowedconnections disable'] = 0
       end
 
+      unless new_resource.rules['windows'].key?("set currentprofile firewallpolicy #{node['firewall']['windows']['defaults']['policy']['input']},#{node['firewall']['windows']['defaults']['policy']['output']}")
+        new_resource.rules['windows']["set currentprofile firewallpolicy #{node['firewall']['windows']['defaults']['policy']['input']},#{node['firewall']['windows']['defaults']['policy']['output']}"] = 99999
+      end
+
       # ensure a file resource exists with the current rules
       begin
         windows_file = run_context.resource_collection.find(file: windows_rules_filename)
