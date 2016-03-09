@@ -96,6 +96,7 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 * `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 
+* `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
 * `default['firewall']['windows']['default_rules'] = true`, set to false in order not to apply default Windows Firewall Rules among user defined ones
 
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
@@ -124,7 +125,7 @@ The default recipe creates a firewall resource with action install, and if `node
 - `disabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be disabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:public.`
 - `enabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be enabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:drop.`
 - `windows_default_rules` (defaults to _true_) can be set to false in order NOT to define default Windows firewall rules provided by operating system or applications installed among user defined rules. Default behaviour is to define them. This is set on Windows platform only with the value of node['firewall']['windows']['default_rules']
- 
+
 #### Examples
 
 ```ruby
