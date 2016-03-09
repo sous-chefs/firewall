@@ -96,7 +96,7 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 * `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 
-* `default['firewall']['windows']['windows_default_rules'] = true`, set to false in order not to apply default Windows Firewall Rules among user defined ones
+* `default['firewall']['windows']['default_rules'] = true`, set to false in order not to apply default Windows Firewall Rules among user defined ones
 
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 * `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
@@ -123,7 +123,8 @@ The default recipe creates a firewall resource with action install, and if `node
 - `rules`: This is used internally for firewall_rule resources to append their rules. You should NOT touch this value unless you plan to supply an entire firewall ruleset at once, and skip using firewall_rule resources.
 - `disabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be disabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:public.`
 - `enabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be enabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:drop.`
-
+- `windows_default_rules` (defaults to _true_) can be set to false in order NOT to define default Windows firewall rules provided by operating system or applications installed among user defined rules. Default behaviour is to define them. This is set on Windows platform only with the value of node['firewall']['windows']['default_rules']
+ 
 #### Examples
 
 ```ruby
@@ -132,6 +133,7 @@ firewall 'default'
 
 # enable platform default firewall
 firewall 'default' do
+  windows_default_rules true
   action :install
 end
 
@@ -189,8 +191,6 @@ end
 - `redirect_port`: redirected port for rules with command `:redirect`
 
 - `logging`: may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
-
-- `windows_default_rules` (defaults to _true_) can be set to false in order NOT to define default Windows firewall rules provided by operating system or applications installed among user defined rules. Default behaviour is to define them. When defining multiple rules, the value of default_rules in firewall rule with highest positon will be effective.
 
 #### Examples
 
@@ -263,7 +263,6 @@ end
 firewall_rule 'no_defaults' do
   protocol      :tcp
   port          [80,443]
-  default_rules false
   action        :allow
 end
 ```
