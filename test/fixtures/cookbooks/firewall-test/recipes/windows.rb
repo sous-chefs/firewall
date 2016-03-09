@@ -48,3 +48,8 @@ firewall_rule 'Incomingt_Rule_5' do
   position 6
   protocol :tcp
 end
+
+firewall_rule 'logging' do
+  command :log
+  logging :droppedconnections
+end
