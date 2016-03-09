@@ -20,7 +20,12 @@ class Chef
       }
              )
     attribute(:direction, kind_of: Symbol, equal_to: [:in, :out, :pre, :post], default: :in)
-    attribute(:logging, kind_of: Symbol, equal_to: [:connections, :packets])
+
+    if Chef::Platform.windows?
+      attribute(:logging, kind_of: Symbol, equal_to: [:allowedconnections, :droppedconnections])
+    else
+      attribute(:logging, kind_of: Symbol, equal_to: [:connections, :packets])
+    end
 
     attribute(:source, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
     attribute(:source_port, kind_of: [Integer, Array, Range]) # source port
