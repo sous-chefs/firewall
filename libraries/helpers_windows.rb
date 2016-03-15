@@ -38,8 +38,16 @@ module FirewallCookbook
         shell_out!("netsh advfirewall #{params}")
       end
 
+      def rules_exist?
+        !shell_out!('netsh advfirewall firewall show rule name=all | findstr "Rule Name:"', returns: [0, 1]).stdout.split(/\n/).empty?
+      end
+
       def delete_all_rules!
-        shell_out!('netsh advfirewall firewall delete rule name=all')
+        if rules_exist?
+          shell_out!('netsh advfirewall firewall delete rule name=all')
+        else
+          Chef::Log.info('No rules to delete')
+        end
       end
 
       def to_type(new_resource)
@@ -68,7 +76,7 @@ module FirewallCookbook
           parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
           parameters['interfacetype'] = new_resource.interface ? new_resource.interface : 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          parameters['remoteport'] = port_to_s(new_resource.dest_port) ? new_resource.dest_port : 'any'
+          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
         else
           parameters['localip'] = new_resource.destination ? new_resource.destination : 'any'
           parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
@@ -94,6 +102,16 @@ module FirewallCookbook
         cmd = shell_out!('netsh advfirewall firewall show rule name=all')
         cmd.stdout.each_line do |line|
           Chef::Log.warn(line)
+        end
+      end
+
+      def current_rule_count!
+        shell_out!('netsh advfirewall firewall show rule name=all | findstr "Rule Name:"').stdout.split(/\n/).length
+      rescue
+        if shell_out!('netsh advfirewall firewall show rule name=all', returns: [0, 1]).stdout =~ /^No rules match/
+          return 0
+        else
+          return -1
         end
       end
 

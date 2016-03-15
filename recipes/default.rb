@@ -21,6 +21,7 @@ include_recipe 'chef-sugar'
 
 firewall 'default' do
   ipv6_enabled node['firewall']['ipv6_enabled']
+  windows_default_rules node['firewall']['windows']['default_rules'] if node['os'] == 'windows'
   action :install
 end
 
