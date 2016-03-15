@@ -27,9 +27,13 @@ platforms:
     run_list:
       - recipe[apt::default]
   - name: windows-2012r2
+    driver_config:
+      box: windows2012r2
 
 suites:
   - name: default
+    excludes:
+      - windows-2012r2
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
@@ -47,3 +51,19 @@ suites:
       firewall:
         ubuntu_iptables: true
         redhat7_iptables: true
+  - name: windows
+    excludes:
+      - centos-5.11
+      - centos-6.7
+      - centos-7.1
+      - debian-7.8
+      - debian-8.1
+      - ubuntu-12.04
+      - ubuntu-14.04
+    run_list:
+      - recipe[firewall::default]
+      - recipe[firewall-test::windows]
+    attributes:
+      firewall:
+        windows:
+          default_rules: false
