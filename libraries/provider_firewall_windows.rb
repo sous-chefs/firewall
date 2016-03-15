@@ -57,6 +57,13 @@ class Chef
         end
       end
 
+      unless new_resource.rules['windows'].key?('set currentprofile logging droppedconnections enable')
+        new_resource.rules['windows']['set currentprofile logging droppedconnections disable'] = 0
+      end
+      unless new_resource.rules['windows'].key?('set currentprofile logging allowedconnections enable')
+        new_resource.rules['windows']['set currentprofile logging allowedconnections disable'] = 0
+      end
+
       # ensure a file resource exists with the current rules
       begin
         windows_file = run_context.resource_collection.find(file: windows_rules_filename)

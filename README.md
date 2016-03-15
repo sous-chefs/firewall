@@ -190,7 +190,11 @@ end
 
 - `redirect_port`: redirected port for rules with command `:redirect`
 
-- `logging`: may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
+- `logging`: may be added to enable logging for a particular rule (on Linux platforms) / system-wide (on Windows platform). valid values are:
+  - On Linux platforms:
+    - `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
+  - On Windows platforms:
+    - `:allowedconnections`, `:droppedconnections`. `:droppedconnections` will log only rejected / dropped connection requests, while `:allowedconnections` will log all new connections established
 
 #### Examples
 
