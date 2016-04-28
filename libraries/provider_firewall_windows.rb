@@ -69,23 +69,7 @@ class Chef
       windows_file.run_action(:create)
 
       # if the file was changed
-      # OR
-      # if current_rule_count is not equal to the number of rules in file
-      #   which can mean: no additional rules added but default rule set was
-      #   installed before and now it is desired not to install them
-      #   OR
-      #   which can mean: no additional rules added but rules changed externally
-      # OR
-      # if current_rule_count is equal to the number of rules in file AND
-      # windows_default_rules is true
-      #   which means no additional rules added but default rule set was NOT
-      #   installed before and now it is desired to install them
-      #
-      # So in these conditions shake and bake firewall service and rules
-      if windows_file.updated_by_last_action? ||
-         new_resource.rules['windows'].length != current_rule_count! ||
-         (new_resource.rules['windows'].length == current_rule_count! &&
-          new_resource.windows_default_rules)
+      if windows_file.updated_by_last_action?
         disable! if active?
         delete_all_rules! # clear entirely
 

@@ -1,1 +1,1 @@
-default['firewall']['windows']['default_rules'] = true
+default['firewall']['windows']['default_rules'] = false

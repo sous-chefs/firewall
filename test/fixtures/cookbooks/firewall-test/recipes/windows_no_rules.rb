@@ -1,3 +1,5 @@
+node.override['firewall']['windows']['default_rules'] = true
+
 include_recipe 'chef-sugar'
 include_recipe 'firewall'
 

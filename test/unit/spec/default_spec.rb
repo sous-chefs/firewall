@@ -3,6 +3,10 @@ require_relative 'spec_helper'
 describe 'firewall::default' do
   let(:chef_run) { ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '14.04').converge(described_recipe) }
 
+  it 'converges successfully' do
+    expect { :chef_run }.to_not raise_error
+  end
+
   it 'enables the firewall' do
     expect(chef_run).to install_firewall('default')
   end
