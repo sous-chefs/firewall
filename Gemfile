@@ -9,7 +9,7 @@ group :unit do
   gem 'berkshelf', '~> 4.0'
   gem 'chefspec'
   gem 'chef-sugar'
-  gem 'chef'
+  gem 'chef', '>= 12'
 end
 
 group :kitchen_windows do
