@@ -13,11 +13,11 @@ provisioner:
 platforms:
   - name: centos-5.11
   - name: centos-6.7
-  - name: centos-7.1
-  - name: debian-7.8
+  - name: centos-7.2
+  - name: debian-7.10
     run_list:
       - recipe[apt]
-  - name: debian-8.1
+  - name: debian-8.4
     run_list:
       - recipe[apt]
   - name: ubuntu-12.04
@@ -38,8 +38,8 @@ suites:
     excludes:
       - centos-5.11
       - centos-6.7
-      - debian-7.8
-      - debian-8.1
+      - debian-7.10
+      - debian-8.4
       - windows-2012r2
     run_list:
       - recipe[firewall-test::default]
