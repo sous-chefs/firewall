@@ -41,7 +41,9 @@ class Chef
           end
         end
 
-        %w(rules.v4 rules.v6).each do |svc|
+        rule_files = %w(rules.v4)
+        rule_files << 'rules.v6' if ipv6_enabled?(new_resource)
+        rule_files.each do |svc|
           # must create empty file for service to start
           file "create empty /etc/iptables/#{svc}" do
             path "/etc/iptables/#{svc}"
@@ -90,7 +92,10 @@ class Chef
         end
       end
 
-      %w(iptables ip6tables).each do |iptables_type|
+      rule_files = %w(iptables)
+      rule_files << 'ip6tables' if ipv6_enabled?(new_resource)
+
+      rule_files.each do |iptables_type|
         iptables_filename = if iptables_type == 'ip6tables'
                               '/etc/iptables/rules.v6'
                             else
@@ -146,7 +151,9 @@ class Chef
       iptables_flush!(new_resource)
       new_resource.updated_by_last_action(true)
 
-      %w(rules.v4 rules.v6).each do |svc|
+      rule_files = %w(rules.v4)
+      rule_files << 'rules.v6' if ipv6_enabled?(new_resource)
+      rule_files.each do |svc|
         # must create empty file for service to start
         file "create empty /etc/iptables/#{svc}" do
           path "/etc/iptables/#{svc}"
