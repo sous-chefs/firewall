@@ -3,6 +3,7 @@ driver:
 
 provisioner:
   name: chef_zero
+  require_chef_omnibus: 12.8.1
   attributes:
     firewall:
       allow_ssh: true

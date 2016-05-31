@@ -14,6 +14,7 @@ end
 
 group :kitchen_windows do
   gem 'winrm-transport'
+  gem 'winrm-fs', '~> 0.4.1'
 end
 
 group :kitchen_common do

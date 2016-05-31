@@ -54,6 +54,7 @@ class Chef
 
         service 'iptables-persistent' do
           action [:enable, :start]
+          status_command 'true' # iptables-persistent isn't a real service
         end
       end
     end
