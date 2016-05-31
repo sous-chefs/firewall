@@ -2,6 +2,14 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.5.1 (2016-05-31)
+-------------------
+* Protocol guard incorrectly prevents "none" protocol type on UFW helper (#128)
+* Fix wrongly ordered conditional for converting ports to strings using port_to_s
+* Fix notify_firewall attribute crashing firewall_rule provider (#130)
+* Add warning if firewall rule opens all traffic (#132)
+* Add ipv6 attribute respect to Ubuntu iptables (#138)
+
 v2.5.0 (2016-03-08)
 -------------------
 * Don't modify parameter for port (#120)
