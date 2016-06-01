@@ -18,11 +18,15 @@ module FirewallCookbook
       end
 
       def firewalld_default_zone?(z)
+        raise false unless firewalld_active?
+
         cmd = shell_out('firewall-cmd', '--get-default-zone')
         cmd.stdout =~ /^#{z.to_s}$/
       end
 
       def firewalld_default_zone!(z)
+        raise 'firewall not active' unless firewalld_active?
+
         shell_out!('firewall-cmd', "--set-default-zone=#{z}")
       end
 
@@ -31,6 +35,8 @@ module FirewallCookbook
       end
 
       def firewalld_flush!
+        raise 'firewall not active' unless firewalld_active?
+
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
@@ -38,12 +44,16 @@ module FirewallCookbook
       end
 
       def firewalld_all_rules_permanent!
+        raise 'firewall not active' unless firewalld_active?
+
         rules = shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout
         perm_rules = shell_out!('firewall-cmd', '--direct', '--permanent', '--get-all-rules').stdout
         rules == perm_rules
       end
 
       def firewalld_save!
+        raise 'firewall not active' unless firewalld_active?
+
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
         shell_out!('firewall-cmd', '--direct', '--get-all-rules').stdout.lines do |line|

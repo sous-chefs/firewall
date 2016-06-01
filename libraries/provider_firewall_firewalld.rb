@@ -88,9 +88,13 @@ class Chef
       firewalld_file.content build_rule_file(new_resource.rules['firewalld'])
       firewalld_file.run_action(:create)
 
-      # ensure the service is running
-      service 'firewalld' do
-        action [:enable, :start]
+      # ensure the service is running without waiting.
+      firewall_service = service 'firewalld' do
+        action :nothing
+      end
+      [:enable, :start].each do |a|
+        firewall_service.run_action(a)
+        new_resource.updated_by_last_action(firewall_service.updated_by_last_action?)
       end
 
       # mark updated if we changed the zone
@@ -115,9 +119,11 @@ class Chef
     action :disable do
       next if disabled?(new_resource)
 
-      firewalld_flush!
-      firewalld_default_zone!(new_resource.disabled_zone)
-      new_resource.updated_by_last_action(true)
+      if firewalld_active?
+        firewalld_flush!
+        firewalld_default_zone!(new_resource.disabled_zone)
+        new_resource.updated_by_last_action(true)
+      end
 
       service 'firewalld' do
         action [:disable, :stop]
@@ -132,6 +138,7 @@ class Chef
 
     action :flush do
       next if disabled?(new_resource)
+      next unless firewalld_active?
 
       firewalld_flush!
       new_resource.updated_by_last_action(true)
