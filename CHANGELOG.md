@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.5.2 (2016-06-02)
+-------------------
+* Don't issue commands when firewalld isn't active (#140)
+* Install iptables-services on CentOS >= 7 (#131)
+* Update Ruby version on Travis for listen gem
+
 v2.5.1 (2016-05-31)
 -------------------
 * Protocol guard incorrectly prevents "none" protocol type on UFW helper (#128)
