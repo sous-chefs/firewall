@@ -10,7 +10,7 @@ PLEASE NOTE - The resource/providers in this cookbook are under heavy developmen
 
 Requirements
 ------------
-**Chef 12.4.x+** is required. We are currently testing against 12.5.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+**Chef 12.4.x+** is required. We are currently testing against 12.8.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
 ```
 depends 'firewall', '< 2.0'
 ```
