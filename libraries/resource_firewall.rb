@@ -19,5 +19,11 @@ class Chef
 
     # for firewall implementations where ipv6 can be skipped (currently iptables-specific)
     attribute(:ipv6_enabled, kind_of: [TrueClass, FalseClass], default: true)
+
+    if Chef::Platform.windows?
+      # for Windows firewall implementations, do you want to apply
+      # default windows firewall rules?
+      attribute(:windows_default_rules, kind_of: [TrueClass, FalseClass], default: true)
+    end
   end
 end
