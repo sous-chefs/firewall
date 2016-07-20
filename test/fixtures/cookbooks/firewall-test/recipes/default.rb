@@ -22,21 +22,9 @@ firewall_rule 'temp2' do
   command :reject
 end
 
-firewall_rule 'addremove' do
-  port 1236
-  command :allow
-  only_if { rhel? } # don't do this on ufw, will reset ufw on every converge
-end
-
 firewall_rule 'addremove2' do
   port 1236
   command :deny
-end
-
-firewall_rule 'protocolnum' do
-  protocol 112
-  command :allow
-  only_if { rhel? } # debian ufw doesn't support protocol numbers
 end
 
 firewall_rule 'prepend' do
@@ -90,11 +78,6 @@ firewall_rule 'array' do
   not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
 
-firewall_rule 'ufw raw test' do
-  raw 'limit 23/tcp'
-  only_if { %w(ubuntu debian).include?(node['platform_family']) && !node['firewall']['ubuntu_iptables'] }
-end
-
 firewall_rule 'RPC Port Range In' do
   port 5000..5100
   protocol :tcp
@@ -105,3 +88,12 @@ firewall_rule 'RPC Port Range In' do
   # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
   not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
+
+firewall_rule 'HTTP HTTPS' do
+  port [80,443]
+  protocol :tcp
+  direction :out
+  command :allow
+end
+
+include_recipe 'firewall-test::windows' if windows?
