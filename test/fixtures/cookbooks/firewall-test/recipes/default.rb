@@ -105,3 +105,12 @@ firewall_rule 'RPC Port Range In' do
   # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
   not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
+
+firewall_rule 'HTTP HTTPS' do
+  port [80, 443]
+  protocol :tcp
+  direction :out
+  command :allow
+end
+
+include_recipe 'firewall-test::windows' if windows?

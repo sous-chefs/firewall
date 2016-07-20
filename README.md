@@ -98,6 +98,8 @@ The default recipe creates a firewall resource with action install, and if `node
 * `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 * `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 
+* `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
+
 * `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 * `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
 
