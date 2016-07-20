@@ -60,7 +60,7 @@ module FirewallCookbook
         parameters['dir'] = new_resource.direction
 
         new_resource.program && parameters['program'] = new_resource.program
-        parameters['service'] = new_resource.service ? new_resource.service : 'any'
+        new_resource.service && parameters['service'] = new_resource.service
         parameters['protocol'] = new_resource.protocol
 
         if new_resource.direction.to_sym == :out
