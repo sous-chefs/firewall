@@ -33,6 +33,7 @@ matrix:
 - KITCHEN_INSTANCE='default-centos-66'
 - KITCHEN_INSTANCE='default-centos-70'
 - KITCHEN_INSTANCE='iptables-ubuntu-1404'
+- KITCHEN_INSTANCE='default-windows-2012r2'
 env:
   global:
   - secure: R1jxTrZPqnwa0eOVzFzf0FrvwZxe88F5q33ScQe9s0IHY+bESvaw1MsLyDVf8UcomPtLyp2Moup4LqduivoY58A4bk2+0lATElWW4qbluCh12TSEgvX8N/YsPbO9KDPbMwEyNikiiKv+VuxfghagtG7MAAAvgQG+u2E2fu8VAfY=
