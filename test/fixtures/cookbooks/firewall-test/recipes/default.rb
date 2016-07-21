@@ -90,7 +90,7 @@ firewall_rule 'RPC Port Range In' do
 end
 
 firewall_rule 'HTTP HTTPS' do
-  port [80,443]
+  port [80, 443]
   protocol :tcp
   direction :out
   command :allow
