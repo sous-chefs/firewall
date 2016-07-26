@@ -46,7 +46,7 @@ module FirewallCookbook
         end
 
         # if we don't do this, ufw will fail as it does not support protocol numbers, so we'll only allow it to run if specifying icmp/tcp/udp protocol types
-        if new_resource.protocol && !new_resource.protocol.to_s.downcase.match('^(tcp|udp|icmp|none)$')
+        if new_resource.protocol && !new_resource.protocol.to_s.downcase.match('^(tcp|udp|icmp|esp|ah|ipv6|none)$')
           msg = ''
           msg << "firewall_rule[#{new_resource.name}] was asked to "
           msg << "#{new_resource.command} a rule using protocol #{new_resource.protocol} "
