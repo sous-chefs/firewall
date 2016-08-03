@@ -78,14 +78,23 @@ module FirewallCookbook
         contents << "# position #{sorted_value}"
         rules.each do |k, v|
           next unless v == sorted_value
-          contents << if k.start_with?('COMMIT')
-                        'COMMIT'
+
+          contents << if repeatable_directives(k)
+                        k[/[^_]+/]
                       else
                         k
                       end
         end
       end
       "#{contents.join("\n")}\n"
+    end
+
+    def repeatable_directives(s)
+      %w(:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT).each do |special|
+        return true if s.start_with?(special)
+      end
+
+      false
     end
   end
 end

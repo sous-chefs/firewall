@@ -58,15 +58,17 @@ node.default['firewall']['iptables']['defaults'][:ruleset] = {
   '*filter' => 1,
   ':INPUT DROP' => 2,
   ':FORWARD DROP' => 3,
-  ':OUTPUT ACCEPT' => 4,
+  ':OUTPUT ACCEPT_FILTER' => 4,
   'COMMIT_FILTER' => 100,
   '*nat' => 101,
   ':PREROUTING DROP' => 102,
   ':POSTROUTING DROP' => 103,
-  ':OUTPUT ACCEPT' => 104,
+  ':OUTPUT ACCEPT_NAT' => 104,
   'COMMIT_NAT' => 200
 }
 ```
+
+Note -- in order to support multiple hash keys containing the same rule, anything found after the underscore will be stripped for: `:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT`. This allows an example like the above to be reduced to just repeated lines of `COMMIT` and `:OUTPUT ACCEPT` while still avoiding duplication of other things.
 
 Then it's trivial to add additional rules to the `*nat` table using the raw parameter:
 ```
