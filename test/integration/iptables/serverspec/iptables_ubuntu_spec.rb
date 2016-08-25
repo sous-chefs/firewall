@@ -36,7 +36,11 @@ describe command('ip6tables-save'), if: ubuntu? do
   end
 end
 
-describe service('iptables-persistent'), if: ubuntu? do
+describe service('iptables-persistent'), if: iptables_persistent? do
+  it { should be_enabled }
+end
+
+describe service('netfilter-persistent'), if: netfilter_persistent? do
   it { should be_enabled }
 end
 
