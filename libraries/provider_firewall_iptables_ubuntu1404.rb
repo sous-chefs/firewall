@@ -18,12 +18,12 @@
 # limitations under the License.
 #
 class Chef
-  class Provider::FirewallIptablesUbuntu < Chef::Provider::LWRPBase
+  class Provider::FirewallIptablesUbuntu1404 < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
     provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
-      node['platform_version'].to_f > 14.04 && node['firewall'] && node['firewall']['ubuntu_iptables']
+      node['platform_version'].to_f <= 14.04 && node['firewall'] && node['firewall']['ubuntu_iptables']
     end
 
     def whyrun_supported?
@@ -52,9 +52,9 @@ class Chef
           end
         end
 
-        service 'netfilter-persistent' do
+        service 'iptables-persistent' do
           action [:enable, :start]
-          status_command 'true' # netfilter-persistent isn't a real service
+          status_command 'true' # iptables-persistent isn't a real service
         end
       end
     end
@@ -116,7 +116,7 @@ class Chef
 
         # if the file was changed, restart iptables
         next unless iptables_file.updated_by_last_action?
-        service_affected = service 'netfilter-persistent' do
+        service_affected = service 'iptables-persistent' do
           action :nothing
         end
 
@@ -132,7 +132,7 @@ class Chef
       iptables_default_allow!(new_resource)
       new_resource.updated_by_last_action(true)
 
-      service 'netfilter-persistent' do
+      service 'iptables-persistent' do
         action [:disable, :stop]
       end
 

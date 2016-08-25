@@ -26,3 +26,11 @@ end
 def windows?
   %w(windows).include?(os[:family])
 end
+
+def iptables_persistent?
+  ubuntu? && os[:release].to_f <= 14.04
+end
+
+def netfilter_persistent?
+  ubuntu? && os[:release].to_f > 14.04
+end
