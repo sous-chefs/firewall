@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 group :lint do
   gem 'foodcritic', '~> 5.0'
   gem 'rubocop', '~> 0.34'
+  gem 'cookstyle', '~> 0.0.1'
 end
 
 group :unit do
@@ -41,4 +42,5 @@ group :development do
   gem 'guard-rspec'
   gem 'guard-rubocop'
   gem 'rake'
+  gem 'stove'
 end
