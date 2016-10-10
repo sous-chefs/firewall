@@ -33,6 +33,7 @@ class Chef
       converge_by('install firewalld, create template for /etc/sysconfig') do
         package 'firewalld' do
           action :install
+          options new_resource.package_options
         end
 
         service 'firewalld' do

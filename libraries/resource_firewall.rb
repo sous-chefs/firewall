@@ -19,5 +19,8 @@ class Chef
 
     # for firewall implementations where ipv6 can be skipped (currently iptables-specific)
     attribute(:ipv6_enabled, kind_of: [TrueClass, FalseClass], default: true)
+
+    # allow override of package options for firewalld package
+    attribute(:package_options, kind_of: String, default: nil)
   end
 end
