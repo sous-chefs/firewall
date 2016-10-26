@@ -29,10 +29,13 @@ class Chef
     action :install do
       next if disabled?(new_resource)
 
-      converge_by('enable and start Windows Firewall service') do
-        service 'MpsSvc' do
-          action [:enable, :start]
-        end
+      svc = service 'MpsSvc' do
+          action :nothing
+      end
+
+      [:enable, :start].each do |act|
+        svc.run_action(act)
+        new_resource.updated_by_last_action(true) if svc.updated_by_last_action?
       end
     end
 
@@ -87,18 +90,21 @@ class Chef
     action :disable do
       next if disabled?(new_resource)
 
-      converge_by('disable and stop Windows Firewall service') do
-        if active?
-          disable!
-          Chef::Log.info("#{new_resource} disabled.")
-          new_resource.updated_by_last_action(true)
-        else
-          Chef::Log.debug("#{new_resource} already disabled.")
-        end
+      if active?
+        disable!
+        Chef::Log.info("#{new_resource} disabled.")
+        new_resource.updated_by_last_action(true)
+      else
+        Chef::Log.debug("#{new_resource} already disabled.")
+      end
 
-        service 'MpsSvc' do
-          action [:disable, :stop]
-        end
+      svc = service 'MpsSvc' do
+        action :nothing
+      end
+
+      [:disable, :stop].each do |act|
+        svc.run_action(act)
+        new_resource.updated_by_last_action(true) if svc.updated_by_last_action?
       end
     end
 
@@ -107,6 +113,7 @@ class Chef
 
       reset!
       Chef::Log.info("#{new_resource} reset.")
+      new_resource.updated_by_last_action(true)
     end
   end
 end
