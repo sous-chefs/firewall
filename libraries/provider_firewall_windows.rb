@@ -30,7 +30,7 @@ class Chef
       next if disabled?(new_resource)
 
       svc = service 'MpsSvc' do
-          action :nothing
+        action :nothing
       end
 
       [:enable, :start].each do |act|
