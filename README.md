@@ -119,7 +119,7 @@ The default recipe creates a firewall resource with action install, and if `node
 
 - `disabled` (default to `false`): If set to true, all actions will no-op on this resource. This is a way to prevent included cookbooks from configuring a firewall.
 - `ipv6_enabled` (default to `true`): If set to false, firewall will not perform any ipv6 related work. Currently only supported in iptables.
-- `log_level`: UFW only. Level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full. default is :low.
+- `log_level`: UFW only. Level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full, :off. default is :low.
 - `rules`: This is used internally for firewall_rule resources to append their rules. You should NOT touch this value unless you plan to supply an entire firewall ruleset at once, and skip using firewall_rule resources.
 - `disabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be disabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:public.`
 - `enabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be enabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:drop.`
