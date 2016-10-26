@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.5.3 (2016-10-26)
+-------------------
+* Don't show firewall resource as updated (#133)
+* Add :off as a valid logging level (#129)
+* Add support for Ubuntu 16.04 (#149)
+
 v2.5.2 (2016-06-02)
 -------------------
 * Don't issue commands when firewalld isn't active (#140)
