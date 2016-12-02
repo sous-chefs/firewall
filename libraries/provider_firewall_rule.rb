@@ -1,9 +1,9 @@
 #
 # Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
-# Cookbook Name:: firewall
+# Cookbook:: firewall
 # Provider:: rule_iptables
 #
-# Copyright 2015, computerlyrik
+# Copyright:: 2015-2016, computerlyrik
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

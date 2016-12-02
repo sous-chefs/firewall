@@ -1,6 +1,6 @@
 #
 # Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
-# Cookbook Name:: firewall
+# Cookbook:: firewall
 # Resource:: default
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

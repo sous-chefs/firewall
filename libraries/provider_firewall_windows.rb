@@ -1,6 +1,6 @@
 #
 # Author:: Sander van Harmelen (<svanharmelen@schubergphilis.com>)
-# Cookbook Name:: firewall
+# Cookbook:: firewall
 # Provider:: windows
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
