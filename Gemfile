@@ -41,6 +41,6 @@ group :development do
   gem 'guard-foodcritic'
   gem 'guard-rspec'
   gem 'guard-rubocop'
-  gem 'rake'
+  gem 'rake', '~> 11.0'
   gem 'stove'
 end
