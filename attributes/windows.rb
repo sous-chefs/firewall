@@ -3,6 +3,6 @@
 default['firewall']['windows']['defaults'] = {
   policy: {
     input: 'blockinbound',
-    output: 'allowoutbound'
-  }
+    output: 'allowoutbound',
+  },
 }

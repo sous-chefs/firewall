@@ -30,7 +30,7 @@ expected_rules = [
   %r{ipv6 filter INPUT 50 -p tcp -m tcp -m multiport --dports 5431,5432 -m comment --comment 'same comment' -j ACCEPT},
   %r{ipv6 filter INPUT 50 -s 2001:db8::ff00:42:8329/128 -p tcp -m tcp -m multiport --dports 80 -m comment --comment ipv6-source -j ACCEPT},
   %r{ipv6 filter INPUT 50 -p tcp -m tcp -m multiport --dports 1000:1100 -m comment --comment range -j ACCEPT},
-  %r{ipv6 filter INPUT 50 -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 -m comment --comment array -j ACCEPT}
+  %r{ipv6 filter INPUT 50 -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 -m comment --comment array -j ACCEPT},
 ]
 
 describe command('firewall-cmd --permanent --direct --get-all-rules'), if: firewalld? do
