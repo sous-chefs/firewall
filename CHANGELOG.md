@@ -2,6 +2,13 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.5.4 (2017-02-13)
+-------------------
+* Update Test Kitchen platforms to the latest
+* Update copyright headers
+* Allow package options to be passed through to the package install for firewall
+* Define policy for Windows Firewall and use the attributes to set desired policy
+
 v2.5.3 (2016-10-26)
 -------------------
 * Don't show firewall resource as updated (#133)
