@@ -71,6 +71,10 @@ class Chef
 
       # this populates the hash of rules from firewall_rule resources
       firewall_rules = run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      # Back out of restart if not all firewall rules have been added to the resource_collection.
+      # This can happen if at least one firewall_rule, but not all, have been created before the Chef run fails, due
+      # to the fact that delayed notifications still fire on a failed chef run.
+      next if firewall_rules.count { |item| !item.should_skip?(:create) } != node.run_state[:firewall_rules].count
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 

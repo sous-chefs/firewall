@@ -21,6 +21,12 @@ class Chef
   class Provider::FirewallRuleGeneric < Chef::Provider::LWRPBase
     provides :firewall_rule
 
+    def initialize(*args)
+      super
+      node.run_state[:firewall_rules] ||= []
+      node.run_state[:firewall_rules] << args[0]
+    end
+
     action :create do
       if new_resource.notify_firewall
         firewall_resource = run_context.resource_collection.find(firewall: new_resource.firewall_name)
