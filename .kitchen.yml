@@ -3,7 +3,6 @@ driver:
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: 12.8.1
   attributes:
     firewall:
       allow_ssh: true
@@ -12,18 +11,14 @@ provisioner:
         permanent: true
 
 platforms:
-  - name: centos-5.11
   - name: centos-6.8
-  - name: centos-7.2
+  - name: centos-7.3
   - name: debian-7.11
     run_list:
       - recipe[apt]
   - name: debian-8.6
     run_list:
       - recipe[apt]
-  - name: ubuntu-12.04
-    run_list:
-      - recipe[apt::default]
   - name: ubuntu-14.04
     run_list:
       - recipe[apt::default]
@@ -42,7 +37,6 @@ suites:
 
   - name: iptables
     excludes:
-      - centos-5.11
       - centos-6.8
       - debian-7.11
       - debian-8.6

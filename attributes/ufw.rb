@@ -7,6 +7,6 @@ default['firewall']['ufw']['defaults'] = {
     input: 'DROP',
     output: 'ACCEPT',
     forward: 'DROP',
-    application: 'SKIP'
-  }
+    application: 'SKIP',
+  },
 }
