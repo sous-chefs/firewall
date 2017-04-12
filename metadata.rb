@@ -20,4 +20,4 @@ depends 'chef-sugar'
 
 source_url 'https://github.com/chef-cookbooks/firewall'
 issues_url 'https://github.com/chef-cookbooks/firewall/issues'
-chef_version '>= 12.4' if respond_to?(:chef_version)
+chef_version '>= 13' if respond_to?(:chef_version)

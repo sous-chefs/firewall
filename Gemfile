@@ -1,29 +1,29 @@
 source 'https://rubygems.org'
 
 group :lint do
-  gem 'foodcritic', '~> 5.0'
-  gem 'rubocop', '~> 0.34'
-  gem 'cookstyle', '~> 0.0.1'
+  gem 'foodcritic', '~> 10.3'
+  gem 'rubocop', '~> 0.47'
+  gem 'cookstyle', '~> 1.3'
 end
 
 group :unit do
-  gem 'berkshelf', '~> 4.0'
+  gem 'berkshelf', '~> 5.6'
   gem 'chefspec'
   gem 'chef-sugar'
-  gem 'chef', '>= 12'
+  gem 'chef', '>= 13'
 end
 
 group :kitchen_windows do
-  gem 'winrm-transport'
-  gem 'winrm-fs', '~> 0.4.1'
+  gem 'winrm-fs', '~> 1.0'
+  gem 'winrm', '~> 2.0'
 end
 
 group :kitchen_common do
-  gem 'test-kitchen', '~> 1.4'
+  gem 'test-kitchen', '~> 1.16'
 end
 
 group :kitchen_vagrant do
-  gem 'kitchen-vagrant', '~> 0.19'
+  gem 'kitchen-vagrant', '~> 1.1'
   gem 'vagrant-wrapper'
 end
 
