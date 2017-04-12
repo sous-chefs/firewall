@@ -29,40 +29,44 @@ class Chef
       false
     end
 
-    action :install do
-      next if disabled?(new_resource)
+    def action_install
+      return if disabled?(new_resource)
 
-      converge_by('install ufw, create template for /etc/default') do
-        package 'ufw' do
-          action :install
-        end
+      pkg_ufw = package 'ufw' do
+        action :nothing
+      end
+      pkg_ufw.run_action(:install)
+      new_resource.updated_by_last_action(true) if pkg_ufw.updated_by_last_action?
 
-        template '/etc/default/ufw' do
-          action [:create]
-          owner 'root'
-          group 'root'
-          mode '0644'
-          source 'ufw/default.erb'
-          cookbook 'firewall'
-        end
+      defaults_ufw = template '/etc/default/ufw' do
+        action :nothing
+        owner 'root'
+        group 'root'
+        mode '0644'
+        source 'ufw/default.erb'
+        cookbook 'firewall'
+      end
+      defaults_ufw.run_action(:create)
+      new_resource.updated_by_last_action(true) if defaults_ufw.updated_by_last_action?
 
-        file "create empty #{ufw_rules_filename}" do
-          path ufw_rules_filename
-          content '# created by chef to allow service to start'
-          not_if { ::File.exist?(ufw_rules_filename) }
-        end
+      unless ::File.exist?(ufw_rules_filename)
+        ufw_file = lookup_or_create_rulesfile
+        ufw_file.content '# created by chef to allow service to start'
+        ufw_file.run_action(:create)
+
+        new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
       end
     end
 
-    action :restart do
-      next if disabled?(new_resource)
+    def action_restart
+      return if disabled?(new_resource)
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
       new_resource.rules['ufw'] = {} unless new_resource.rules['ufw']
 
       # this populates the hash of rules from firewall_rule resources
-      firewall_rules = run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
@@ -77,13 +81,7 @@ class Chef
       end
 
       # ensure a file resource exists with the current ufw rules
-      begin
-        ufw_file = run_context.resource_collection.find(file: ufw_rules_filename)
-      rescue
-        ufw_file = file ufw_rules_filename do
-          action :nothing
-        end
-      end
+      ufw_file = lookup_or_create_rulesfile
       ufw_file.content build_rule_file(new_resource.rules['ufw'])
       ufw_file.run_action(:create)
 
@@ -102,13 +100,13 @@ class Chef
       end
     end
 
-    action :disable do
-      next if disabled?(new_resource)
+    def action_disable
+      return if disabled?(new_resource)
 
-      file "create empty #{ufw_rules_filename}" do
-        path ufw_rules_filename
-        content '# created by chef to allow service to start'
-      end
+      ufw_file = lookup_or_create_rulesfile
+      ufw_file.content '# created by chef to allow service to start'
+      ufw_file.run_action(:create)
+      new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
 
       if ufw_active?
         ufw_disable!
@@ -116,16 +114,27 @@ class Chef
       end
     end
 
-    action :flush do
-      next if disabled?(new_resource)
+    def action_flush
+      return if disabled?(new_resource)
 
       ufw_reset!
       new_resource.updated_by_last_action(true)
 
-      file "create empty #{ufw_rules_filename}" do
-        path ufw_rules_filename
-        content '# created by chef to allow service to start'
+      ufw_file = lookup_or_create_rulesfile
+      ufw_file.content '# created by chef to allow service to start'
+      ufw_file.run_action(:create)
+      new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
+    end
+
+    def lookup_or_create_rulesfile
+      begin
+        ufw_file = Chef.run_context.resource_collection.find(file: ufw_rules_filename)
+      rescue
+        ufw_file = file ufw_rules_filename do
+          action :nothing
+        end
       end
+      ufw_file
     end
   end
 end
