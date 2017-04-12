@@ -18,14 +18,14 @@ module FirewallCookbook
       end
 
       def firewalld_default_zone?(z)
-        raise false unless firewalld_active?
+        return false unless firewalld_active?
 
         cmd = shell_out('firewall-cmd', '--get-default-zone')
         cmd.stdout =~ /^#{z.to_s}$/
       end
 
       def firewalld_default_zone!(z)
-        raise 'firewall not active' unless firewalld_active?
+        raise 'firewalld not active' unless firewalld_active?
 
         shell_out!('firewall-cmd', "--set-default-zone=#{z}")
       end

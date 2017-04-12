@@ -27,36 +27,39 @@ class Chef
       false
     end
 
-    action :install do
-      next if disabled?(new_resource)
+    def action_install
+      return if disabled?(new_resource)
 
-      converge_by('install firewalld, create template for /etc/sysconfig') do
-        package 'firewalld' do
-          action :install
-          options new_resource.package_options
-        end
+      firewalld_package = package 'firewalld' do
+        action :nothing
+        options new_resource.package_options
+      end
+      firewalld_package.run_action(:install)
+      new_resource.updated_by_last_action(firewalld_package.updated_by_last_action?)
 
-        service 'firewalld' do
-          action [:enable, :start]
-        end
+      unless ::File.exist?(firewalld_rules_filename)
+        rules_file = lookup_or_create_rulesfile
+        rules_file.content '# created by chef to allow service to start'
+        rules_file.run_action(:create)
+        new_resource.updated_by_last_action(rules_file.updated_by_last_action?)
+      end
 
-        file "create empty #{firewalld_rules_filename}" do
-          path firewalld_rules_filename
-          content '# created by chef to allow service to start'
-          not_if { ::File.exist?(firewalld_rules_filename) }
-        end
+      firewalld_service = lookup_or_create_service
+      [:enable, :start].each do |a|
+        firewalld_service.run_action(a)
+        new_resource.updated_by_last_action(firewalld_service.updated_by_last_action?)
       end
     end
 
-    action :restart do
-      next if disabled?(new_resource)
+    def action_restart
+      return if disabled?(new_resource)
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
       new_resource.rules['firewalld'] = {} unless new_resource.rules['firewalld']
 
       # this populates the hash of rules from firewall_rule resources
-      firewall_rules = run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
@@ -79,23 +82,15 @@ class Chef
       end
 
       # ensure a file resource exists with the current firewalld rules
-      begin
-        firewalld_file = run_context.resource_collection.find(file: firewalld_rules_filename)
-      rescue
-        firewalld_file = file firewalld_rules_filename do
-          action :nothing
-        end
-      end
-      firewalld_file.content build_rule_file(new_resource.rules['firewalld'])
-      firewalld_file.run_action(:create)
+      rules_file = lookup_or_create_rulesfile
+      rules_file.content build_rule_file(new_resource.rules['firewalld'])
+      rules_file.run_action(:create)
 
       # ensure the service is running without waiting.
-      firewall_service = service 'firewalld' do
-        action :nothing
-      end
+      firewalld_service = lookup_or_create_service
       [:enable, :start].each do |a|
-        firewall_service.run_action(a)
-        new_resource.updated_by_last_action(firewall_service.updated_by_last_action?)
+        firewalld_service.run_action(a)
+        new_resource.updated_by_last_action(firewalld_service.updated_by_last_action?)
       end
 
       # mark updated if we changed the zone
@@ -105,7 +100,7 @@ class Chef
       end
 
       # if the file was changed, load new ruleset
-      if firewalld_file.updated_by_last_action?
+      if rules_file.updated_by_last_action?
         firewalld_flush!
         # TODO: support logging
 
@@ -117,8 +112,8 @@ class Chef
       end
     end
 
-    action :disable do
-      next if disabled?(new_resource)
+    def action_disable
+      return if disabled?(new_resource)
 
       if firewalld_active?
         firewalld_flush!
@@ -126,38 +121,61 @@ class Chef
         new_resource.updated_by_last_action(true)
       end
 
-      service 'firewalld' do
-        action [:disable, :stop]
+      # ensure the service is stopped without waiting.
+      firewalld_service = lookup_or_create_service
+      [:disable, :stop].each do |a|
+        firewalld_service.run_action(a)
+        new_resource.updated_by_last_action(firewalld_service.updated_by_last_action?)
       end
 
-      file "create empty #{firewalld_rules_filename}" do
-        path firewalld_rules_filename
-        content '# created by chef to allow service to start'
-        action :create
-      end
+      rules_file = lookup_or_create_rulesfile
+      rules_file.content '# created by chef to allow service to start'
+      rules_file.run_action(:create)
+      new_resource.updated_by_last_action(rules_file.updated_by_last_action?)
     end
 
-    action :flush do
-      next if disabled?(new_resource)
-      next unless firewalld_active?
+    def action_flush
+      return if disabled?(new_resource)
+      return unless firewalld_active?
 
       firewalld_flush!
       new_resource.updated_by_last_action(true)
 
-      file "create empty #{firewalld_rules_filename}" do
-        path firewalld_rules_filename
-        content '# created by chef to allow service to start'
-        action :create
-      end
+      rules_file = lookup_or_create_rulesfile
+      rules_file.content '# created by chef to allow service to start'
+      rules_file.run_action(:create)
+      new_resource.updated_by_last_action(rules_file.updated_by_last_action?)
     end
 
-    action :save do
-      next if disabled?(new_resource)
+    def action_save
+      return if disabled?(new_resource)
 
       unless firewalld_all_rules_permanent!
         firewalld_save!
         new_resource.updated_by_last_action(true)
       end
+    end
+
+    def lookup_or_create_service
+      begin
+        firewalld_service = Chef.run_context.resource_collection.find(service: 'firewalld')
+      rescue
+        firewalld_service = service 'firewalld' do
+          action :nothing
+        end
+      end
+      firewalld_service
+    end
+
+    def lookup_or_create_rulesfile
+      begin
+        firewalld_file = Chef.run_context.resource_collection.find(file: firewalld_rules_filename)
+      rescue
+        firewalld_file = file firewalld_rules_filename do
+          action :nothing
+        end
+      end
+      firewalld_file
     end
   end
 end
