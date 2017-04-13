@@ -79,19 +79,19 @@ class Chef
       windows_file.run_action(:create)
 
       # if the file was changed, restart iptables
-      if windows_file.updated_by_last_action?
-        disable! if active?
-        delete_all_rules! # clear entirely
-        reset! # populate default rules
+      return unless windows_file.updated_by_last_action?
 
-        new_resource.rules['windows'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
-          add_rule!(cmd)
-        end
-        # ensure it's enabled _after_ rules are inputted, to catch malformed rules
-        enable! unless active?
+      disable! if active?
+      delete_all_rules! # clear entirely
+      reset! # populate default rules
 
-        new_resource.updated_by_last_action(true)
+      new_resource.rules['windows'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
+        add_rule!(cmd)
       end
+      # ensure it's enabled _after_ rules are inputted, to catch malformed rules
+      enable! unless active?
+
+      new_resource.updated_by_last_action(true)
     end
 
     def action_disable

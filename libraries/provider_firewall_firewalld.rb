@@ -100,16 +100,15 @@ class Chef
       end
 
       # if the file was changed, load new ruleset
-      if rules_file.updated_by_last_action?
-        firewalld_flush!
-        # TODO: support logging
+      return unless rules_file.updated_by_last_action?
+      firewalld_flush!
+      # TODO: support logging
 
-        new_resource.rules['firewalld'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
-          firewalld_rule!(cmd)
-        end
-
-        new_resource.updated_by_last_action(true)
+      new_resource.rules['firewalld'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
+        firewalld_rule!(cmd)
       end
+
+      new_resource.updated_by_last_action(true)
     end
 
     def action_disable
@@ -149,11 +148,10 @@ class Chef
 
     def action_save
       return if disabled?(new_resource)
+      return if firewalld_all_rules_permanent!
 
-      unless firewalld_all_rules_permanent!
-        firewalld_save!
-        new_resource.updated_by_last_action(true)
-      end
+      firewalld_save!
+      new_resource.updated_by_last_action(true)
     end
 
     def lookup_or_create_service

@@ -53,7 +53,6 @@ class Chef
         new_resource.updated_by_last_action(true) if f.updated_by_last_action?
       end
 
-
       iptables_service = lookup_or_create_service('iptables-persistent')
       [:enable, :start].each do |act|
         # iptables-persistent isn't a real service
@@ -192,6 +191,5 @@ class Chef
       end
       iptables_file
     end
-
   end
 end

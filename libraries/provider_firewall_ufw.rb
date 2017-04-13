@@ -49,13 +49,13 @@ class Chef
       defaults_ufw.run_action(:create)
       new_resource.updated_by_last_action(true) if defaults_ufw.updated_by_last_action?
 
-      unless ::File.exist?(ufw_rules_filename)
-        ufw_file = lookup_or_create_rulesfile
-        ufw_file.content '# created by chef to allow service to start'
-        ufw_file.run_action(:create)
+      return if ::File.exist?(ufw_rules_filename)
 
-        new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
-      end
+      ufw_file = lookup_or_create_rulesfile
+      ufw_file.content '# created by chef to allow service to start'
+      ufw_file.run_action(:create)
+
+      new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
     end
 
     def action_restart
@@ -86,18 +86,17 @@ class Chef
       ufw_file.run_action(:create)
 
       # if the file was changed, restart iptables
-      if ufw_file.updated_by_last_action?
-        ufw_reset!
-        ufw_logging!(new_resource.log_level) if new_resource.log_level
+      return unless ufw_file.updated_by_last_action?
+      ufw_reset!
+      ufw_logging!(new_resource.log_level) if new_resource.log_level
 
-        new_resource.rules['ufw'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
-          ufw_rule!(cmd)
-        end
-
-        # ensure it's enabled _after_ rules are inputted, to catch malformed rules
-        ufw_enable! unless ufw_active?
-        new_resource.updated_by_last_action(true)
+      new_resource.rules['ufw'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
+        ufw_rule!(cmd)
       end
+
+      # ensure it's enabled _after_ rules are inputted, to catch malformed rules
+      ufw_enable! unless ufw_active?
+      new_resource.updated_by_last_action(true)
     end
 
     def action_disable
@@ -108,10 +107,9 @@ class Chef
       ufw_file.run_action(:create)
       new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
 
-      if ufw_active?
-        ufw_disable!
-        new_resource.updated_by_last_action(true)
-      end
+      return unless ufw_active?
+      ufw_disable!
+      new_resource.updated_by_last_action(true)
     end
 
     def action_flush
