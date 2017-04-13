@@ -33,7 +33,7 @@ class Chef
     def action_install
       return if disabled?(new_resource)
 
-      # can't pass an array without breaking chef 11 support
+      # Ensure the package is installed
       iptables_packages(new_resource).each do |p|
         iptables_pkg = package p do
           action :nothing
