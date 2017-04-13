@@ -30,34 +30,38 @@ class Chef
       false
     end
 
-    action :install do
-      next if disabled?(new_resource)
+    def action_install
+      return if disabled?(new_resource)
 
-      converge_by('install iptables and enable/start services') do
-        # can't pass an array without breaking chef 11 support
-        iptables_packages(new_resource).each do |p|
-          package p do
-            action :install
-          end
+      # Ensure the package is installed
+      iptables_packages(new_resource).each do |p|
+        iptables_pkg = package p do
+          action :nothing
+        end
+        iptables_pkg.run_action(:install)
+        new_resource.updated_by_last_action(true) if iptables_pkg.updated_by_last_action?
+      end
+
+      iptables_commands(new_resource).each do |svc|
+        # must create empty file for service to start
+        unless ::File.exist?("/etc/sysconfig/#{svc}")
+          # must create empty file for service to start
+          iptables_file = lookup_or_create_rulesfile(svc)
+          iptables_file.content '# created by chef to allow service to start'
+          iptables_file.run_action(:create)
+          new_resource.updated_by_last_action(true) if iptables_file.updated_by_last_action?
         end
 
-        iptables_commands(new_resource).each do |svc|
-          # must create empty file for service to start
-          file "create empty /etc/sysconfig/#{svc}" do
-            path "/etc/sysconfig/#{svc}"
-            content '# created by chef to allow service to start'
-            not_if { ::File.exist?("/etc/sysconfig/#{svc}") }
-          end
-
-          service svc do
-            action [:enable, :start]
-          end
+        iptables_service = lookup_or_create_service(svc)
+        [:enable, :start].each do |a|
+          iptables_service.run_action(a)
+          new_resource.updated_by_last_action(true) if iptables_service.updated_by_last_action?
         end
       end
     end
 
-    action :restart do
-      next if disabled?(new_resource)
+    def action_restart
+      return if disabled?(new_resource)
 
       # prints all the firewall rules
       log_iptables(new_resource)
@@ -67,7 +71,7 @@ class Chef
       ensure_default_rules_exist(node, new_resource)
 
       # this populates the hash of rules from firewall_rule resources
-      firewall_rules = run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
@@ -91,65 +95,77 @@ class Chef
       end
 
       iptables_commands(new_resource).each do |iptables_type|
-        iptables_filename = "/etc/sysconfig/#{iptables_type}"
-        # ensure a file resource exists with the current iptables rules
-        begin
-          iptables_file = run_context.resource_collection.find(file: iptables_filename)
-        rescue
-          iptables_file = file iptables_filename do
-            action :nothing
-          end
-        end
-
         # this takes the commands in each hash entry and builds a rule file
+        iptables_file = lookup_or_create_rulesfile(iptables_type)
         iptables_file.content build_rule_file(new_resource.rules[iptables_type])
         iptables_file.run_action(:create)
 
         # if the file was unchanged, skip loop iteration, otherwise restart iptables
         next unless iptables_file.updated_by_last_action?
 
-        service_affected = service iptables_type do
-          action :nothing
-        end
-
-        new_resource.notifies(:restart, service_affected, :delayed)
+        iptables_service = lookup_or_create_service(iptables_type)
+        new_resource.notifies(:restart, iptables_service, :delayed)
         new_resource.updated_by_last_action(true)
       end
     end
 
-    action :disable do
-      next if disabled?(new_resource)
+    def action_disable
+      return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
       iptables_default_allow!(new_resource)
       new_resource.updated_by_last_action(true)
 
       iptables_commands(new_resource).each do |svc|
-        service svc do
-          action [:disable, :stop]
+        iptables_service = lookup_or_create_service(svc)
+        [:disable, :stop].each do |a|
+          iptables_service.run_action(a)
+          new_resource.updated_by_last_action(true) if iptables_service.updated_by_last_action?
         end
 
         # must create empty file for service to start
-        file "create empty /etc/sysconfig/#{svc}" do
-          path "/etc/sysconfig/#{svc}"
-          content '# created by chef to allow service to start'
-        end
+        iptables_file = lookup_or_create_rulesfile(svc)
+        iptables_file.content '# created by chef to allow service to start'
+        iptables_file.run_action(:create)
+        new_resource.updated_by_last_action(true) if iptables_file.updated_by_last_action?
       end
     end
 
-    action :flush do
-      next if disabled?(new_resource)
+    def action_flush
+      return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
       new_resource.updated_by_last_action(true)
 
       iptables_commands(new_resource).each do |svc|
         # must create empty file for service to start
-        file "create empty /etc/sysconfig/#{svc}" do
-          path "/etc/sysconfig/#{svc}"
-          content '# created by chef to allow service to start'
+        iptables_file = lookup_or_create_rulesfile(svc)
+        iptables_file.content '# created by chef to allow service to start'
+        iptables_file.run_action(:create)
+        new_resource.updated_by_last_action(true) if iptables_file.updated_by_last_action?
+      end
+    end
+
+    def lookup_or_create_service(name)
+      begin
+        iptables_service = Chef.run_context.resource_collection.find(service: svc)
+      rescue
+        iptables_service = service name do
+          action :nothing
         end
       end
+      iptables_service
+    end
+
+    def lookup_or_create_rulesfile(name)
+      begin
+        iptables_file = Chef.run_context.resource_collection.find(file: name)
+      rescue
+        iptables_file = file "/etc/sysconfig/#{name}" do
+          action :nothing
+        end
+      end
+      iptables_file
     end
   end
 end

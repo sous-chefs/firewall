@@ -3,7 +3,7 @@ driver:
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: 12.8.1
+  require_chef_omnibus: 13.0.118
   attributes:
     firewall:
       allow_ssh: true
@@ -12,7 +12,6 @@ provisioner:
         permanent: true
 
 platforms:
-  - name: centos-5.11
   - name: centos-6.8
   - name: centos-7.2
   - name: debian-7.11
@@ -21,9 +20,6 @@ platforms:
   - name: debian-8.6
     run_list:
       - recipe[apt]
-  - name: ubuntu-12.04
-    run_list:
-      - recipe[apt::default]
   - name: ubuntu-14.04
     run_list:
       - recipe[apt::default]
@@ -31,8 +27,6 @@ platforms:
     run_list:
       - recipe[apt::default]
   - name: windows-2012r2
-    driver_config:
-      box: windows2012r2
 
 suites:
   - name: default

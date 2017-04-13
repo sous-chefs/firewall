@@ -26,8 +26,8 @@ class Chef
       false
     end
 
-    action :install do
-      next if disabled?(new_resource)
+    def action_install
+      return if disabled?(new_resource)
 
       svc = service 'MpsSvc' do
         action :nothing
@@ -39,14 +39,14 @@ class Chef
       end
     end
 
-    action :restart do
-      next if disabled?(new_resource)
+    def action_restart
+      return if disabled?(new_resource)
 
       # ensure it's initialized
       new_resource.rules({}) unless new_resource.rules
       new_resource.rules['windows'] = {} unless new_resource.rules['windows']
 
-      firewall_rules = run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
@@ -69,7 +69,7 @@ class Chef
 
       # ensure a file resource exists with the current rules
       begin
-        windows_file = run_context.resource_collection.find(file: windows_rules_filename)
+        windows_file = Chef.run_context.resource_collection.find(file: windows_rules_filename)
       rescue
         windows_file = file windows_rules_filename do
           action :nothing
@@ -79,23 +79,23 @@ class Chef
       windows_file.run_action(:create)
 
       # if the file was changed, restart iptables
-      if windows_file.updated_by_last_action?
-        disable! if active?
-        delete_all_rules! # clear entirely
-        reset! # populate default rules
+      return unless windows_file.updated_by_last_action?
 
-        new_resource.rules['windows'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
-          add_rule!(cmd)
-        end
-        # ensure it's enabled _after_ rules are inputted, to catch malformed rules
-        enable! unless active?
+      disable! if active?
+      delete_all_rules! # clear entirely
+      reset! # populate default rules
 
-        new_resource.updated_by_last_action(true)
+      new_resource.rules['windows'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
+        add_rule!(cmd)
       end
+      # ensure it's enabled _after_ rules are inputted, to catch malformed rules
+      enable! unless active?
+
+      new_resource.updated_by_last_action(true)
     end
 
-    action :disable do
-      next if disabled?(new_resource)
+    def action_disable
+      return if disabled?(new_resource)
 
       if active?
         disable!
@@ -115,8 +115,8 @@ class Chef
       end
     end
 
-    action :flush do
-      next if disabled?(new_resource)
+    def action_flush
+      return if disabled?(new_resource)
 
       reset!
       Chef::Log.info("#{new_resource} reset.")
