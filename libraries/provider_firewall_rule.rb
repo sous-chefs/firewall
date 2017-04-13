@@ -21,9 +21,9 @@ class Chef
   class Provider::FirewallRuleGeneric < Chef::Provider::LWRPBase
     provides :firewall_rule
 
-    action :create do
+    def action_create
       if new_resource.notify_firewall
-        firewall_resource = run_context.resource_collection.find(firewall: new_resource.firewall_name)
+        firewall_resource = Chef.run_context.resource_collection.find(firewall: new_resource.firewall_name)
         raise 'could not find a firewall resource' unless firewall_resource
 
         new_resource.notifies(:restart, firewall_resource, :delayed)
