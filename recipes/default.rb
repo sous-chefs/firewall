@@ -27,6 +27,21 @@ end
 # create a variable to use as a condition on some rules that follow
 iptables_firewall = rhel? || node['firewall']['ubuntu_iptables']
 
+firewall_rule 'allow loopback' do
+  interface 'lo'
+  protocol :none
+  command :allow
+  only_if { linux? && node['firewall']['allow_loopback'] }
+end
+
+firewall_rule 'allow icmp' do
+  protocol :icmp
+  command :allow
+  # debian ufw doesn't allow 'icmp' protocol, but does open
+  # icmp by default, so we skip it in default recipe
+  only_if { linux? && !debian? && node['firewall']['allow_icmp'] }
+end
+
 firewall_rule 'allow world to ssh' do
   port 22
   source '0.0.0.0/0'

@@ -8,6 +8,9 @@ provisioner:
     firewall:
       allow_ssh: true
       allow_winrm: true
+      allow_mosh: true
+      allow_loopback: true
+      allow_icmp: true
       firewalld:
         permanent: true
 
