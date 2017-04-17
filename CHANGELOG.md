@@ -2,6 +2,13 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.6.0 (2017-04-17)
+-------------------
+* Initial Chef 13.x support (#160, #159)
+* Allow loopback and icmp, when enabled (#161)
+* Address various newer rubocop and foodcritic complaints
+* Convert rule provider away from DSL (#159)
+
 v2.5.4 (2017-02-13)
 -------------------
 * Update Test Kitchen platforms to the latest

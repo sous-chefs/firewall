@@ -26,5 +26,5 @@ describe file("#{ENV['HOME']}/windows-chef.rules"), if: windows? do
 end
 
 describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"'), if: windows? do
-  its(:stdout) { should match('BlockInbound,BlockOutbound') }
+  its(:stdout) { should match('BlockInbound,AllowOutbound') }
 end
