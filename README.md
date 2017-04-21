@@ -86,6 +86,9 @@ keys must be unique but we need multiple commit lines.
 ### default
 The default recipe creates a firewall resource with action install.
 
+### disable_firewall
+Used to disable platform specific firewall. Many clouds have their own firewall configured outside of the OS instance such as AWS Security Groups.
+
 # Attributes
 
 * `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
