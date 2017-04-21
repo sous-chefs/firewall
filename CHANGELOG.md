@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.6.1 (2017-04-21)
+-------------------
+* Add recipe to disable firewall (#164)
+
 v2.6.0 (2017-04-17)
 -------------------
 * Initial Chef 13.x support (#160, #159)
