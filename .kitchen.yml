@@ -20,7 +20,7 @@ platforms:
   - name: debian-7.11
     run_list:
       - recipe[apt]
-  - name: debian-8.6
+  - name: debian-8.7
     run_list:
       - recipe[apt]
   - name: ubuntu-14.04
@@ -42,7 +42,7 @@ suites:
       - centos-5.11
       - centos-6.8
       - debian-7.11
-      - debian-8.6
+      - debian-8.7
       - windows-2012r2
     run_list:
       - recipe[firewall-test::default]
