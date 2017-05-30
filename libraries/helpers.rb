@@ -91,7 +91,7 @@ module FirewallCookbook
     end
 
     def repeatable_directives(s)
-      %w(:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT).each do |special|
+      %w(:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT :DOCKER :DOCKER-ISOLATION).each do |special|
         return true if s.start_with?(special)
       end
 
