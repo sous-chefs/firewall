@@ -43,7 +43,7 @@ class Chef
       rule_files = %w(rules.v4)
       rule_files << 'rules.v6' if ipv6_enabled?(new_resource)
       rule_files.each do |svc|
-        next unless ::File.exist?("/etc/iptables/#{svc}")
+        next if ::File.exist?("/etc/iptables/#{svc}")
 
         # must create empty file for service to start
         f = lookup_or_create_rulesfile(svc)
