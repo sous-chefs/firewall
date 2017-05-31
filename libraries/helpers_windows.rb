@@ -89,6 +89,13 @@ module FirewallCookbook
           cmd.stdout !~ /^No rules match the specified criteria/
         end
       end
+      
+      def rule_enabled?(name)
+        @enabled ||= begin
+          cmd = shell_out!("netsh advfirewall firewall show rule name=\"#{name}\" status=enabled", returns: [0, 1])
+          cmd.stdout !~ /^No rules match the specified criteria/
+        end
+      end
 
       def show_all_rules!
         cmd = shell_out!('netsh advfirewall firewall show rule name=all')
