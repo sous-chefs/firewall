@@ -4,15 +4,10 @@ maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Provides a set of primitives for managing firewalls and associated rules.'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '2.6.1'
+version '2.6.2'
 
-supports 'amazon'
 supports 'centos'
 supports 'debian'
-supports 'fedora'
-supports 'oracle'
-supports 'redhat'
-supports 'scientific'
 supports 'ubuntu'
 supports 'windows'
 
