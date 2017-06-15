@@ -65,16 +65,20 @@ module FirewallCookbook
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
-          parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
           parameters['interfacetype'] = new_resource.interface ? new_resource.interface : 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
+          if new_resource.protocol != :icmpv4 and new_resource.protocol != :icmpv6
+            parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+            parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
+          end
         else
           parameters['localip'] = new_resource.destination ? new_resource.destination : 'any'
-          parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
           parameters['interfacetype'] = new_resource.dest_interface ? new_resource.dest_interface : 'any'
           parameters['remoteip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
-          parameters['remoteport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+          if new_resource.protocol != :icmpv4 and new_resource.protocol != :icmpv6
+            parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
+            parameters['remoteport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+          end
         end
 
         parameters['action'] = type.to_s
@@ -110,10 +114,12 @@ module FirewallCookbook
             current_parameters['service'] = Regexp.last_match(1).chomp if line =~ /^Service:\s+(.*)$/
             current_parameters['protocol'] = Regexp.last_match(1).chomp if line =~ /^Protocol:\s+(.*)$/
             current_parameters['localip'] = Regexp.last_match(1).chomp if line =~ /^LocalIP:\s+(.*)$/
-            current_parameters['localport'] = Regexp.last_match(1).chomp if line =~ /^LocalPort:\s+(.*)$/
             current_parameters['interfacetype'] = Regexp.last_match(1).chomp if line =~ /^InterfaceTypes:\s+(.*)$/
             current_parameters['remoteip'] = Regexp.last_match(1).chomp if line =~ /^RemoteIP:\s+(.*)$/
-            current_parameters['remoteport'] = Regexp.last_match(1).chomp if line =~ /^RemotePort:\s+(.*)$/
+            if new_resource.protocol != :icmpv4 and new_resource.protocol != :icmpv6
+              current_parameters['localport'] = Regexp.last_match(1).chomp if line =~ /^LocalPort:\s+(.*)$/
+              current_parameters['remoteport'] = Regexp.last_match(1).chomp if line =~ /^RemotePort:\s+(.*)$/
+            end
             current_parameters['action'] = Regexp.last_match(1).chomp if line =~ /^Action:\s+(.*)$/
           end
 
