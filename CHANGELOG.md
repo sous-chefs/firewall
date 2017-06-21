@@ -2,6 +2,12 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.6.2 (2017-06-01)
+-------------------
+* Incorrect file checking on Ubuntu, double file write (#173)
+* Added testing on CentOS 6.9
+* Clarify metadata that we're not working on Amazon Linux (#172)
+
 v2.6.1 (2017-04-21)
 -------------------
 * Add recipe to disable firewall (#164)

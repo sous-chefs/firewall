@@ -6,13 +6,8 @@ description 'Provides a set of primitives for managing firewalls and associated 
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version '2.6.3'
 
-supports 'amazon'
 supports 'centos'
 supports 'debian'
-supports 'fedora'
-supports 'oracle'
-supports 'redhat'
-supports 'scientific'
 supports 'ubuntu'
 supports 'windows'
 
