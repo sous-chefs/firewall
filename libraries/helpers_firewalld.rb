@@ -39,6 +39,8 @@ module FirewallCookbook
 
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv6', 'filter', 'INPUT')
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv6', 'filter', 'OUTPUT')
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
       end
