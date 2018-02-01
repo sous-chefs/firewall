@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+v2.6.3 (2018-02-01)
+-------------------
+* Fix issue with deep merging of hashes and arrays in recent chef release (#185)
+
 v2.6.2 (2017-06-01)
 -------------------
 * Incorrect file checking on Ubuntu, double file write (#173)
