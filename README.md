@@ -10,7 +10,7 @@ PLEASE NOTE - The resource/providers in this cookbook are under heavy developmen
 
 Requirements
 ------------
-**Chef 12.4.x+** is required. We are currently testing against 12.8.1. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+**Chef 12.5.x+** is required. We are currently testing against Chef 13. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
 ```
 depends 'firewall', '< 2.0'
 ```
@@ -22,9 +22,9 @@ depends 'firewall', '< 2.0'
 * Windows Advanced Firewall - 2012 R2
 
 Tested on:
-* Ubuntu 12.04, 14.04, 16.04 with iptables, ufw
-* Debian 7.8, 8.1 with ufw
-* CentOS 5.11, 6.7 with iptables
+* Ubuntu 14.04, 16.04 with iptables, ufw
+* Debian 7, 8 with ufw
+* CentOS 6 with iptables
 * CentOS 7.1 with firewalld
 * Windows Server 2012r2 with Windows Advanced Firewall
 
