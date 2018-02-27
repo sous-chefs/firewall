@@ -15,12 +15,12 @@ provisioner:
         permanent: true
 
 platforms:
-  - name: centos-6.9
-  - name: centos-7.3
-  - name: debian-7.11
+  - name: centos-6
+  - name: centos-7
+  - name: debian-7
     run_list:
       - recipe[apt]
-  - name: debian-8.7
+  - name: debian-8
     run_list:
       - recipe[apt]
   - name: ubuntu-14.04
@@ -39,10 +39,10 @@ suites:
 
   - name: iptables
     excludes:
-      - centos-5.11
-      - centos-6.9
-      - debian-7.11
-      - debian-8.7
+      - centos-5
+      - centos-6
+      - debian-7
+      - debian-8
       - windows-2012r2
     run_list:
       - recipe[firewall-test::default]
