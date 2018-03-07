@@ -8,7 +8,7 @@ module FirewallCookbook
       TARGET = { allow: 'ACCEPT', reject: 'REJECT', deny: 'DROP', masquerade: 'MASQUERADE', redirect: 'REDIRECT', log: 'LOG --log-prefix "iptables: " --log-level 7' }.freeze unless defined? TARGET
 
       def build_firewall_rule(current_node, rule_resource, ipv6 = false)
-        el5 = (current_node['platform'] == 'rhel' || current_node['platform'] == 'centos') && Gem::Dependency.new('', '~> 5.0').match?('', current_node['platform_version'])
+        el5 = current_node['platform_family'] == 'rhel' && Gem::Dependency.new('', '~> 5.0').match?('', current_node['platform_version'])
 
         return rule_resource.raw.strip if rule_resource.raw
         firewall_rule = if rule_resource.direction
