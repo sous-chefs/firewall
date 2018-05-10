@@ -39,7 +39,7 @@ module FirewallCookbook
         firewall_rule << "-m state --state #{rule_resource.stateful.is_a?(Array) ? rule_resource.stateful.join(',').upcase : rule_resource.stateful.upcase} " if rule_resource.stateful
         # the comments extension is not available for ip6tables on rhel/centos 5
         unless el5 && ipv6
-          firewall_rule << "-m comment --comment \"#{rule_resource.description}\" "
+          firewall_rule << "-m comment --comment \"#{rule_resource.description}\" " if rule_resource.include_comment
         end
 
         firewall_rule << "-j #{TARGET[rule_resource.command.to_sym]} "

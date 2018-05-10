@@ -163,6 +163,8 @@ end
 
 - `description` (_default: same as rule name_): Used to provide a comment that will be included when adding the firewall rule.
 
+- `include_comment` (_default: true_): Used to optionally exclude the comment in the rule.
+
 - `position` (_default: 50_): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 
 - `command`: What action to take on a particular packet

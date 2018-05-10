@@ -113,4 +113,13 @@ firewall_rule 'HTTP HTTPS' do
   command :allow
 end
 
+firewall_rule 'port2433' do
+  description 'This should not be included'
+  include_comment false
+  source    '127.0.0.0/8'
+  port      2433
+  direction :in
+  command   :allow
+end
+
 include_recipe 'firewall-test::windows' if windows?
