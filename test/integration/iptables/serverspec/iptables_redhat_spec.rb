@@ -42,6 +42,10 @@ describe command('iptables-save'), if: redhat? do
 
   duplicate_rule2 = '-A INPUT -p tcp -m tcp -m multiport --dports 5431,5432 -m comment --comment "same comment" -j ACCEPT'
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
+
+  # test that a comment was not included on purpose
+  its(:stdout) { should match('A INPUT -s 127.0.0.0/8 -p tcp -m tcp -m multiport --dports 2433 -j ACCEPT') }
+  its(:stdout) { should_not match('A INPUT -s 127.0.0.0/8 -p tcp -m tcp -m multiport --dports 2433 -j ACCEPT -m comment --comment "This should not be included"') }
 end
 
 describe command('ip6tables-save'), if: redhat? do

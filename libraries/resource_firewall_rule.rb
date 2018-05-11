@@ -33,6 +33,7 @@ class Chef
     attribute(:stateful, kind_of: [Symbol, Array])
     attribute(:redirect_port, kind_of: Integer)
     attribute(:description, kind_of: String, name_attribute: true)
+    attribute(:include_comment, kind_of: [TrueClass, FalseClass], default: true)
 
     # only used for firewalld
     attribute(:permanent, kind_of: [TrueClass, FalseClass], default: false)
