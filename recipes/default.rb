@@ -17,8 +17,6 @@
 # limitations under the License.
 #
 
-include_recipe 'chef-sugar'
-
 firewall 'default' do
   ipv6_enabled node['firewall']['ipv6_enabled']
   action :install
