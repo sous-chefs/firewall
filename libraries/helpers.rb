@@ -47,8 +47,9 @@ module FirewallCookbook
 
     # ipv4-specific rule?
     def ipv4_rule?(new_resource)
-      if (new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
-         (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?)
+      if ((new_resource.source && IPAddr.new(new_resource.source).ipv4?) ||
+         (new_resource.destination && IPAddr.new(new_resource.destination).ipv4?)) || (new_resource.raw && 
+         new_resource.raw.scan(/10\.13\.[12]?[0-9]?[0-9]\.[12]?[0-9]?[0-9]/))
         true
       else
         false
@@ -90,7 +91,7 @@ module FirewallCookbook
     end
 
     def repeatable_directives(s)
-      %w(:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT).each do |special|
+      %w(:OUTPUT :INPUT :POSTROUTING :PREROUTING COMMIT :DOCKER :DOCKER-ISOLATION).each do |special|
         return true if s.start_with?(special)
       end
 
