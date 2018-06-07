@@ -17,6 +17,10 @@
 # limitations under the License.
 #
 
+chef_sugar_cookbook_version = Gem::Version.new(run_context.cookbook_collection['chef-sugar'].metadata.version)
+
+include_recipe 'chef-sugar' if chef_sugar_cookbook_version < Gem::Version.new('4.0.0')
+
 firewall 'default' do
   ipv6_enabled node['firewall']['ipv6_enabled']
   action :install
