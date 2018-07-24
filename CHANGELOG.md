@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+## 2.6.5 (2018-07-24)
+
+- use platform_family instead of platform to include all rhels
+
 v2.6.4 (2018-07-01)
 -------------------
 * Stop including chef-sugar when it's >= 4.0.0 (#197)
