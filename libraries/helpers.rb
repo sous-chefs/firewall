@@ -67,8 +67,8 @@ module FirewallCookbook
       end
     end
 
-    def ubuntu?(current_node)
-      current_node['platform'] == 'ubuntu'
+    def debian?(current_node)
+      current_node['platform_family'] == 'debian'
     end
 
     def build_rule_file(rules)

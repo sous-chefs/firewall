@@ -23,8 +23,8 @@ def firewalld?
   redhat? && os[:release].to_f >= 7.0
 end
 
-def iptables?
-  redhat? && os[:release].to_f < 7.0
+def rhel_iptables?
+  (redhat? && os[:release].to_f < 7.0)
 end
 
 def windows?
@@ -32,9 +32,9 @@ def windows?
 end
 
 def iptables_persistent?
-  ubuntu? && os[:release].to_f <= 14.04
+  %w(debian).include?(os[:family]) && os[:release].to_f <= (ubuntu? ? 14.04 : 7)
 end
 
 def netfilter_persistent?
-  (ubuntu? && os[:release].to_f > 14.04) || debian9?
+  %w(debian).include?(os[:family]) && os[:release].to_f > (ubuntu? ? 14.04 : 7)
 end

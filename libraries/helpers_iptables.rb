@@ -56,7 +56,7 @@ module FirewallCookbook
                    end
 
         # centos 7 requires extra service
-        if !ubuntu?(node) && node['platform_version'].to_i >= 7
+        if !debian?(node) && node['platform_version'].to_i >= 7
           packages << %w(iptables-services)
         end
 

@@ -40,7 +40,7 @@ unless broken_centos_ipv6_range
   expected_ipv6_rules << %r{-A INPUT( -s ::/0 -d ::/0)? -p tcp -m tcp -m multiport --dports 1234,5000:5100,5678 .*-j ACCEPT}
 end
 
-describe command('iptables-save'), if: iptables? do
+describe command('iptables-save'), if: rhel_iptables? do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_rules.each do |r|
@@ -55,7 +55,7 @@ describe command('iptables-save'), if: iptables? do
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
 
-describe command('ip6tables-save'), if: iptables? do
+describe command('ip6tables-save'), if: rhel_iptables? do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_ipv6_rules.each do |r|
@@ -63,7 +63,7 @@ describe command('ip6tables-save'), if: iptables? do
   end
 end
 
-describe service('iptables'), if: iptables? do
+describe service('iptables'), if: rhel_iptables? do
   it { should be_enabled }
   it { should be_running }
 end
