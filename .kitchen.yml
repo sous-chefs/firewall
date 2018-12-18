@@ -23,6 +23,9 @@ platforms:
   - name: debian-8
     run_list:
       - recipe[apt]
+  - name: debian-9
+    run_list:
+      - recipe[apt]
   - name: ubuntu-14.04
     run_list:
       - recipe[apt::default]
@@ -33,6 +36,8 @@ platforms:
 
 suites:
   - name: default
+    excludes:
+      - debian-9
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]

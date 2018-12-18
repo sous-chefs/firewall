@@ -11,6 +11,10 @@ def debian?
   %w(debian).include?(os[:family])
 end
 
+def debian9?
+  %w(debian).include?(os[:family]) && os[:release].to_f >= 9.0
+end
+
 def ubuntu?
   %w(ubuntu).include?(os[:family])
 end
@@ -32,5 +36,5 @@ def iptables_persistent?
 end
 
 def netfilter_persistent?
-  ubuntu? && os[:release].to_f > 14.04
+  (ubuntu? && os[:release].to_f > 14.04) || debian9?
 end

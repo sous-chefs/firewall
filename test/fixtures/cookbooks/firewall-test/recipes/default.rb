@@ -90,6 +90,7 @@ firewall_rule 'array' do
   not_if { rhel? && node['platform_version'].to_f < 6.0 }
 end
 
+# if using with iptables-restart, this produces an unreadable line; no problem, IF disabled
 firewall_rule 'ufw raw test' do
   raw 'limit 23/tcp'
   only_if { %w(ubuntu debian).include?(node['platform_family']) && !node['firewall']['ubuntu_iptables'] }
