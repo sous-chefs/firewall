@@ -24,7 +24,7 @@ class Chef
 
     provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
       node['firewall'] && node['firewall']['ubuntu_iptables'] &&
-      node['platform_version'].to_f <= (node['platform'] == 'ubuntu' ? 14.04 : 7)
+        node['platform_version'].to_f <= (node['platform'] == 'ubuntu' ? 14.04 : 7)
     end
 
     def whyrun_supported?
