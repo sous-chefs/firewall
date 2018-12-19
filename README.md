@@ -16,7 +16,7 @@ depends 'firewall', '< 2.0'
 ```
 
 ### Supported firewalls and platforms
-* UFW - Ubuntu, Debian
+* UFW - Ubuntu, Debian (except 9)
 * IPTables - Red Hat & CentOS, Ubuntu
 * FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
 * Windows Advanced Firewall - 2012 R2
@@ -24,6 +24,7 @@ depends 'firewall', '< 2.0'
 Tested on:
 * Ubuntu 14.04, 16.04 with iptables, ufw
 * Debian 7, 8 with ufw
+* Debian 9 with iptables
 * CentOS 6 with iptables
 * CentOS 7.1 with firewalld
 * Windows Server 2012r2 with Windows Advanced Firewall

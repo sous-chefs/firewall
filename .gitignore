@@ -47,3 +47,6 @@ Policyfile.lock.json
 .vagrant/
 .vagrant.d/
 .kitchen/
+
+# mac
+.DS_Store

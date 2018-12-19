@@ -24,7 +24,7 @@ expected_ipv6_rules = [
   %r{-A INPUT -s 2001:db8::ff00:42:8329/128( -d ::/0)? -p tcp -m tcp -m multiport --dports 80 .*-j ACCEPT},
 ]
 
-describe command('iptables-save'), if: ubuntu? do
+describe command('iptables-save'), if: (ubuntu? || debian?) do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_rules.each do |r|
@@ -32,7 +32,7 @@ describe command('iptables-save'), if: ubuntu? do
   end
 end
 
-describe command('ip6tables-save'), if: ubuntu? do
+describe command('ip6tables-save'), if: (ubuntu? || debian?) do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_ipv6_rules.each do |r|
@@ -42,13 +42,15 @@ end
 
 describe service('iptables-persistent'), if: iptables_persistent? do
   it { should be_enabled }
+  it { should be_running }
 end
 
 describe service('netfilter-persistent'), if: netfilter_persistent? do
   it { should be_enabled }
+  it { should be_running }
 end
 
-describe file('/etc/iptables/rules.v4'), if: ubuntu? do
+describe file('/etc/iptables/rules.v4'), if: (ubuntu? || debian?) do
   it { should be_file }
 
   expected_rules.each do |r|
@@ -56,7 +58,7 @@ describe file('/etc/iptables/rules.v4'), if: ubuntu? do
   end
 end
 
-describe file('/etc/iptables/rules.v6'), if: ubuntu? do
+describe file('/etc/iptables/rules.v6'), if: (ubuntu? || debian?) do
   it { should be_file }
 
   expected_ipv6_rules.each do |r|
