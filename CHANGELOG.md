@@ -2,6 +2,10 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+## 2.7.0 (2018-12-19)
+
+- Nominal support for Debian 9 (#202)
+
 ## 2.6.5 (2018-07-24)
 
 - use platform_family instead of platform to include all rhels
