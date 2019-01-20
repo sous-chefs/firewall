@@ -49,7 +49,7 @@ def preamble
   <<-EOL
 # #{@toml['Preamble']['title']}
 #{@toml['Preamble']['text']}
-EOL
+  EOL
 end
 
 def project_lieutenant
@@ -57,7 +57,7 @@ def project_lieutenant
 # #{@toml['Org']['Components']['Core']['title']}
 #{github_link(@toml['Org']['Components']['Core']['lieutenant'])}
 
-EOL
+  EOL
 end
 
 def all_maintainers
