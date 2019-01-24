@@ -65,7 +65,7 @@ class Chef
 
         ip_versions(firewall_rule).each do |ip_version|
           # build rules to apply with weight
-          k = "firewall-cmd --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
+          k = "firewall-cmd --zone=#{firewall_rule.zone} --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
           v = firewall_rule.position
 
           # unless we're adding them for the first time.... bail out.
@@ -75,7 +75,7 @@ class Chef
           # If persistent rules is enabled (default) make sure we add a permanent rule at the same time
           perm_rules = node && node['firewall'] && node['firewall']['firewalld'] && node['firewall']['firewalld']['permanent']
           if firewall_rule.permanent || perm_rules
-            k = "firewall-cmd --permanent --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
+            k = "firewall-cmd --zone=#{firewall_rule.zone}  --permanent --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
             new_resource.rules['firewalld'][k] = v
           end
         end

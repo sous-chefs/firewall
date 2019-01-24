@@ -87,6 +87,9 @@ keys must be unique but we need multiple commit lines.
 ### default
 The default recipe creates a firewall resource with action install.
 
+### firewalld
+A firewalld specific recipe creates a firewall resource with action install with the default zone (default: `drop`)
+
 ### disable_firewall
 Used to disable platform specific firewall. Many clouds have their own firewall configured outside of the OS instance such as AWS Security Groups.
 
@@ -110,7 +113,12 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 * `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
 
 * `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
-
+* `default['firewall']['firewalld']['zone'] = 'drop'`, Default zone for firewall
+* `default['firewall']['firewalld']['loopback_zone'] = 'trusted'`, zone for loopback to be enabled (using `allow_loopback`)
+* `default['firewall']['firewalld']['icmp_zone'] = 'public'`, zone for icmp to be enabled (using `allow_icmp`)
+* `default['firewall']['firewalld']['ssh_zone'] = 'public'`, zone for ssh to be enabled (using `allow_ssh`)
+* `default['firewall']['firewalld']['mosh_zone'] = 'public'`, zone for mosh to be enabled (using `allow_mosh`)
+* `default['firewall']['firewalld']['established_zone'] = 'public'`, zone for loopback to be enabled (using `allow_established`)
 # Resources
 
 ### firewall
@@ -177,7 +185,9 @@ end
   - `:redirect`: Redirect the matching packets
   - `:log`: Configure logging
 
-- `stateful`: a symbol or array of symbols, such as ``[:related, :established]` that will be passed to the state module in iptables or firewalld.
+- `stateful`: a symbol or array of symbols, such as `[:related, :established]` that will be passed to the state module in iptables or firewalld.
+
+- `zone` (firewalld only): a string, such as `public` that the rule will be applied.
 
 - `protocol`: `:tcp` (_default_), `:udp`, `:icmp`, `:none` or protocol number. Using protocol numbers is not supported using the ufw provider (default for debian/ubuntu systems).
 
@@ -260,6 +270,13 @@ firewall_rule 'http/https' do
   protocol :tcp
   port     [80, 443]
   command   :allow
+end
+
+# firewalld example of opening port 22 on public zone
+firewall_rule 'ssh' do
+  port    22
+  zone    "public"
+  command :allow
 end
 
 firewall 'default' do
