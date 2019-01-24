@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
 
 describe 'firewall::firewalld' do
-  let(:chef_run) { ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '14.04').converge(described_recipe) }
+  let(:chef_run) { ChefSpec::SoloRunner.new(platform: 'centos', version: '7').converge(described_recipe) }
 
   it 'enables the firewall' do
     expect(chef_run).to install_firewall('firewalld')
@@ -9,7 +9,7 @@ describe 'firewall::firewalld' do
 end
 
 describe 'firewall-test::firewalld' do
-  let(:chef_run) { ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '14.04', step_into: ['firewall_rule']).converge(described_recipe) }
+  let(:chef_run) { ChefSpec::SoloRunner.new(platform: 'centos', version: '7', step_into: ['firewall_rule']).converge(described_recipe) }
 
   it 'enables the firewall' do
     expect(chef_run).to restart_firewall('firewalld')
