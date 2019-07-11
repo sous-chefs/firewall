@@ -12,7 +12,7 @@ expected_rules = [
   %r{ 1000:1100/tcp + ALLOW IN +Anywhere},
   %r{ 1234,5000:5100,5678/tcp + ALLOW IN +Anywhere},
   %r{ 23/tcp + LIMIT IN +Anywhere},
-  %r{# ssh22}
+  /# ssh22/,
 ]
 
 describe command('ufw status numbered'), if: debian? || ubuntu? do
