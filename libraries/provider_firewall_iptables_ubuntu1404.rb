@@ -1,6 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Cookbook Name:: firewall
+# Cookbook:: firewall
 # Resource:: default
 #
 # Copyright:: 2011, Opscode, Inc.
