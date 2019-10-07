@@ -20,10 +20,10 @@ platforms:
   - name: debian-7
     run_list:
       - recipe[apt]
-  - name: debian-8
+  - name: debian-10
     run_list:
       - recipe[apt]
-  - name: debian-9
+  - name: debian-10
     run_list:
       - recipe[apt::default]
   - name: ubuntu-16.04
