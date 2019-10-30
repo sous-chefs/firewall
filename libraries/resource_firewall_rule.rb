@@ -6,7 +6,6 @@ class Chef
 
     resource_name(:firewall_rule)
     provides(:firewall_rule)
-    actions(:create)
     default_action(:create)
 
     attribute(:firewall_name, kind_of: String, default: 'default')
