@@ -17,10 +17,8 @@ provisioner:
 platforms:
   - name: centos-6
   - name: centos-7
-  - name: debian-7
-    run_list:
-      - recipe[apt]
-  - name: debian-10
+  - name: centos-8
+  - name: debian-9
     run_list:
       - recipe[apt]
   - name: debian-10
