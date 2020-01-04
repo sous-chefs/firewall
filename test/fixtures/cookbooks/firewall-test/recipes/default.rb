@@ -93,7 +93,7 @@ end
 # if using with iptables-restart, this produces an unreadable line; no problem, IF disabled
 firewall_rule 'ufw raw test' do
   raw 'limit 23/tcp'
-  only_if { platform_family?('ubuntu', 'debian') && !node['firewall']['ubuntu_iptables'] }
+  only_if { platform_family?('debian') && !node['firewall']['ubuntu_iptables'] }
 end
 
 firewall_rule 'RPC Port Range In' do
