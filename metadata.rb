@@ -14,4 +14,4 @@ depends 'chef-sugar'
 
 source_url 'https://github.com/chef-cookbooks/firewall'
 issues_url 'https://github.com/chef-cookbooks/firewall/issues'
-chef_version '>= 12.5'
+chef_version '>= 12.15'
