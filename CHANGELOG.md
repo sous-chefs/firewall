@@ -2,6 +2,21 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
+- resolved cookstyle error: attributes/iptables.rb:8:54 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:8:54 convention: `Style/StringLiteralsInInterpolation`
+- resolved cookstyle error: attributes/iptables.rb:8:63 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:8:64 convention: `Style/StringLiteralsInInterpolation`
+- resolved cookstyle error: attributes/iptables.rb:9:56 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:9:56 convention: `Style/StringLiteralsInInterpolation`
+- resolved cookstyle error: attributes/iptables.rb:9:65 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:9:66 convention: `Style/StringLiteralsInInterpolation`
+- resolved cookstyle error: attributes/iptables.rb:10:55 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:10:55 convention: `Style/StringLiteralsInInterpolation`
+- resolved cookstyle error: attributes/iptables.rb:10:64 refactor: `ChefStyle/AttributeKeys`
+- resolved cookstyle error: attributes/iptables.rb:10:65 convention: `Style/StringLiteralsInInterpolation`
+
 ## 2.7.0 (2018-12-19)
 
 - Nominal support for Debian 9 (#202)
