@@ -46,7 +46,3 @@ Policyfile.lock.json
 # vagrant stuff
 .vagrant/
 .vagrant.d/
-.kitchen/
-
-# mac
-.DS_Store
