@@ -43,7 +43,8 @@ suites:
       - centos-5
       - centos-6
       - debian-7
-      - debian-8
+      - debian-9
+      - debian-10
       - windows-2012r2
     run_list:
       - recipe[firewall-test::default]

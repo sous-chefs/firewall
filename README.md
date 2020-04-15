@@ -22,8 +22,7 @@ depends 'firewall', '< 2.0'
 * Windows Advanced Firewall - 2012 R2
 
 Tested on:
-* Ubuntu 14.04, 16.04 with iptables, ufw
-* Debian 7, 8 with ufw
+* Ubuntu 16.04 with iptables, ufw
 * Debian 9 with iptables
 * CentOS 6 with iptables
 * CentOS 7.1 with firewalld
