@@ -44,7 +44,7 @@ class Chef
 
       iptables_commands(new_resource).each do |svc|
         # must create empty file for service to start
-        unless ::File.exist?("/etc/sysconfig/#{svc}")
+    $   unless ::File.exist?("/etc/sysconfig/#{svc}")
           # must create empty file for service to start
           iptables_file = lookup_or_create_rulesfile(svc)
           iptables_file.content '# created by chef to allow service to start'
