@@ -4,6 +4,32 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: libraries/provider_firewall_firewalld.rb:30:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_firewalld.rb:54:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_firewalld.rb:114:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_firewalld.rb:136:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_firewalld.rb:149:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables.rb:33:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables.rb:63:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables.rb:112:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables.rb:134:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu.rb:34:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu.rb:67:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu.rb:133:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu.rb:156:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu1404.rb:34:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu1404.rb:67:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu1404.rb:133:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_iptables_ubuntu1404.rb:156:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_rule.rb:24:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_ufw.rb:32:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_ufw.rb:61:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_ufw.rb:102:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_ufw.rb:115:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_windows.rb:29:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_windows.rb:42:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_windows.rb:97:5 refactor: `ChefModernize/ActionMethodInResource`
+- resolved cookstyle error: libraries/provider_firewall_windows.rb:118:5 refactor: `ChefModernize/ActionMethodInResource`
 - resolved cookstyle error: attributes/iptables.rb:8:54 refactor: `ChefStyle/AttributeKeys`
 - resolved cookstyle error: attributes/iptables.rb:8:54 convention: `Style/StringLiteralsInInterpolation`
 - resolved cookstyle error: attributes/iptables.rb:8:63 refactor: `ChefStyle/AttributeKeys`
