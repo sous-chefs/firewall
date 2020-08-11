@@ -4,6 +4,13 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: libraries/helpers_windows.rb:47:9 convention: `Style/RedundantAssignment`
+- resolved cookstyle error: libraries/helpers_windows.rb:48:9 convention: `Layout/IndentationWidth`
+- resolved cookstyle error: libraries/helpers_windows.rb:49:16 convention: `Layout/ElseAlignment`
+- resolved cookstyle error: libraries/helpers_windows.rb:50:9 convention: `Layout/IndentationWidth`
+- resolved cookstyle error: libraries/helpers_windows.rb:51:16 warning: `Layout/EndAlignment`
+- resolved cookstyle error: libraries/helpers_windows.rb:52:1 convention: `Layout/EmptyLinesAroundMethodBody`
+- resolved cookstyle error: libraries/helpers_windows.rb:52:1 convention: `Layout/TrailingWhitespace`
 - resolved cookstyle error: libraries/provider_firewall_firewalld.rb:30:5 refactor: `ChefModernize/ActionMethodInResource`
 - resolved cookstyle error: libraries/provider_firewall_firewalld.rb:54:5 refactor: `ChefModernize/ActionMethodInResource`
 - resolved cookstyle error: libraries/provider_firewall_firewalld.rb:114:5 refactor: `ChefModernize/ActionMethodInResource`
