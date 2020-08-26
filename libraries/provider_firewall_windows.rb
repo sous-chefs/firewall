@@ -26,7 +26,7 @@ class Chef
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       svc = service 'MpsSvc' do
@@ -39,7 +39,7 @@ class Chef
       end
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # ensure it's initialized
@@ -94,7 +94,7 @@ class Chef
       new_resource.updated_by_last_action(true)
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       if active?
@@ -115,7 +115,7 @@ class Chef
       end
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
 
       reset!

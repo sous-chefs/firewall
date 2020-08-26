@@ -27,7 +27,7 @@ class Chef
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       firewalld_package = package 'firewalld' do
@@ -51,7 +51,7 @@ class Chef
       end
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # ensure it's initialized
@@ -111,7 +111,7 @@ class Chef
       new_resource.updated_by_last_action(true)
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       if firewalld_active?
@@ -133,7 +133,7 @@ class Chef
       new_resource.updated_by_last_action(rules_file.updated_by_last_action?)
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
       return unless firewalld_active?
 
@@ -146,7 +146,7 @@ class Chef
       new_resource.updated_by_last_action(rules_file.updated_by_last_action?)
     end
 
-    def action_save
+    action :save do
       return if disabled?(new_resource)
       return if firewalld_all_rules_permanent!
 

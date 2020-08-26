@@ -31,7 +31,7 @@ class Chef
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       # Ensure the package is installed
@@ -64,7 +64,7 @@ class Chef
       end
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # prints all the firewall rules
@@ -130,7 +130,7 @@ class Chef
       end
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
@@ -153,7 +153,7 @@ class Chef
       end
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
