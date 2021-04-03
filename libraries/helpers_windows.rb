@@ -66,9 +66,9 @@ module FirewallCookbook
         new_resource.service && parameters['service'] = new_resource.service
         # Keep interface the same and handle windows specific changes here.
         parameters['protocol'] = case new_resource.protocol
-        when :icmp then :icmpv4
-        else new_resource.protocol
-        end
+                                 when :icmp then :icmpv4
+                                 else new_resource.protocol
+                                 end
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
