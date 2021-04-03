@@ -7,7 +7,7 @@ module FirewallCookbook
       def icmp?(protocol)
         [:icmp, :icmpv4, :icmpv6, 1, 58].any?(protocol)
       end
-      
+
       def fixup_cidr(str)
         newstr = str.clone
         newstr.gsub!('0.0.0.0/0', 'any') if newstr.include?('0.0.0.0/0')
@@ -65,29 +65,24 @@ module FirewallCookbook
         new_resource.program && parameters['program'] = new_resource.program
         new_resource.service && parameters['service'] = new_resource.service
         # Keep interface the same and handle windows specific changes here.
-        case new_resource.protocol
-        when :icmp
-          parameters['protocol'] = :icmpv4
-        else
-          parameters['protocol'] = new_resource.protocol
+        parameters['protocol'] = case new_resource.protocol
+        when :icmp then :icmpv4
+        else new_resource.protocol
         end
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
           parameters['interfacetype'] = new_resource.interface || 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          unless icmp?(new_resource.protocol)
-            parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
-            parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
-          end
         else
           parameters['localip'] = new_resource.destination || 'any'
           parameters['interfacetype'] = new_resource.dest_interface || 'any'
           parameters['remoteip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
-          unless icmp?(new_resource.protocol)
-            parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
-            parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
-          end
+        end
+
+        unless icmp?(new_resource.protocol)
+          parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
         end
 
         parameters['action'] = type.to_s
