@@ -49,7 +49,7 @@ module FirewallCookbook
       end
 
       def iptables_packages(new_resource)
-        packages = if ipv6_enabled?(new_resource)
+        packages = if ipv6_enabled?(new_resource) && node['platform_family'] == 'centos' && node['platform_version'].to_i == 6
                      %w(iptables iptables-ipv6)
                    else
                      %w(iptables)
