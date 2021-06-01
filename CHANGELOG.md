@@ -2,6 +2,8 @@ firewall Cookbook CHANGELOG
 =======================
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 2.7.1 - *2021-06-01*
 
 - resolved cookstyle error: libraries/helpers_windows.rb:47:9 convention: `Style/RedundantAssignment`
