@@ -3,7 +3,7 @@ maintainer 'Chef Software, Inc.'
 maintainer_email 'cookbooks@chef.io'
 license 'Apache-2.0'
 description 'Provides a set of primitives for managing firewalls and associated rules.'
-version '2.7.0'
+version '2.7.1'
 
 supports 'centos'
 supports 'debian'
