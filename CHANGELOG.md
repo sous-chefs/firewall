@@ -4,11 +4,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 - fix firewall resource actions list
-- cookstyle fixes for
-- resolved cookstyle error: libraries/resource_firewall_rule.rb:22:5 convention: `Chef/Correctness/PropertyWithoutType`
-- resolved cookstyle error: libraries/resource_firewall_rule.rb:27:5 convention: `Chef/Correctness/PropertyWithoutType`
-- resolved cookstyle error: test/unit/spec/default_spec.rb:4:20 convention: `Chef/Deprecations/DeprecatedChefSpecPlatform`
-- resolved cookstyle error: test/unit/spec/default_spec.rb:12:20 convention: `Chef/Deprecations/DeprecatedChefSpecPlatform`
+- Various Cookstyle fixes
 
 ## 2.7.1 - *2021-06-01*
 
