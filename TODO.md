@@ -1,2 +1,2 @@
- - iptables' `-S` not supported in libraries/provider_firewall_iptables.rb
- - save action might not make sense for firewalls
+- iptables' `-S` not supported in libraries/provider_firewall_iptables.rb
+- save action might not make sense for firewalls

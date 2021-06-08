@@ -89,7 +89,7 @@ jobs:
           os: ${{ matrix.os }}
 
   windows-latest:
-    needs: [ mdl, yamllint, delivery ]
+    needs: [mdl, yamllint, delivery]
     runs-on: windows-latest
     strategy:
       matrix:
