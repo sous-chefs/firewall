@@ -55,20 +55,16 @@ jobs:
         exclude:
           - os: amazonlinux-2
             suite: ufw
+          - os: amazonlinux-2
+            suite: firewalld
           - os: debian-9
-            suite:
-              - firewalld
-              - ufw
+            suite: firewalld
           - os: debian-10
-            suite:
-              - firewalld
-              - iptables
+            suite: firewalld
           - os: centos-7
             suite: ufw
           - os: centos-8
-            suite:
-              - iptables
-              - ufw
+            suite: ufw
           - os: ubuntu-1804
             suite: firewalld
           - os: ubuntu-2004
