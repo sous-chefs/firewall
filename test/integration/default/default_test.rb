@@ -5,7 +5,7 @@
 
 require_relative 'spec_helper'
 
-describe service('firewalld') do
+describe firewalld do
   it { should be_enabled }
   it { should be_running }
 end if firewalld?
@@ -16,7 +16,7 @@ describe service('iptables') do
 end if iptables?
 
 describe service('ufw') do
-  it { should be_enabled.with_level('S') }
+  it { should be_enabled }
   it { should be_running }
 end if os.debian?
 

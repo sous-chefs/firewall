@@ -51,7 +51,7 @@ jobs:
           - firewalld
           - iptables
           - ufw
-          - disable_firewall
+          - disable-firewall
         exclude:
           - os: amazonlinux-2
             suite: ufw

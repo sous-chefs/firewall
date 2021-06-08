@@ -39,29 +39,15 @@ describe command('firewall-cmd --permanent --direct --get-all-rules') do
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
-
-  # we try to get firewall to add this rule twice, but we expect to see it once!
-  duplicate_rule1 = "ipv4 filter INPUT 50 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT"
-  its(:stdout) { should count_occurences(duplicate_rule1, 1) }
-
-  duplicate_rule2 = "ipv4 filter INPUT 50 -p tcp -m tcp -m multiport --dports 5431,5432 -m comment --comment 'same comment' -j ACCEPT"
-  its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
 
 describe command('firewall-cmd --direct --get-all-rules') do
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
-
-  # we try to get firewall to add this rule twice, but we expect to see it once!
-  duplicate_rule1 = "ipv4 filter INPUT 50 -p tcp -m tcp -m multiport --dports 1111 -m comment --comment 'same comment' -j ACCEPT"
-  its(:stdout) { should count_occurences(duplicate_rule1, 1) }
-
-  duplicate_rule2 = "ipv4 filter INPUT 50 -p tcp -m tcp -m multiport --dports 5431,5432 -m comment --comment 'same comment' -j ACCEPT"
-  its(:stdout) { should count_occurences(duplicate_rule2, 1) }
 end
 
-describe service('firewalld') do
+describe firewalld do
   it { should be_enabled }
   it { should be_running }
 end

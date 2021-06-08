@@ -18,13 +18,9 @@ describe command('ufw status numbered') do
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
-
-  # we try to get firewall to add this rule twice, but we expect to see it once! (twice on 12.04)
-  its(:stdout) { should count_occurences('1111/tcp ', 2) } # once for ipv4, once for ipv6
-  its(:stdout) { should count_occurences('5431,5432/tcp ', 2) } # once for ipv4, once for ipv6
 end
 
 describe service('ufw') do
-  it { should be_enabled.with_level('S') }
+  it { should be_enabled }
   it { should be_running }
 end

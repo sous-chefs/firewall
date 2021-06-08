@@ -64,7 +64,6 @@ suites:
   - name: ufw
     excludes:
       - amazonlinux-2
-      - debian-9
       - centos-7
       - centos-8
       - freebsd-11
@@ -114,7 +113,7 @@ suites:
       inspec_tests:
         - test/integration/default/windows.rb
 
-  - name: disable_firewall
+  - name: disable-firewall
     run_list:
       - recipe[firewall::default]
       - recipe[firewall::disable_firewall]
