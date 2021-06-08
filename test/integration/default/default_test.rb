@@ -8,18 +8,22 @@ require_relative 'spec_helper'
 describe firewalld do
   it { should be_enabled }
   it { should be_running }
-end if firewalld?
+  only_if { firewalld? }
+end
 
 describe service('iptables') do
   it { should be_enabled }
   it { should be_running }
-end if iptables?
+  only_if { iptables }
+end
 
 describe service('ufw') do
   it { should be_enabled }
   it { should be_running }
-end if os.debian?
+  only_if { os.debian? }
+end
 
 describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
   its(:stdout) { should match('BlockInbound,AllowOutbound') }
-end if os.windows?
+  only_if { os.windows? }
+end

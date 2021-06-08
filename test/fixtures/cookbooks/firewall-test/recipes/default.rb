@@ -43,21 +43,6 @@ firewall_rule 'prepend' do
   position 5
 end
 
-# something to check for duplicates
-(0..1).each do |i|
-  firewall_rule "duplicate#{i}" do
-    port 1111
-    command :allow
-    description 'same comment'
-  end
-
-  firewall_rule "duplicate#{i}" do
-    port [5432, 5431]
-    command :allow
-    description 'same comment'
-  end
-end
-
 bad_ip = '192.168.99.99'
 firewall_rule "block-#{bad_ip}" do
   source bad_ip
