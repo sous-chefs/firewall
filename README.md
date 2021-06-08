@@ -17,17 +17,18 @@ depends 'firewall', '< 2.0'
 
 ### Supported firewalls and platforms
 
-* UFW - Ubuntu, Debian (except 9)
-* IPTables - Red Hat & CentOS, Ubuntu
-* FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
-* Windows Advanced Firewall - 2012 R2
+- UFW - Ubuntu, Debian (except 9)
+- IPTables - Red Hat & CentOS, Ubuntu
+- FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
+- Windows Advanced Firewall - 2012 R2
 
 Tested on:
-* Ubuntu 16.04 with iptables, ufw
-* Debian 9 with iptables
-* CentOS 6 with iptables
-* CentOS 7.1 with firewalld
-* Windows Server 2012r2 with Windows Advanced Firewall
+
+- Ubuntu 16.04 with iptables, ufw
+- Debian 9 with iptables
+- CentOS 6 with iptables
+- CentOS 7.1 with firewalld
+- Windows Server 2012r2 with Windows Advanced Firewall
 
 By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute file:
 
@@ -87,31 +88,28 @@ keys must be unique but we need multiple commit lines.
 ## Recipes
 
 ### default
+
 The default recipe creates a firewall resource with action install.
 
 ### disable_firewall
+
 Used to disable platform specific firewall. Many clouds have their own firewall configured outside of the OS instance such as AWS Security Groups.
 
 ## Attributes
 
-* `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
-* `default['firewall']['allow_mosh'] = false`, set to true to open UDP ports 60000 - 61000 for [Mosh][0] when the default recipe runs
-* `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
-* `default['firewall']['allow_loopback'] = false`, set to true to allow all traffic on the loopback interface
-* `default['firewall']['allow_icmp'] = false`, set true to allow icmp protocol on supported OSes (note: ufw and windows implementations don't support this)
-
-* `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
-* `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
-
-* `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
-* `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
-
-* `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
-
-* `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
-* `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
-
-* `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
+- `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
+- `default['firewall']['allow_mosh'] = false`, set to true to open UDP ports 60000 - 61000 for [Mosh][0] when the default recipe runs
+- `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
+- `default['firewall']['allow_loopback'] = false`, set to true to allow all traffic on the loopback interface
+- `default['firewall']['allow_icmp'] = false`, set true to allow icmp protocol on supported OSes (note: ufw and windows implementations don't support this)
+- `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
+- `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
+- `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
+- `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
+- `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
+- `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
+- `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
+- `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
 
 ## Resources
 
@@ -135,8 +133,6 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 - `disabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be disabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:public.`
 - `enabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be enabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:drop.`
 - `package_options`: Used to pass options to the package install of firewall
-
-#### Examples
 
 ```ruby
 # all defaults
@@ -186,8 +182,6 @@ end
 - `dest_interface`: interface where packets may be destined to go
 - `redirect_port`: redirected port for rules with command `:redirect`
 - `logging`: may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
-
-#### Examples
 
 ```ruby
 # open standard ssh port
@@ -271,23 +265,25 @@ pp default_firewall.rules
 ```
 
 ## Development
+
 This section details "quick development" steps. For a detailed explanation, see [[Contributing.md]].
 
 1. Clone this repository from GitHub:
 
        $ git clone git@github.com:chef-cookbooks/firewall.git
 
-2. Create a git branch
+1. Create a git branch
 
        $ git checkout -b my_bug_fix
 
-3. Install dependencies:
+1. Install dependencies:
 
        $ bundle install
 
-4. Make your changes/patches/fixes, committing appropiately
-5. **Write tests**
-6. Run the tests:
+1. Make your changes/patches/fixes, committing appropiately
+1. **Write tests**
+1. Run the tests:
+
     - `bundle exec foodcritic -f any .`
     - `bundle exec rspec`
     - `bundle exec rubocop`
@@ -301,7 +297,8 @@ This section details "quick development" steps. For a detailed explanation, see 
 - Test Kitchen will run and converge the recipes
 
 
-# License & Authors
+## License & Authors
+
 <!-- $ find -type f -iname "*.rb" -exec grep -i author '{}' \; | sort -k4 | uniq | sed 's/#/-/g' -->
 - Author:: Seth Chisamore (<schisamo@opscode.com>)
 - Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
