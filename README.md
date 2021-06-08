@@ -270,36 +270,35 @@ This section details "quick development" steps. For a detailed explanation, see 
 
 1. Clone this repository from GitHub:
 
-       $ git clone git@github.com:chef-cookbooks/firewall.git
+`$ git clone git@github.com:chef-cookbooks/firewall.git`
 
 1. Create a git branch
 
-       $ git checkout -b my_bug_fix
+`$ git checkout -b my_bug_fix`
 
 1. Install dependencies:
 
-       $ bundle install
+`$ bundle install`
 
 1. Make your changes/patches/fixes, committing appropiately
 1. **Write tests**
 1. Run the tests:
+   - `bundle exec foodcritic -f any .`
+   - `bundle exec rspec`
+   - `bundle exec rubocop`
+   - `bundle exec kitchen test`
 
-    - `bundle exec foodcritic -f any .`
-    - `bundle exec rspec`
-    - `bundle exec rubocop`
-    - `bundle exec kitchen test`
-
-  In detail:
+In detail:
 
 - Foodcritic will catch any Chef-specific style errors
 - RSpec will run the unit tests
 - Rubocop will check for Ruby-specific style errors
 - Test Kitchen will run and converge the recipes
 
-
 ## License & Authors
 
 <!-- $ find -type f -iname "*.rb" -exec grep -i author '{}' \; | sort -k4 | uniq | sed 's/#/-/g' -->
+
 - Author:: Seth Chisamore (<schisamo@opscode.com>)
 - Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
 - Author:: Martin Smith (<martin@mbs3.org>)
