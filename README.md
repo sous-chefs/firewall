@@ -283,10 +283,11 @@ This section details "quick development" steps. For a detailed explanation, see 
 1. Make your changes/patches/fixes, committing appropiately
 1. **Write tests**
 1. Run the tests:
-    *   `bundle exec foodcritic -f any .`
-    *   `bundle exec rspec`
-    *   `bundle exec rubocop`
-    *   `bundle exec kitchen test`
+
+- `bundle exec foodcritic -f any .`
+- `bundle exec rspec`
+- `bundle exec rubocop`
+- `bundle exec kitchen test`
 
 In detail:
 
