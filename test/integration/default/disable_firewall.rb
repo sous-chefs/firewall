@@ -1,7 +1,3 @@
-# InSpec test for recipe xe_insightvm::default
-
-# The InSpec reference, with examples and extensive documentation, can be
-# found at https://docs.chef.io/inspec/resources/
 
 require_relative 'spec_helper'
 
