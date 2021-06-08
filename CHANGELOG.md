@@ -127,8 +127,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## v2.4.0 (2016-01-28)
 
-- Expose default iptables ruleset so that raw rules can be used in conjunction
-with rulesets for other tables (#101).
+- Expose default iptables ruleset so that raw rules can be used in conjunction with rulesets for other tables (#101).
 
 ## v2.3.1 (2016-01-08)
 
@@ -136,13 +135,9 @@ with rulesets for other tables (#101).
 
 ## v2.3.0 (2015-12-23)
 
-- Refactor logic so that firewall rules don't add a string rule to the firewall
-when their actions run. Just run the action once on the firewall itself. This is
-designed to prevent partial application of rules (#106)
+- Refactor logic so that firewall rules don't add a string rule to the firewall when their actions run. Just run the action once on the firewall itself. This is designed to prevent partial application of rules (#106)
 
-- Switch to "enabled" (positive logic) instead of "disabled" (negative logic) on
-the firewall resource. It was difficult to reason with "disabled false" for some
-complicated recipes using firewall downstream. `disabled` is now deprecated.
+- Switch to "enabled" (positive logic) instead of "disabled" (negative logic) on the firewall resource. It was difficult to reason with "disabled false" for some complicated recipes using firewall downstream. `disabled` is now deprecated.
 
 - Add proper Windows testing and serverspec tests back into this cookbook.
 
@@ -194,71 +189,70 @@ Minor bugfix release.
 
 ## v2.0.0 (2015-08-31)
 
-- #84, major rewrite:
+- 84, major rewrite
   - Allow relative positioning of rules
   - Use delayed notifications to create one firewall ruleset instead of incremental changes
   - Remove poise dependency
-- #82 - Introduce Windows firewall support and test-kitchen platform.
+- #82 - Introduce Windows firewall support and test-kitchen platform
 - #73 - Add the option to disable ipv6 commands on iptables
 - #78 - Use Chef-12 style `provides` to address provider mapping issues
 - Rubocop and foodcritic cleanup
 
 ## v1.6.1 (2015-07-24)
 
-- #80 - Remove an extra space in port range
+- 80 - Remove an extra space in port range
 
 ## v1.6.0 (2015-07-15)
 
-- #68 - Install firewalld when it does not exist
-- #72 - Fix symbol that was a string, breaking comparisons
+- 68 - Install firewalld when it does not exist
+- 72 - Fix symbol that was a string, breaking comparisons
 
 ## v1.5.2 (2015-07-15)
 
-- #75 - Use correct service in iptables save action, Add serverspec tests for iptables suite
+- 75 - Use correct service in iptables save action, Add serverspec tests for iptables suite
 
 ## v1.5.1 (2015-07-13)
 
-- #74 - add :save matcher for Chefspec
+- 74 - add :save matcher for Chefspec
 
 ## v1.5.0 (2015-07-06)
 
-- #70 - Add chef service resource to ensure firewall-related services are enabled/disabled
--     - Add testing and support for iptables on ubuntu in iptables provider
+- 70 - Add chef service resource to ensure firewall-related services are enabled/disabled
+  - Add testing and support for iptables on ubuntu in iptables provider
 
 ## v1.4.0 (2015-06-30)
 
-
-- #69 - Support for CentOS/RHEL 5.x
+- 69 - Support for CentOS/RHEL 5.x
 
 ## v1.3.0 (2015-06-09)
 
-- #63 - Add support for protocol numbers
+- 63 - Add support for protocol numbers
 
 ## v1.2.0 (2015-05-28)
 
-- #64 - Support the newer version of poise
+- 64 - Support the newer version of poise
 
 ## v1.1.2 (2015-05-19)
 
-- #60 - Always add /32 or /128 to ipv4 or ipv6 addresses, respectively.
+- 60 - Always add /32 or /128 to ipv4 or ipv6 addresses, respectively
       - Make comment quoting optional; iptables on Ubuntu strips quotes on strings without any spaces
 
 ## v1.1.1 (2015-05-11)
 
-- #57 - Suppress warning: already initialized constant XXX while Chefspec
+- 57 - Suppress warning: already initialized constant XXX while Chefspec
 
 ## v1.1.0 (2015-04-27)
 
-- #56 - Better ipv6 support for firewalld and iptables
-- #54 - Document raw parameter
+- 56 - Better ipv6 support for firewalld and iptables
+- 54 - Document raw parameter
 
 ## v1.0.2 (2015-04-03)
 
-- #52 - Typo in :masquerade action name
+- 52 - Typo in :masquerade action name
 
 ## v1.0.1 (2015-03-28)
 
-- #49 - Fix position attribute of firewall_rule providers to be correctly used as a string in commands
+- 49 - Fix position attribute of firewall_rule providers to be correctly used as a string in commands
 
 ## v1.0.0 (2015-03-25)
 
@@ -343,8 +337,7 @@ The default action for firewall LWRP is now :enable, the default action for fire
 
 ## v0.5.2
 
-- Add missing 'requires' statements. fixes 'NameError: uninitialized constant' error.
-thanks to Ernad Husremović for the fix.
+- Add missing 'requires' statements. fixes 'NameError: uninitialized constant' error. Thanks to Ernad Husremović for the fix.
 
 ## v0.5.0
 
