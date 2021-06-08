@@ -1,4 +1,3 @@
-include_recipe 'chef-sugar'
 include_recipe 'firewall'
 
 firewall_rule 'ssh22' do

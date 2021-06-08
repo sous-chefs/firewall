@@ -1,9 +1,11 @@
-firewall Cookbook CHANGELOG
-=======================
+# firewall Cookbook CHANGELOG
+
 This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
-- fix firewall resource actions list
+
+- Fix firewall resource actions list
+- First attempt to modernize testing
 - Various Cookstyle fixes
 
 ## 2.7.1 - *2021-06-01*

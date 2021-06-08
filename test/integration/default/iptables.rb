@@ -1,6 +1,4 @@
 # these tests only for redhat with iptables
-require 'spec_helper'
-
 expected_rules = [
   # we included the .*-j so that we don't bother testing comments
   /-A INPUT -i lo .*-j ACCEPT/,
@@ -29,7 +27,7 @@ expected_ipv6_rules = [
   %r{-A INPUT -s 2001:db8::ff00:42:8329/128( -d ::/0)? -p tcp -m tcp -m multiport --dports 80 .*-j ACCEPT},
 ]
 
-describe command('iptables-save'), if: redhat? do
+describe command('iptables-save') do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_rules.each do |r|
@@ -42,13 +40,9 @@ describe command('iptables-save'), if: redhat? do
 
   duplicate_rule2 = '-A INPUT -p tcp -m tcp -m multiport --dports 5431,5432 -m comment --comment "same comment" -j ACCEPT'
   its(:stdout) { should count_occurences(duplicate_rule2, 1) }
-
-  # test that a comment was not included on purpose
-  its(:stdout) { should match('A INPUT -s 127.0.0.0/8 -p tcp -m tcp -m multiport --dports 2433 -j ACCEPT') }
-  its(:stdout) { should_not match('A INPUT -s 127.0.0.0/8 -p tcp -m tcp -m multiport --dports 2433 -j ACCEPT -m comment --comment "This should not be included"') }
 end
 
-describe command('ip6tables-save'), if: redhat? do
+describe command('ip6tables-save') do
   its(:stdout) { should match(/COMMIT/) }
 
   expected_ipv6_rules.each do |r|
@@ -56,7 +50,7 @@ describe command('ip6tables-save'), if: redhat? do
   end
 end
 
-describe service('iptables'), if: redhat? do
+describe service('iptables') do
   it { should be_enabled }
   it { should be_running }
 end

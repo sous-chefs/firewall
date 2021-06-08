@@ -1,0 +1,18 @@
+---
+driver:
+  name: exec
+  gui: false
+  customize:
+    memory: 4096
+
+transport:
+  name: exec
+
+provisioner:
+  name: chef_zero
+  enforce_idempotency: true
+  multiple_converge: 2
+  deprecations_as_errors: true
+
+platforms:
+  - name: windows-latest

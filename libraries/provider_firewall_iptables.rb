@@ -22,7 +22,7 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: 'linux', platform_family: %w(rhel fedora) do |node|
+    provides :firewall, os: 'linux', platform_family: %w(rhel fedora amazon) do |node|
       node['platform_version'].to_f < 7.0 || node['firewall']['redhat7_iptables']
     end
 
