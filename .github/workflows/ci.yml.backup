@@ -7,35 +7,35 @@ name: ci
     branches: [main, master]
 
 jobs:
-#  delivery:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Run Chef Delivery
-#        uses: actionshub/chef-delivery@main
-#        env:
-#          CHEF_LICENSE: accept-no-persist
-#
-#  yamllint:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Run yaml Lint
-#        uses: actionshub/yamllint@main
-#
-#  mdl:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Run Markdown Lint
-#        uses: actionshub/markdownlint@main
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run Chef Delivery
+        uses: actionshub/chef-delivery@main
+        env:
+          CHEF_LICENSE: accept-no-persist
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run yaml Lint
+        uses: actionshub/yamllint@main
+
+  mdl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run Markdown Lint
+        uses: actionshub/markdownlint@main
 
   dokken:
     needs: [mdl, yamllint, delivery]
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         os:
@@ -81,11 +81,6 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Chef
         uses: actionshub/chef-install@main
-      - name: Test
-        run: |
-          brew -v
-          docker -v
-          docker info
       - name: Dokken
         uses: actionshub/test-kitchen@main
         env:
@@ -95,34 +90,34 @@ jobs:
           suite: ${{ matrix.suite }}
           os: ${{ matrix.os }}
 
-#  windows-latest:
-#    needs: [mdl, yamllint, delivery]
-#    runs-on: windows-latest
-#    strategy:
-#      matrix:
-#        os:
-#          - "windows-latest"
-#        suite:
-#          - "windows"
-#      fail-fast: false
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Install Chef
-#        uses: actionshub/chef-install@main
-#        env:
-#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-#      - name: test-kitchen
-#        uses: actionshub/test-kitchen@main
-#        env:
-#          CHEF_LICENSE: accept-no-persist
-#          KITCHEN_LOCAL_YAML: kitchen.windows.yml
-#        with:
-#          suite: ${{ matrix.suite }}
-#          os: ${{ matrix.os }}
+  windows-latest:
+    needs: [mdl, yamllint, delivery]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        os:
+          - "windows-latest"
+        suite:
+          - "windows"
+      fail-fast: false
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Chef
+        uses: actionshub/chef-install@main
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      - name: test-kitchen
+        uses: actionshub/test-kitchen@main
+        env:
+          CHEF_LICENSE: accept-no-persist
+          KITCHEN_LOCAL_YAML: kitchen.windows.yml
+        with:
+          suite: ${{ matrix.suite }}
+          os: ${{ matrix.os }}
 
   final:
-    needs: [dokken] #, windows-latest]
+    needs: [dokken, windows-latest]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
