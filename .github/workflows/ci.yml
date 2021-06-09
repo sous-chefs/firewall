@@ -39,42 +39,42 @@ jobs:
     strategy:
       matrix:
         os:
-          - amazonlinux-2
-          - debian-9
-          - debian-10
-          - centos-7
-          - centos-8
-          - ubuntu-1804
+#          - amazonlinux-2
+#          - debian-9
+#          - debian-10
+#          - centos-7
+#          - centos-8
+#          - ubuntu-1804
           - ubuntu-2004
         suite:
-          - firewalld
-          - iptables
+#          - firewalld
+#          - iptables
           - ufw
-        exclude:
-          - os: amazonlinux-2
-            suite: ufw
-          - os: debian-9
-            suite: firewalld
-          - os: debian-9
-            suite: iptables
-          - os: debian-10
-            suite: firewalld
-          - os: debian-10
-            suite: iptables
-          - os: centos-7
-            suite: ufw
-          - os: centos-8
-            suite: ufw
-          - os: centos-8
-            suite: firewalld
-          - os: ubuntu-1804
-            suite: firewalld
-          - os: ubuntu-1804
-            suite: iptables
-          - os: ubuntu-2004
-            suite: firewalld
-          - os: ubuntu-2004
-            suite: iptables
+#        exclude:
+#          - os: amazonlinux-2
+#            suite: ufw
+#          - os: debian-9
+#            suite: firewalld
+#          - os: debian-9
+#            suite: iptables
+#          - os: debian-10
+#            suite: firewalld
+#          - os: debian-10
+#            suite: iptables
+#          - os: centos-7
+#            suite: ufw
+#          - os: centos-8
+#            suite: ufw
+#          - os: centos-8
+#            suite: firewalld
+#          - os: ubuntu-1804
+#            suite: firewalld
+#          - os: ubuntu-1804
+#            suite: iptables
+#          - os: ubuntu-2004
+#            suite: firewalld
+#          - os: ubuntu-2004
+#            suite: iptables
       fail-fast: false
     steps:
       - name: Check out code
@@ -84,7 +84,11 @@ jobs:
       - name: Test
         run: |
           brew -v
-          brew install docker
+          brew install docker virtualbox
+          brew install docker-machine
+          docker-machine create --driver virtualbox defualt
+          docker-machine restart
+          eval "$(docker-machine env default)"
           docker -v
           docker info
       - name: Dokken
