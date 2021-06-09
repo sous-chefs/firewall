@@ -12,6 +12,7 @@ provisioner:
       allow_mosh: true
       allow_loopback: true
       allow_icmp: true
+      ipv6_enabled: false
       firewalld:
         permanent: true
 
@@ -110,5 +111,4 @@ suites:
 
   - name: disable-firewall
     run_list:
-#      - recipe[firewall::default]
       - recipe[firewall::disable_firewall]
