@@ -19,6 +19,7 @@ verifier:
   name: inspec
 
 platforms:
+  - name: almalinux-8
   - name: amazonlinux-2
   - name: centos-7
   - name: centos-8
@@ -42,12 +43,11 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-    verifier:
-      inspec_tests:
-        - test/integration/default
 
   - name: firewalld
     excludes:
+      - almalinux-8
+      - centos-8
       - debian-9
       - debian-10
       - ubuntu-18.04
@@ -57,12 +57,10 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-    verifier:
-      inspec_tests:
-        - test/integration/default/firewalld.rb
 
   - name: ufw
     excludes:
+      - almalinux-8
       - amazonlinux-2
       - centos-7
       - centos-8
@@ -75,19 +73,14 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-    verifier:
-      inspec_tests:
-        - test/integration/default/ufw.rb
 
   - name: iptables
     excludes:
       - windows-2016
       - windows-2019
     run_list:
+      - recipe[firewall::default]
       - recipe[firewall-test::default]
-    verifier:
-      inspec_tests:
-        - test/integration/default/iptables.rb
     attributes:
       firewall:
         ubuntu_iptables: true
@@ -95,6 +88,7 @@ suites:
 
   - name: windows
     excludes:
+      - almalinux-8
       - amazonlinux-2
       - debian-9
       - debian-10
@@ -109,14 +103,8 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-    verifier:
-      inspec_tests:
-        - test/integration/default/windows.rb
 
   - name: disable-firewall
     run_list:
       - recipe[firewall::default]
       - recipe[firewall::disable_firewall]
-    verifier:
-      inspec_tests:
-        - test/integration/default/disable_firewall.rb

@@ -22,5 +22,7 @@ end
 
 describe service('ufw') do
   it { should be_enabled }
-  it { should be_running }
+  describe command('ufw status 2>&1') do
+    its(:stdout) { should match(/Status: active/) }
+  end
 end

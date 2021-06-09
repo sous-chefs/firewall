@@ -1,5 +1,4 @@
-
-require_relative 'spec_helper'
+require_relative '../../helpers/spec_helper'
 
 describe firewalld do
   it { should_not be_enabled }

@@ -54,8 +54,6 @@ jobs:
         exclude:
           - os: amazonlinux-2
             suite: ufw
-          - os: amazonlinux-2
-            suite: firewalld
           - os: debian-9
             suite: firewalld
           - os: debian-10
@@ -64,6 +62,8 @@ jobs:
             suite: ufw
           - os: centos-8
             suite: ufw
+          - os: centos-8
+            suite: firewalld
           - os: ubuntu-1804
             suite: firewalld
           - os: ubuntu-2004
