@@ -84,6 +84,7 @@ jobs:
       - name: Test
         run: |
           brew -v
+          brew install docker
           docker -v
           docker info
       - name: Dokken
