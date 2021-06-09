@@ -50,14 +50,17 @@ jobs:
           - firewalld
           - iptables
           - ufw
-          - disable-firewall
         exclude:
           - os: amazonlinux-2
             suite: ufw
           - os: debian-9
             suite: firewalld
+          - os: debian-9
+            suite: iptables
           - os: debian-10
             suite: firewalld
+          - os: debian-10
+            suite: iptables
           - os: centos-7
             suite: ufw
           - os: centos-8
@@ -66,8 +69,12 @@ jobs:
             suite: firewalld
           - os: ubuntu-1804
             suite: firewalld
+          - os: ubuntu-1804
+            suite: iptables
           - os: ubuntu-2004
             suite: firewalld
+          - os: ubuntu-2004
+            suite: iptables
       fail-fast: false
     steps:
       - name: Check out code
