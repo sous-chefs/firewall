@@ -1,6 +1,6 @@
 require_relative '../../helpers/spec_helper'
 
-describe firewalld do
+describe service('firewalld') do
   it { should_not be_enabled }
   it { should_not be_running }
 end if firewalld?
