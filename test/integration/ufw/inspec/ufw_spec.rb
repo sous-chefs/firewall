@@ -21,6 +21,7 @@ describe command('ufw status numbered') do
 end
 
 describe service('ufw') do
+  it { should be_installed }
   it { should be_enabled }
   describe command('ufw status 2>&1') do
     its(:stdout) { should match(/Status: active/) }

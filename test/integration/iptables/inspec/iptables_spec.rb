@@ -45,11 +45,13 @@ describe command('ip6tables-save') do
 end
 
 describe service('iptables') do
+  it { should be_installed }
   it { should be_enabled }
   it { should be_running }
 end unless os.debian?
 
 describe service('netfilter-persistent') do
+  it { should be_installed }
   it { should be_enabled }
   it { should be_running }
 end if os.debian?
