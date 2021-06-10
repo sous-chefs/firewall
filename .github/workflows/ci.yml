@@ -35,7 +35,7 @@ jobs:
 
   test-kitchen:
     needs: [mdl, yamllint, delivery]
-    runs-on: mocos-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         os:
@@ -147,7 +147,7 @@ jobs:
 #          os: ${{ matrix.os }}
 
   final:
-    needs: [dokken] #, windows-latest]
+    needs: test-kitchen #[dokken, windows-latest]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
