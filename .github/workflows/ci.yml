@@ -82,15 +82,15 @@ jobs:
       - name: Install Chef
         uses: actionshub/chef-install@main
       - name: Test
-        run:
-          - curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          - curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-          - curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
-          - apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          - apt-add-repository "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
-          - sudo apt-get update && sudo apt-get install vagrant virtualbox
-          - vagrant -v
-          - VirtualBoxVM --help
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          curl -fsSL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add -
+          curl -fsSL https://www.virtualbox.org/download/oracle_vbox.asc | sudo apt-key add -
+          apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          apt-add-repository "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib"
+          sudo apt-get update && sudo apt-get install vagrant virtualbox
+          vagrant -v
+          VirtualBoxVM --help
       - name: Dokken
         uses: actionshub/test-kitchen@main
         env:
