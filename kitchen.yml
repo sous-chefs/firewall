@@ -1,6 +1,6 @@
 driver:
   name: vagrant
-  chef_version: <%= ENV['CHEF_VERSION'] || 'current' %>
+  chef_version: <%= ENV['CHEF_VERSION'] || 'stable' %>
   env: [CHEF_LICENSE=accept]
 
 provisioner:
@@ -12,7 +12,6 @@ provisioner:
       allow_mosh: true
       allow_loopback: true
       allow_icmp: true
-      #ipv6_enabled: false
       firewalld:
         permanent: true
 
