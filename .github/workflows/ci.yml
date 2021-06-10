@@ -46,64 +46,35 @@ jobs:
           - centos-8
           - ubuntu-1804
           - ubuntu-2004
-          - windows-2016
-          - windows-2019
         suite:
           - firewalld
           - iptables
           - ufw
-          - windows
         exclude:
           - os: amazonlinux-2
             suite: ufw
-          - os: amazonlinux-2
-            suite: windows
           - os: debian-9
             suite: firewalld
           - os: debian-9
             suite: iptables
-          - os: debian-9
-            suite: windows
           - os: debian-10
             suite: firewalld
           - os: debian-10
             suite: iptables
-          - os: debian-10
-            suite: windows
           - os: centos-7
             suite: ufw
-          - os: centos-7
-            suite: windows
           - os: centos-8
             suite: ufw
           - os: centos-8
             suite: firewalld
-          - os: centos-8
-            suite: windows
           - os: ubuntu-1804
             suite: firewalld
           - os: ubuntu-1804
             suite: iptables
-          - os: ubuntu-1804
-            suite: windows
           - os: ubuntu-2004
             suite: firewalld
           - os: ubuntu-2004
             suite: iptables
-          - os: ubuntu-2004
-            suite: windows
-          - os: windows-2016
-            suite: firewalld
-          - os: windows-2016
-            suite: iptables
-          - os: windows-2016
-            suite: ufw
-          - os: windows-2019
-            suite: firewalld
-          - os: windows-2019
-            suite: iptables
-          - os: windows-2019
-            suite: ufw
       fail-fast: false
     steps:
       - name: Check out code
@@ -114,39 +85,38 @@ jobs:
         uses: actionshub/test-kitchen@main
         env:
           CHEF_LICENSE: accept-no-persist
-          #KITCHEN_LOCAL_YAML: kitchen.dokken.yml
         with:
           suite: ${{ matrix.suite }}
           os: ${{ matrix.os }}
 
-#  windows-latest:
-#    needs: [mdl, yamllint, delivery]
-#    runs-on: windows-latest
-#    strategy:
-#      matrix:
-#        os:
-#          - "windows-latest"
-#        suite:
-#          - "windows"
-#      fail-fast: false
-#    steps:
-#      - name: Check out code
-#        uses: actions/checkout@v2
-#      - name: Install Chef
-#        uses: actionshub/chef-install@main
-#        env:
-#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-#      - name: test-kitchen
-#        uses: actionshub/test-kitchen@main
-#        env:
-#          CHEF_LICENSE: accept-no-persist
-#          KITCHEN_LOCAL_YAML: kitchen.windows.yml
-#        with:
-#          suite: ${{ matrix.suite }}
-#          os: ${{ matrix.os }}
+  windows-latest:
+    needs: [mdl, yamllint, delivery]
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        os:
+          - "windows-latest"
+        suite:
+          - "windows"
+      fail-fast: false
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Chef
+        uses: actionshub/chef-install@main
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      - name: test-kitchen
+        uses: actionshub/test-kitchen@main
+        env:
+          CHEF_LICENSE: accept-no-persist
+          KITCHEN_LOCAL_YAML: kitchen.windows.yml
+        with:
+          suite: ${{ matrix.suite }}
+          os: ${{ matrix.os }}
 
   final:
-    needs: test-kitchen #[dokken, windows-latest]
+    needs: [test-kitchen, windows-latest]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
