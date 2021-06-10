@@ -116,7 +116,7 @@ jobs:
 #          os: ${{ matrix.os }}
 
   final:
-    needs: [test-kitchen, windows-latest]
+    needs: test-kitchen #[test-kitchen, windows-latest]
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
