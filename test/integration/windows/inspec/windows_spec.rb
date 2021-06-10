@@ -23,6 +23,18 @@ describe file("#{ENV['HOME']}/windows-chef.rules") do
   end
 end
 
-describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
-  its(:stdout) { should match('BlockInbound,AllowOutbound') }
+describe windows_firewall('public') do
+  it { should be_enabled }
 end
+
+describe windows_firewall('private') do
+  it { should be_enabled }
+end
+
+describe windows_firewall('Domain') do
+  it { should be_enabled }
+end
+
+# describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
+#   its(:stdout) { should match('BlockInbound,AllowOutbound') }
+# end
