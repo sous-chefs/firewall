@@ -33,18 +33,11 @@ firewall_rule 'allow loopback' do
 end
 
 firewall_rule 'allow icmp' do
-  protocol :icmpv4 if windows?
   protocol :icmp
   command :allow
   # debian ufw doesn't allow 'icmp' protocol, but does open
   # icmp by default, so we skip it in default recipe
   only_if { iptables_firewall && node['firewall']['allow_icmp'] }
-end
-
-firewall_rule 'allow icmp windows' do
-  protocol :icmpv4
-  command :allow
-  only_if { windows? }
 end
 
 firewall_rule 'allow world to ssh' do
