@@ -89,31 +89,31 @@ jobs:
           suite: ${{ matrix.suite }}
           os: ${{ matrix.os }}
 
-  windows-latest:
-    needs: [mdl, yamllint, delivery]
-    runs-on: windows-latest
-    strategy:
-      matrix:
-        os:
-          - "windows-latest"
-        suite:
-          - "windows"
-      fail-fast: false
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-      - name: Install Chef
-        uses: actionshub/chef-install@main
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-      - name: test-kitchen
-        uses: actionshub/test-kitchen@main
-        env:
-          CHEF_LICENSE: accept-no-persist
-          KITCHEN_LOCAL_YAML: kitchen.windows.yml
-        with:
-          suite: ${{ matrix.suite }}
-          os: ${{ matrix.os }}
+#  windows-latest:
+#    needs: [mdl, yamllint, delivery]
+#    runs-on: windows-latest
+#    strategy:
+#      matrix:
+#        os:
+#          - "windows-latest"
+#        suite:
+#          - "windows"
+#      fail-fast: false
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#      - name: Install Chef
+#        uses: actionshub/chef-install@main
+#        env:
+#          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+#      - name: test-kitchen
+#        uses: actionshub/test-kitchen@main
+#        env:
+#          CHEF_LICENSE: accept-no-persist
+#          KITCHEN_LOCAL_YAML: kitchen.windows.yml
+#        with:
+#          suite: ${{ matrix.suite }}
+#          os: ${{ matrix.os }}
 
   final:
     needs: [test-kitchen, windows-latest]

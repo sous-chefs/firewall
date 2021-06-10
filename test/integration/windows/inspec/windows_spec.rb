@@ -35,6 +35,6 @@ describe windows_firewall('Domain') do
   it { should be_enabled }
 end
 
-# describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
-#   its(:stdout) { should match('BlockInbound,AllowOutbound') }
-# end
+describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
+  its(:stdout) { should match('BlockInbound,AllowOutbound') }
+end
