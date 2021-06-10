@@ -107,7 +107,3 @@ suites:
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
-
-#  - name: disable-firewall
-#    run_list:
-#      - recipe[firewall::disable_firewall]
