@@ -49,14 +49,14 @@ module FirewallCookbook
       end
 
       def iptables_packages(new_resource)
-        packages = if ipv6_enabled?(new_resource)
+        packages = if ipv6_enabled?(new_resource) && !amazon_linux? && node['platform_version'].to_i < 8
                      %w(iptables iptables-ipv6)
                    else
                      %w(iptables)
                    end
 
         # centos 7 requires extra service
-        if !debian?(node) && node['platform_version'].to_i >= 7
+        if (!debian?(node) && node['platform_version'].to_i >= 7) || amazon_linux?
           packages << %w(iptables-services)
         end
 

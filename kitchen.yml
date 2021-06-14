@@ -1,9 +1,10 @@
 driver:
   name: vagrant
+  chef_version: <%= ENV['CHEF_VERSION'] || 'stable' %>
+  env: [CHEF_LICENSE=accept]
 
 provisioner:
   name: chef_zero
-  require_chef_omnibus: 14
   attributes:
     firewall:
       allow_ssh: true
@@ -14,23 +15,28 @@ provisioner:
       firewalld:
         permanent: true
 
+verifier:
+  name: inspec
+
 platforms:
-  - name: centos-6
+  - name: almalinux-8
+  - name: amazonlinux-2
   - name: centos-7
   - name: centos-8
   - name: debian-9
-    run_list:
-      - recipe[apt]
   - name: debian-10
-    run_list:
-      - recipe[apt::default]
-  - name: ubuntu-16.04
-    run_list:
-      - recipe[apt::default]
+  - name: freebsd-11
+  - name: freebsd-12
+  - name: fedora-latest
+  - name: opensuse-leap-15
   - name: ubuntu-18.04
-    run_list:
-      - recipe[apt::default]
-  - name: windows-2012r2
+  - name: ubuntu-20.04
+  - name: windows-2016
+    driver_config:
+      box: tas50/windows_2016
+  - name: windows-2019
+    driver_config:
+      box: tas50/windows_2019
 
 suites:
   - name: default
@@ -38,17 +44,66 @@ suites:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
 
-  - name: iptables
+  - name: firewalld
     excludes:
-      - centos-5
-      - centos-6
-      - debian-7
+      - almalinux-8
+      - centos-8
       - debian-9
       - debian-10
-      - windows-2012r2
+      - ubuntu-18.04
+      - ubuntu-20.04
+      - windows-2016
+      - windows-2019
     run_list:
+      - recipe[firewall::default]
+      - recipe[firewall-test::default]
+
+  - name: ufw
+    excludes:
+      - almalinux-8
+      - amazonlinux-2
+      - centos-7
+      - centos-8
+      - freebsd-11
+      - freebsd-12
+      - fedora-latest
+      - opensuse-leap-15
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall::default]
+      - recipe[firewall-test::default]
+
+  - name: iptables
+    excludes:
+      - debian-9
+      - debian-10
+      - ubuntu-18.04
+      - ubuntu-20.04
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall::default]
       - recipe[firewall-test::default]
     attributes:
       firewall:
         ubuntu_iptables: true
         redhat7_iptables: true
+
+  - name: windows
+    excludes:
+      - almalinux-8
+      - amazonlinux-2
+      - debian-9
+      - debian-10
+      - centos-7
+      - centos-8
+      - freebsd-11
+      - freebsd-12
+      - fedora-latest
+      - opensuse-leap-15
+      - ubuntu-18.04
+      - ubuntu-20.04
+    run_list:
+      - recipe[firewall::default]
+      - recipe[firewall-test::default]

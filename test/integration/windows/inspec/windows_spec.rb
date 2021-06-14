@@ -1,6 +1,4 @@
 # these tests only for windows
-require 'spec_helper'
-
 expected_rules = [
   /firewall add rule name="prepend" description="prepend" dir=in protocol=tcp localip=any localport=7788 interfacetype=any remoteip=any remoteport=any action=allow/,
   /firewall add rule name="block-192.168.99.99" description="block-192.168.99.99" dir=in protocol=tcp localip=any localport=any interfacetype=any remoteip=192.168.99.99 remoteport=any action=block/,
@@ -19,12 +17,24 @@ expected_rules = [
   /firewall add rule name="array" description="array" dir=in protocol=tcp localip=any localport=1234,5000-5100,5678 interfacetype=any remoteip=any remoteport=any action=allow/,
 ]
 
-describe file("#{ENV['HOME']}/windows-chef.rules"), if: windows? do
+describe file("#{ENV['HOME']}/windows-chef.rules") do
   expected_rules.each do |r|
     its(:content) { should match(r) }
   end
 end
 
-describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"'), if: windows? do
+describe windows_firewall('public') do
+  it { should be_enabled }
+end
+
+describe windows_firewall('private') do
+  it { should be_enabled }
+end
+
+describe windows_firewall('Domain') do
+  it { should be_enabled }
+end
+
+describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
   its(:stdout) { should match('BlockInbound,AllowOutbound') }
 end

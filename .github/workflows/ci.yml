@@ -1,0 +1,96 @@
+name: ci
+
+'on':
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run Chef Delivery
+        uses: actionshub/chef-delivery@main
+        env:
+          CHEF_LICENSE: accept-no-persist
+
+  yamllint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run yaml Lint
+        uses: actionshub/yamllint@main
+
+  mdl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Run Markdown Lint
+        uses: actionshub/markdownlint@main
+
+  test-kitchen:
+    needs: [mdl, yamllint, delivery]
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - amazonlinux-2
+          - debian-9
+          - debian-10
+          - centos-7
+          - centos-8
+          - ubuntu-1804
+          - ubuntu-2004
+        suite:
+          - firewalld
+          - iptables
+          - ufw
+        exclude:
+          - os: amazonlinux-2
+            suite: ufw
+          - os: debian-9
+            suite: firewalld
+          - os: debian-9
+            suite: iptables
+          - os: debian-10
+            suite: firewalld
+          - os: debian-10
+            suite: iptables
+          - os: centos-7
+            suite: ufw
+          - os: centos-8
+            suite: ufw
+          - os: centos-8
+            suite: firewalld
+          - os: ubuntu-1804
+            suite: firewalld
+          - os: ubuntu-1804
+            suite: iptables
+          - os: ubuntu-2004
+            suite: firewalld
+          - os: ubuntu-2004
+            suite: iptables
+      fail-fast: false
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Chef
+        uses: actionshub/chef-install@main
+      - name: kitchen
+        uses: actionshub/test-kitchen@main
+        env:
+          CHEF_LICENSE: accept-no-persist
+        with:
+          suite: ${{ matrix.suite }}
+          os: ${{ matrix.os }}
+
+  final:
+    needs: test-kitchen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2

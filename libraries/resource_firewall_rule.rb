@@ -19,12 +19,12 @@ class Chef
     attribute(:direction, kind_of: Symbol, equal_to: [:in, :out, :pre, :post], default: :in)
     attribute(:logging, kind_of: Symbol, equal_to: [:connections, :packets])
 
-    attribute(:source, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
+    attribute(:source, kind_of: String, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
     attribute(:source_port, kind_of: [Integer, Array, Range]) # source port
     attribute(:interface, kind_of: String)
 
     attribute(:port, kind_of: [Integer, Array, Range]) # shorthand for dest_port
-    attribute(:destination, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
+    attribute(:destination, kind_of: String, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } })
     attribute(:dest_port, kind_of: [Integer, Array, Range])
     attribute(:dest_interface, kind_of: String)
 

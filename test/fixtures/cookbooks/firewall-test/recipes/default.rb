@@ -1,4 +1,3 @@
-include_recipe 'chef-sugar'
 include_recipe 'firewall'
 
 firewall_rule 'ssh22' do
@@ -25,7 +24,7 @@ end
 firewall_rule 'addremove' do
   port 1236
   command :allow
-  only_if { rhel? || node['firewall']['ubuntu_iptables'] } # don't do this on ufw, will reset ufw on every converge
+  only_if { rhel? || amazon_linux? || node['firewall']['ubuntu_iptables'] } # don't do this on ufw, will reset ufw on every converge
 end
 
 firewall_rule 'addremove2' do
@@ -36,27 +35,12 @@ end
 firewall_rule 'protocolnum' do
   protocol 112
   command :allow
-  only_if { rhel? || node['firewall']['ubuntu_iptables'] } # debian ufw doesn't support protocol numbers
+  only_if { rhel? || amazon_linux? || node['firewall']['ubuntu_iptables'] } # debian ufw doesn't support protocol numbers
 end
 
 firewall_rule 'prepend' do
   port 7788
   position 5
-end
-
-# something to check for duplicates
-(0..1).each do |i|
-  firewall_rule "duplicate#{i}" do
-    port 1111
-    command :allow
-    description 'same comment'
-  end
-
-  firewall_rule "duplicate#{i}" do
-    port [5432, 5431]
-    command :allow
-    description 'same comment'
-  end
 end
 
 bad_ip = '192.168.99.99'

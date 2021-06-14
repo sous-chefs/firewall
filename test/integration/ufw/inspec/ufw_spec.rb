@@ -1,6 +1,4 @@
 # these tests only for debian/ubuntu with ufw
-require 'spec_helper'
-
 expected_rules = [
   %r{ 22/tcp + ALLOW IN +Anywhere},
   %r{ 2200,2222/tcp + ALLOW IN +Anywhere},
@@ -14,27 +12,18 @@ expected_rules = [
   %r{ 23/tcp + LIMIT IN +Anywhere},
 ]
 
-describe command('ufw status numbered'), if: debian? || ubuntu? do
+describe command('ufw status numbered') do
   its(:stdout) { should match(/Status: active/) }
 
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end
-
-  # we try to get firewall to add this rule twice, but we expect to see it once! (twice on 12.04)
-  its(:stdout) { should count_occurences('1111/tcp ', 2) } # once for ipv4, once for ipv6
-  its(:stdout) { should count_occurences('5431,5432/tcp ', 2) } # once for ipv4, once for ipv6
 end
 
-describe service('ufw'), if: ubuntu? do
-  it { should be_enabled.with_level('S') }
-  it { should be_running }
-end
-
-# since debian 8.1 uses systemd in serverspec, but ufw is still on sysv-style
-describe service('ufw'), if: debian? do
+describe service('ufw') do
+  it { should be_installed }
+  it { should be_enabled }
   describe command('ufw status 2>&1') do
     its(:stdout) { should match(/Status: active/) }
   end
-  # we assume ufw will start if the package is installed.
 end

@@ -5,6 +5,7 @@ license 'Apache-2.0'
 description 'Provides a set of primitives for managing firewalls and associated rules.'
 version '2.7.1'
 
+supports 'amazon'
 supports 'centos'
 supports 'debian'
 supports 'ubuntu'
