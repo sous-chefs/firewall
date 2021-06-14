@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 3.0.0 - *2021-06-14*
 
 - Add Amazon Linux support
 - Fix firewall resource actions list
