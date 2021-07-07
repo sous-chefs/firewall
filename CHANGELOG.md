@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Restart netfilter service in iptables mode after updating firewall rules
+
 ## 3.0.0 - *2021-06-14*
 
 - Add Amazon Linux support

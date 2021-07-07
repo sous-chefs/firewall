@@ -104,7 +104,7 @@ class Chef
         next unless iptables_file.updated_by_last_action?
 
         iptables_service = lookup_or_create_service(iptables_type)
-        new_resource.notifies(:restart, iptables_service, :delayed)
+        iptables_service.run_action(:restart)
         new_resource.updated_by_last_action(true)
       end
     end
