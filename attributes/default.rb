@@ -3,3 +3,4 @@ default['firewall']['allow_winrm'] = false
 default['firewall']['allow_mosh'] = false
 default['firewall']['allow_loopback'] = false
 default['firewall']['allow_icmp'] = false
+default['firewall']['ipv6_enabled'] = true
