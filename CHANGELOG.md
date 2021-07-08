@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 3.0.1 - *2021-07-08*
 
 - Restart netfilter service in iptables mode after updating firewall rules
