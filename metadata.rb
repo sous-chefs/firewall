@@ -6,12 +6,10 @@ description       'Provides a set of primitives for managing firewalls and assoc
 version           '3.0.2'
 source_url        'https://github.com/sous-chefs/firewall'
 issues_url        'https://github.com/sous-chefs/firewall/issues'
-chef_version      '>= 12.15'
+chef_version      '>= 15.5'
 
 supports 'amazon'
 supports 'centos'
 supports 'debian'
 supports 'ubuntu'
 supports 'windows'
-
-depends 'chef-sugar'

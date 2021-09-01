@@ -16,10 +16,10 @@ This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of
 
 ## Requirements
 
-**Chef 12.5.x+** is required. We are currently testing against Chef 13. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+- Chef Infra Client 15.5+
 
 ```
-depends 'firewall', '< 2.0'
+depends 'firewall'
 ```
 
 ### Supported firewalls and platforms
