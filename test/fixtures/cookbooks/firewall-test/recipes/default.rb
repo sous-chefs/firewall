@@ -77,7 +77,7 @@ end
 # if using with iptables-restart, this produces an unreadable line; no problem, IF disabled
 firewall_rule 'ufw raw test' do
   raw 'limit 23/tcp'
-  only_if { platform_family?('debian') && !node['firewall']['ubuntu_iptables'] }
+  only_if { platform_family?('debian') && !node['firewall']['ubuntu_iptables'] && !node['firewall']['debian_nftables'] }
 end
 
 firewall_rule 'RPC Port Range In' do
@@ -105,6 +105,35 @@ firewall_rule 'port2433' do
   port      2433
   direction :in
   command   :allow
+end
+
+firewall_rule 'esp' do
+  protocol :esp
+  command :allow
+end
+
+firewall_rule 'ah' do
+  protocol :ah
+  command :allow
+end
+
+firewall_rule 'esp-ipv6' do
+  source '::'
+  protocol :esp
+  command :allow
+end
+
+firewall_rule 'ah-ipv6' do
+  source '::'
+  protocol :ah
+  command :allow
+end
+
+firewall_rule 'redirect' do
+  direction :pre
+  port 5555
+  redirect_port 6666
+  command :redirect
 end
 
 include_recipe 'firewall-test::windows' if windows?

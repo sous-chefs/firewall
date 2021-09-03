@@ -22,7 +22,7 @@ class Chef
     include FirewallCookbook::Helpers::Ufw
 
     provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
-      !(node['firewall'] && node['firewall']['ubuntu_iptables'])
+      !(node['firewall'] && (node['firewall']['ubuntu_iptables'] || node['firewall']['debian_nftables']))
     end
 
     def whyrun_supported?
