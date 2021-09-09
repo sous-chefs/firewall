@@ -1,18 +1,25 @@
 # firewall Cookbook
 
-[![Build Status](https://travis-ci.org/chef-cookbooks/firewall.svg?branch=master)](http://travis-ci.org/chef-cookbooks/firewall)
 [![Cookbook Version](https://img.shields.io/cookbook/v/firewall.svg)](https://supermarket.chef.io/cookbooks/firewall)
+[![CI State](https://github.com/sous-chefs/firewall/workflows/ci/badge.svg)](https://github.com/sous-chefs/firewall/actions?query=workflow%3Aci)
+[![OpenCollective](https://opencollective.com/sous-chefs/backers/badge.svg)](#backers)
+[![OpenCollective](https://opencollective.com/sous-chefs/sponsors/badge.svg)](#sponsors)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Provides a set of primitives for managing firewalls and associated rules.
 
 PLEASE NOTE - The resource/providers in this cookbook are under heavy development. An attempt is being made to keep the resource simple/stupid by starting with less sophisticated firewall implementations first and refactor/vet the resource definition with each successive provider.
 
+## Maintainers
+
+This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of Chef cookbook maintainers working together to maintain important cookbooks. If you’d like to know more please visit [sous-chefs.org](https://sous-chefs.org/) or come chat with us on the Chef Community Slack in [#sous-chefs](https://chefcommunity.slack.com/messages/C2V7B88SF).
+
 ## Requirements
 
-**Chef 12.5.x+** is required. We are currently testing against Chef 13. If you need Chef 11 support, please try pinning back to a version less than 2.0, e.g.:
+- Chef Infra Client 15.5+
 
 ```
-depends 'firewall', '< 2.0'
+depends 'firewall'
 ```
 
 ### Supported firewalls and platforms
@@ -296,29 +303,29 @@ In detail:
 - Rubocop will check for Ruby-specific style errors
 - Test Kitchen will run and converge the recipes
 
-## License & Authors
+## Contributors
 
-<!-- $ find -type f -iname "*.rb" -exec grep -i author '{}' \; | sort -k4 | uniq | sed 's/#/-/g' -->
+This project exists thanks to all the people who [contribute.](https://opencollective.com/sous-chefs/contributors.svg?width=890&button=false)
 
-- Author:: Seth Chisamore (<schisamo@opscode.com>)
-- Author:: Ronald Doorn (<rdoorn@schubergphilis.com>)
-- Author:: Martin Smith (<martin@mbs3.org>)
-- Author:: Sander van Harmelen (<svanharmelen@schubergphilis.com>)
+### Backers
 
-```text
-Copyright:: 2011-2015, Chef Software, Inc
+Thank you to all our backers!
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+![https://opencollective.com/sous-chefs#backers](https://opencollective.com/sous-chefs/backers.svg?width=600&avatarHeight=40)
 
-    http://www.apache.org/licenses/LICENSE-2.0
+### Sponsors
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website.
+
+![https://opencollective.com/sous-chefs/sponsor/0/website](https://opencollective.com/sous-chefs/sponsor/0/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/1/website](https://opencollective.com/sous-chefs/sponsor/1/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/2/website](https://opencollective.com/sous-chefs/sponsor/2/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/3/website](https://opencollective.com/sous-chefs/sponsor/3/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/4/website](https://opencollective.com/sous-chefs/sponsor/4/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/5/website](https://opencollective.com/sous-chefs/sponsor/5/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/6/website](https://opencollective.com/sous-chefs/sponsor/6/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/7/website](https://opencollective.com/sous-chefs/sponsor/7/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/8/website](https://opencollective.com/sous-chefs/sponsor/8/avatar.svg?avatarHeight=100)
+![https://opencollective.com/sous-chefs/sponsor/9/website](https://opencollective.com/sous-chefs/sponsor/9/avatar.svg?avatarHeight=100)
 
 [0]: https://mosh.mit.edu/

@@ -1,10 +1,12 @@
 driver:
   name: vagrant
-  chef_version: <%= ENV['CHEF_VERSION'] || 'stable' %>
-  env: [CHEF_LICENSE=accept]
 
 provisioner:
-  name: chef_zero
+  name: chef_infra
+  product_name: chef
+  product_version: <%= ENV['CHEF_VERSION'] || 'current' %>
+  deprecations_as_errors: true
+  chef_license: accept-no-persist
   attributes:
     firewall:
       allow_ssh: true
