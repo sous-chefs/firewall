@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 4.0.0 - *2021-09-09*
 
 - Remove dependency on chef-sugar cookbook
 - Bump to require Chef Infra Client >= 15.5 for chef-utils
