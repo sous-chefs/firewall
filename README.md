@@ -28,11 +28,13 @@ depends 'firewall'
 - IPTables - Red Hat & CentOS, Ubuntu
 - FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
 - Windows Advanced Firewall - 2012 R2
+- nftables
 
 Tested on:
 
 - Ubuntu 16.04 with iptables, ufw
 - Debian 9 with iptables
+- Debian 10 with nftables
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
 - Windows Server 2012r2 with Windows Advanced Firewall
@@ -41,6 +43,12 @@ By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute 
 
 ```
 default['firewall']['ubuntu_iptables'] = true
+```
+
+To switch to nftables, set this in an attribute file:
+
+```
+default['firewall'][debian_nftables'] = true
 ```
 
 By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, set this in an attribute file:
@@ -92,6 +100,48 @@ end
 Note that any line starting with `COMMIT` will become just `COMMIT`, as hash
 keys must be unique but we need multiple commit lines.
 
+## nftables considerations
+
+nftables is much more flexible than iptables, although it also uses the netfilter framework.
+The cookbook will setup nftables to be as similiar to iptables as possible, so by default
+nftables rules will have the following structure:
+
+```
+table inet filter {
+        chain INPUT {
+                type filter hook input priority filter; policy drop;
+        }
+
+        chain OUTPUT {
+                type filter hook output priority filter; policy accept;
+        }
+
+        chain FORWARD {
+                type filter hook forward priority filter; policy drop;
+        }
+}
+
+table ip6 nat {
+        chain PREROUTING {
+                type nat hook prerouting priority -100 ; policy accept;
+        }
+        chain POSTROUTING {
+                type nat hook prerouting priority 100 ; policy accept;
+        }
+}
+
+table ip nat {
+        chain PREROUTING {
+                type nat hook prerouting priority -100 ; policy accept;
+        }
+        chain POSTROUTING {
+                type nat hook prerouting priority 100 ; policy accept;
+        }
+
+}
+
+```
+
 ## Recipes
 
 ### default
@@ -110,6 +160,7 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 - `default['firewall']['allow_loopback'] = false`, set to true to allow all traffic on the loopback interface
 - `default['firewall']['allow_icmp'] = false`, set true to allow icmp protocol on supported OSes (note: ufw and windows implementations don't support this)
 - `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
+- `default['firewall']['debian_nftables'] = false`, set to true to use nftables on Ubuntu / Debian when using the default recipe
 - `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
 - `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 - `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
