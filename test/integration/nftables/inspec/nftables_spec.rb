@@ -1,6 +1,5 @@
 expected_rules = [
   /^table inet filter {$/,
-  /\s+type filter hook input priority.*/,
   /\s+type filter hook output priority.*/,
   /\s+type filter hook forward priority.*/,
   /\s+type filter hook input priority 0; policy drop;/,
