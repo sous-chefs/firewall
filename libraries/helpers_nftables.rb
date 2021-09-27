@@ -102,8 +102,7 @@ module FirewallCookbook
       end
 
       def ensure_default_rules_exist(current_node, new_resource)
-        input = new_resource.rules
-        input ||= {}
+        input = new_resource.rules || {}
         input.merge!(default_ruleset(current_node).to_h)
       end
     end
