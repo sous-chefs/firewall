@@ -93,20 +93,8 @@ suites:
         redhat7_iptables: true
 
   - name: nftables
-    excludes:
-      - almalinux-8
-      - amazonlinux-2
-      - centos-7
-      - centos-8
-      - debian-9
-      - freebsd-11
-      - freebsd-12
-      - fedora-latest
-      - opensuse-leap-15
-      - ubuntu-18.04
-      - ubuntu-20.04
-      - windows-2016
-      - windows-2019
+    includes:
+      - debian-10
     run_list:
       - recipe[firewall::default]
       - recipe[firewall-test::default]
