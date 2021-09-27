@@ -1,9 +1,9 @@
-default['firewall']['nftables']['defaults'][:policy] = {
-  input: 'drop',
-  forward: 'drop',
-  output: 'accept',
+default['firewall']['nftables']['defaults']['policy'] = {
+  'input'   => 'drop',
+  'forward' => 'drop',
+  'output'  => 'accept',
 }
-default['firewall']['nftables']['defaults'][:ruleset] = {
+default['firewall']['nftables']['defaults']['ruleset'] = {
   'add table inet filter' => 1,
   'add table ip6 nat' => 1,
   'add table ip nat' => 1,
