@@ -46,7 +46,6 @@ module FirewallCookbook
 
         if rule_resource.source
           source_with_mask = ip_with_mask(rule_resource, rule_resource.source)
-          Chef::Log.fatal source_with_mask
           if source_with_mask != '0.0.0.0/0' && source_with_mask != '::/128'
             firewall_rule << "#{ip} saddr #{source_with_mask} "
           end
