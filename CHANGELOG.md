@@ -4,6 +4,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- resolved cookstyle error: tasks/maintainers.rb:37:7 convention: `Style/FileWrite`
 ## 4.0.0 - *2021-09-09*
 
 - Remove dependency on chef-sugar cookbook

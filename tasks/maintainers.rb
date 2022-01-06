@@ -34,9 +34,7 @@ begin
       out << project_lieutenant
       out << all_maintainers
 
-      File.open(TARGET, 'w') do |fn|
-        fn.write out
-      end
+      File.write(TARGET, out)
     end
   end
 rescue LoadError
