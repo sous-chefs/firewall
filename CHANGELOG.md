@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Remove extraneous task file that's no longer needed
+
 ## 4.0.0 - *2021-09-09*
 
 - Remove dependency on chef-sugar cookbook

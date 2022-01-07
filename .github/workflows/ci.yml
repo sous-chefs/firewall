@@ -34,7 +34,7 @@ jobs:
 
   integration:
     needs: [mdl, yamllint, delivery]
-    runs-on: macos-latest
+    runs-on: macos-10.15
     strategy:
       matrix:
         os:
