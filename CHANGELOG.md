@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Remove delivery folder
+
 ## 4.0.1 - *2022-01-07*
 
 - Remove extraneous task file that's no longer needed
