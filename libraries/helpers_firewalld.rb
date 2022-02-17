@@ -39,8 +39,12 @@ module FirewallCookbook
 
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv6', 'filter', 'INPUT') if ipv6_enabled?(new_resource)
+        shell_out!('firewall-cmd', '--direct', '--remove-rules', 'ipv6', 'filter', 'OUTPUT') if ipv6_enabled?(new_resource)
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'INPUT')
         shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv4', 'filter', 'OUTPUT')
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv6', 'filter', 'INPUT') if ipv6_enabled?(new_resource)
+        shell_out!('firewall-cmd', '--direct', '--permanent', '--remove-rules', 'ipv6', 'filter', 'OUTPUT') if ipv6_enabled?(new_resource)
       end
 
       def firewalld_all_rules_permanent!
