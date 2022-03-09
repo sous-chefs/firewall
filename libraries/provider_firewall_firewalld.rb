@@ -20,7 +20,7 @@ class Chef
     include FirewallCookbook::Helpers::Firewalld
 
     provides :firewall, os: 'linux', platform_family: %w(rhel fedora amazon) do |node|
-      (node['platform_version'].to_i == 7 && !node['firewall']['redhat7_iptables']) || (amazon_linux? && !node['firewall']['redhat7_iptables'])
+      (node['platform_version'].to_i >= 7 && !node['firewall']['redhat7_iptables']) || (amazon_linux? && !node['firewall']['redhat7_iptables'])
     end
 
     def whyrun_supported?
