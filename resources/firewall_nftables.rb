@@ -59,9 +59,6 @@ property :rules, Hash
 property :disabled, [true, false], default: false
 property :enabled, [true, false], default: true
 
-def whyrun_supported?
-  false
-end
 
 action :install do
   return if disabled?(new_resource)
