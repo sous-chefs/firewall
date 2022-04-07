@@ -6,6 +6,15 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 - Add support for nftables
 
+## 4.0.2 - *2022-02-17*
+
+- Standardise files with files in sous-chefs/repo-management
+- Remove delivery folder
+
+## 4.0.1 - *2022-01-07*
+
+- Remove extraneous task file that's no longer needed
+
 ## 4.0.0 - *2021-09-09*
 
 - Remove dependency on chef-sugar cookbook
