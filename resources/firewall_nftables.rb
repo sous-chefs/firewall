@@ -56,13 +56,7 @@ end
 property :ipv6_enabled, [true, false], default: true
 property :rules, Hash
 
-property :disabled, [true, false], default: false
-property :enabled, [true, false], default: true
-
-
 action :install do
-  return if disabled?(new_resource)
-
   # Ensure the package is installed
   nftables_packages.each do |p|
     nftables_pkg = package p do
@@ -89,8 +83,6 @@ action :install do
 end
 
 action :restart do
-  return if disabled?(new_resource)
-
   # prints all the firewall rules
   log_nftables
 
@@ -127,8 +119,6 @@ action :restart do
 end
 
 action :disable do
-  return if disabled?(new_resource)
-
   nftables_flush!
   nftables_default_allow!
   new_resource.updated_by_last_action(true)
@@ -147,8 +137,6 @@ action :disable do
 end
 
 action :flush do
-  return if disabled?(new_resource)
-
   nftables_flush!
   new_resource.updated_by_last_action(true)
 
