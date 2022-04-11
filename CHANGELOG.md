@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 4.0.3 - *2022-04-11*
 
 - Use resuable workflows instead of Chef Delivery
 
