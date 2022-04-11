@@ -25,7 +25,7 @@ jobs:
           - debian-9
           - debian-10
           - centos-7
-          - centos-8
+          - centos-stream-8
           - ubuntu-1804
           - ubuntu-2004
         suite:
@@ -45,9 +45,9 @@ jobs:
             suite: iptables
           - os: centos-7
             suite: ufw
-          - os: centos-8
+          - os: centos-stream-8
             suite: ufw
-          - os: centos-8
+          - os: centos-stream-8
             suite: firewalld
           - os: ubuntu-1804
             suite: firewalld
