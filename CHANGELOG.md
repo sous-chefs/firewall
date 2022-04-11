@@ -6,6 +6,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 - Add support for nftables
 
+## 4.0.3 - *2022-04-11*
+
+- Use resuable workflows instead of Chef Delivery
+
 ## 4.0.2 - *2022-02-17*
 
 - Standardise files with files in sous-chefs/repo-management
