@@ -2,7 +2,6 @@ module FirewallCookbook
   module Helpers
     module Nftables
       include FirewallCookbook::Helpers
-      include Chef::Mixin::ShellOut
 
       unless defined? CHAIN
         CHAIN = {
@@ -25,6 +24,22 @@ module FirewallCookbook
         }.freeze
       end
 
+      def port_to_s(ports)
+        case ports
+        when String
+          ports
+        when Integer
+          ports.to_s
+        when Array
+          p_strings = ports.map { |o| port_to_s(o) }
+          "{#{p_strings.sort.join(',')}}"
+        when Range
+          "#{ports.first}-#{ports.last}"
+        else
+          raise "unknown class of port definition: #{ports.class}"
+        end
+      end
+
       def build_firewall_rule(rule_resource)
         return rule_resource.raw.strip if rule_resource.raw
 
@@ -42,7 +57,7 @@ module FirewallCookbook
         firewall_rule << "#{CHAIN.fetch(rule_resource.direction.to_sym, 'FORWARD')} "
 
         firewall_rule << "iif #{rule_resource.interface} " if rule_resource.interface
-        firewall_rule << "oif #{rule_resource.dest_interface} " if rule_resource.dest_interface
+        firewall_rule << "oif #{rule_resource.outerface} " if rule_resource.outerface
 
         if rule_resource.source
           source_with_mask = ip_with_mask(rule_resource, rule_resource.source)
@@ -58,8 +73,8 @@ module FirewallCookbook
         when :'ipv6-icmp', :icmpv6
           firewall_rule << 'icmpv6 type { echo-request, nd-router-solicit, nd-neighbor-solicit, nd-router-advert, nd-neighbor-advert } '
         when :tcp, :udp
-          firewall_rule << "#{rule_resource.protocol} sport #{port_to_s(rule_resource.source_port)} " if rule_resource.source_port
-          firewall_rule << "#{rule_resource.protocol} dport #{port_to_s(dport_calc(rule_resource))} " if dport_calc(rule_resource)
+          firewall_rule << "#{rule_resource.protocol} sport #{port_to_s(rule_resource.sport)} " if rule_resource.sport
+          firewall_rule << "#{rule_resource.protocol} dport #{port_to_s(rule_resource.dport)} " if rule_resource.dport
         when :esp, :ah
           firewall_rule << "#{ip} #{ip == 'ip6' ? 'nexthdr' : 'protocol'} #{rule_resource.protocol} "
         when :ipv6, :none
@@ -78,32 +93,29 @@ module FirewallCookbook
         %w(nftables)
       end
 
-      def log_nftables
-        shell_out!('nft -n list ruleset')
-      rescue Mixlib::ShellOut::ShellCommandFailed
-        Chef::Log.info('log_nftables failed!')
-      rescue Mixlib::ShellOut::CommandTimeout
-        Chef::Log.info('log_nftables timed out!')
+      def default_ruleset(new_resource)
+        rules = {
+          'add table inet filter' => 1,
+          "add chain inet filter INPUT { type filter hook input priority 0 ; policy #{new_resource.input_policy}; }" => 2,
+          "add chain inet filter OUTPUT { type filter hook output priority 0 ; policy #{new_resource.output_policy}; }" => 2,
+          "add chain inet filter FOWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2
+        }
+        if new_resource.table_ip_nat
+          rules['add table ip nat'] = 1
+          rules['add chain ip nat POSTROUTING { type nat hook postrouting priority 100 ;}'] = 2
+          rules['add chain ip nat PREROUTING { type nat hook prerouting priority -100 ;}'] = 2
+        end
+        if new_resource.table_ip6_nat
+          rules['add table ip6 nat'] = 1
+          rules['add chain ip6 nat POSTROUTING { type nat hook postrouting priority 100 ;}'] = 2
+          rules['add chain ip6 nat PREROUTING { type nat hook prerouting priority -100 ;}'] = 2
+        end
+        rules
       end
 
-      def nftables_flush!
-        shell_out!('nft flush ruleset')
-      end
-
-      def nftables_default_allow!
-        family = 'inet'
-        shell_out!("#{cmd} add rule #{family} filter input ACCEPT")
-        shell_out!("#{cmd} add rule #{family} filter output ACCEPT")
-        shell_out!("#{cmd} add rule #{family} filter forward ACCEPT")
-      end
-
-      def default_ruleset(current_node)
-        current_node['firewall']['nftables']['defaults'][:ruleset].to_h
-      end
-
-      def ensure_default_rules_exist(current_node, new_resource)
+      def ensure_default_rules_exist(new_resource)
         input = new_resource.rules || {}
-        input.merge!(default_ruleset(current_node).to_h)
+        input.merge!(default_ruleset(new_resource))
       end
     end
   end

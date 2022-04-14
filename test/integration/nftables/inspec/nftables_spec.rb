@@ -2,7 +2,7 @@ expected_rules = [
   /^table inet filter {$/,
   /\s+type filter hook output priority.*/,
   /\s+type filter hook forward priority.*/,
-  /\s+type filter hook input priority 0; policy drop;/,
+  /\s+type filter hook input priority filter; policy drop;/,
   /\s+tcp dport 7788 accept.*/,
   /\s+ip saddr 192.168.99.99 reject.*/,
   /\s+iif "lo" accept comment "allow loopback"/,
@@ -27,7 +27,7 @@ expected_rules = [
   /\s+ip6 nexthdr ah accept.*$/,
 ]
 
-describe command('nft -nn list ruleset') do
+describe command('nft list ruleset') do
   expected_rules.each do |r|
     its(:stdout) { should match(r) }
   end

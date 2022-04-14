@@ -27,6 +27,9 @@ platforms:
   - name: centos-stream-8
   - name: debian-9
   - name: debian-10
+  - name: debian-11
+    driver_config:
+      box: debian/bullseye64
   - name: freebsd-11
   - name: freebsd-12
   - name: fedora-latest
@@ -94,13 +97,9 @@ suites:
 
   - name: nftables
     includes:
-      - debian-10
+      - debian-11
     run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
-    attributes:
-      firewall:
-        debian_nftables: true
+      - recipe[nftables-test]
 
   - name: windows
     excludes:
