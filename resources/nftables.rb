@@ -13,15 +13,15 @@ property :rules,
          default: {}
 property :input_policy,
          String,
-         equal_to: ['drop', 'accept'],
+         equal_to: %w(drop accept),
          default: 'accept'
 property :output_policy,
          String,
-         equal_to: ['drop', 'accept'],
+         equal_to: %w(drop accept),
          default: 'accept'
 property :forward_policy,
          String,
-         equal_to: ['drop', 'accept'],
+         equal_to: %w(drop accept),
          default: 'accept'
 property :table_ip_nat,
          [true, false],
@@ -29,7 +29,6 @@ property :table_ip_nat,
 property :table_ip6_nat,
          [true, false],
          default: false
-
 
 action :install do
   package 'nftables' do

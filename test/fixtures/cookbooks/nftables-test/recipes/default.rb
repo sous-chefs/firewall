@@ -120,8 +120,8 @@ end
 nftables_rule 'dport2433' do
   description 'This should not be included'
   include_comment false
-  source    '127.0.0.0/8'
-  dport      2433
+  source '127.0.0.0/8'
+  dport 2433
   direction :in
   command   :allow
 end

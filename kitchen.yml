@@ -28,8 +28,6 @@ platforms:
   - name: debian-9
   - name: debian-10
   - name: debian-11
-    driver_config:
-      box: debian/bullseye64
   - name: freebsd-11
   - name: freebsd-12
   - name: fedora-latest

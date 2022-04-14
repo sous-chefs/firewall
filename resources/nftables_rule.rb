@@ -22,17 +22,17 @@ property :firewall_name,
 
 property :command,
          Symbol,
-         default: :allow, equal_to: %i[
+         default: :allow, equal_to: %i(
            accept allow deny drop log masquerade redirect reject
-         ]
+         )
 
 property :protocol,
          [Integer, Symbol],
          default: :tcp,
          callbacks: {
-           'must be either :tcp, :udp, :icmp, :\'ipv6-icmp\', :icmpv6, :none, or a valid IP protocol number' => ->(p) do
-             %i[udp tcp icmp icmpv6 ipv6-icmp esp ah ipv6 none].include?(p) || (0..142).include?(p)
-           end
+           'must be either :tcp, :udp, :icmp, :\'ipv6-icmp\', :icmpv6, :none, or a valid IP protocol number' => lambda do |p|
+             %i(udp tcp icmp icmpv6 ipv6-icmp esp ah ipv6 none).include?(p) || (0..142).include?(p)
+           end,
          }
 property :direction,
          Symbol,
@@ -51,11 +51,11 @@ property :family,
 property :source,
          [String, Array],
          callbacks: {
-           'must be a valid ip address' => ->(ips) do
+           'must be a valid ip address' => lambda do |ips|
              Array(ips).inject(false) do |a, ip|
                a || !!IPAddr.new(ip)
              end
-           end
+           end,
          }
 property :sport,
          [Integer, String, Array, Range]
@@ -67,11 +67,11 @@ property :dport,
 property :destination,
          [String, Array],
          callbacks: {
-           'must be a valid ip address' => ->(ips) do
+           'must be a valid ip address' => lambda do |ips|
              Array(ips).inject(false) do |a, ip|
                a || !!IPAddr.new(ip)
              end
-           end
+           end,
          }
 property :outerface,
          String
@@ -108,7 +108,7 @@ action :create do
     edit_resource!('nftables', new_resource.firewall_name) do |fw_rule|
       r = rules.dup || {}
       r.merge!({
-                 fwr => fw_rule.position
+                 fwr => fw_rule.position,
                })
       rules(r)
       delayed_action :rebuild

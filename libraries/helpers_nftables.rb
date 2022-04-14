@@ -94,7 +94,7 @@ module FirewallCookbook
           'add table inet filter' => 1,
           "add chain inet filter INPUT { type filter hook input priority 0 ; policy #{new_resource.input_policy}; }" => 2,
           "add chain inet filter OUTPUT { type filter hook output priority 0 ; policy #{new_resource.output_policy}; }" => 2,
-          "add chain inet filter FOWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2
+          "add chain inet filter FOWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2,
         }
         if new_resource.table_ip_nat
           rules['add table ip nat'] = 1
