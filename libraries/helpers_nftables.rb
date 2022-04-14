@@ -3,26 +3,22 @@ module FirewallCookbook
     module Nftables
       include FirewallCookbook::Helpers
 
-      unless defined? CHAIN
-        CHAIN = {
-          in: 'INPUT',
-          out: 'OUTPUT',
-          pre: 'PREROUTING',
-          post: 'POSTROUTING',
-          # nil => "FORWARD",
-        }.freeze
-      end
+      CHAIN ||= {
+        in: 'INPUT',
+        out: 'OUTPUT',
+        pre: 'PREROUTING',
+        post: 'POSTROUTING',
+        forward: 'FORWARD',
+      }.freeze
 
-      unless defined? TARGET
-        TARGET = {
-          allow: 'accept',
-          reject: 'reject',
-          deny: 'drop',
-          masquerade: 'masquerade',
-          redirect: 'redirect',
-          log: 'log prefix "nftables:" group 0',
-        }.freeze
-      end
+      TARGET ||= {
+        allow: 'accept',
+        reject: 'reject',
+        deny: 'drop',
+        masquerade: 'masquerade',
+        redirect: 'redirect',
+        log: 'log prefix "nftables:" group 0',
+      }.freeze
 
       def port_to_s(ports)
         case ports
