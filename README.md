@@ -34,6 +34,7 @@ Tested on:
 
 - Ubuntu 16.04 with iptables, ufw
 - Debian 9 with iptables
+- Debian 11 with nftables
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
 - Windows Server 2012r2 with Windows Advanced Firewall
