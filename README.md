@@ -34,7 +34,7 @@ Tested on:
 
 - Ubuntu 16.04 with iptables, ufw
 - Debian 9 with iptables
-- Debian 10 with nftables
+- Debian 11 with nftables
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
 - Windows Server 2012r2 with Windows Advanced Firewall
@@ -45,17 +45,15 @@ By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute 
 default['firewall']['ubuntu_iptables'] = true
 ```
 
-To switch to nftables, set this in an attribute file:
-
-```
-default['firewall'][debian_nftables'] = true
-```
-
 By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, set this in an attribute file:
 
 ```
 default['firewall']['redhat7_iptables'] = true
 ```
+
+In order to use nftables, just use the resource `nftables` and
+`nftables_rule`.  These resources are written in more modern design
+styles and are not configurable by node attributes.
 
 ## Considerations that apply to all firewall providers and resources
 
@@ -66,6 +64,8 @@ This cookbook comes with two resources, firewall and firewall rule. The typical 
 - run the delayed notification with action `:restart` on the `firewall` resource. if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
 
 There is a fundamental mismatch between the idea of a chef action and the action that should be taken on a firewall rule. For this reason, the chef action for a firewall_rule may be `:nothing` (the rule should not be present in the firewall) or `:create` (the rule should be present in the firewall), but the action taken on a packet in a firewall (`DROP`, `ACCEPT`, etc) is denoted as a `command` parameter on the `firewall_rule` resource.
+
+The same points hold for the `nftables`- and `nftables_rule`-resources.
 
 ## iptables considerations
 
@@ -100,47 +100,11 @@ end
 Note that any line starting with `COMMIT` will become just `COMMIT`, as hash
 keys must be unique but we need multiple commit lines.
 
-## nftables considerations
+## nftables
 
-nftables is much more flexible than iptables, although it also uses the netfilter framework.
-The cookbook will setup nftables to be as similiar to iptables as possible, so by default
-nftables rules will have the following structure:
-
-```
-table inet filter {
-        chain INPUT {
-                type filter hook input priority filter; policy drop;
-        }
-
-        chain OUTPUT {
-                type filter hook output priority filter; policy accept;
-        }
-
-        chain FORWARD {
-                type filter hook forward priority filter; policy drop;
-        }
-}
-
-table ip6 nat {
-        chain PREROUTING {
-                type nat hook prerouting priority -100 ; policy accept;
-        }
-        chain POSTROUTING {
-                type nat hook prerouting priority 100 ; policy accept;
-        }
-}
-
-table ip nat {
-        chain PREROUTING {
-                type nat hook prerouting priority -100 ; policy accept;
-        }
-        chain POSTROUTING {
-                type nat hook prerouting priority 100 ; policy accept;
-        }
-
-}
-
-```
+Please read the documentation for the
+[`nftables` resource](documentation/resource_nftables.md) and the
+[`nftables_rule` resource](documentation/resource_nftables_rule.md)
 
 ## Recipes
 
