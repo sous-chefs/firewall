@@ -41,11 +41,11 @@ module FirewallCookbook
 
       def nftables_command_log(rule_resource)
         log_prefix = 'prefix '
-        if rule_resource.log_prefix.nil?
-          log_prefix << "\"#{CHAIN[rule_resource.direction]}:\""
-        else
-          log_prefix << "\"#{rule_resource.log_prefix}\""
-        end
+        log_prefix << if rule_resource.log_prefix.nil?
+                        "\"#{CHAIN[rule_resource.direction]}:\""
+                      else
+                        "\"#{rule_resource.log_prefix}\""
+                      end
         log_group = if rule_resource.log_group.nil?
                       nil
                     else
@@ -56,7 +56,7 @@ module FirewallCookbook
 
       def nftables_command_redirect(rule_resource)
         if rule_resource.redirect_port.nil?
-          raise "Specify redirect_port when using :redirect as commmand"
+          raise 'Specify redirect_port when using :redirect as commmand'
         end
 
         "redirect to #{rule_resource.redirect_port} "
@@ -67,17 +67,17 @@ module FirewallCookbook
         Array(rule_resource.command).each do |command|
           begin
             target = TARGET.fetch(command)
-          rescue KeyError => e
+          rescue KeyError
             raise "Invalid command: #{command.inspect}. Use one of #{TARGET.keys}"
           end
-          case target
-          when 'log'
-            firewall_rule << nftables_command_log(rule_resource)
-          when 'redirect'
-            firewall_rule << nftables_command_redirect(rule_resource)
-          else
-            firewall_rule << "#{TARGET[command.to_sym]} "
-          end
+          firewall_rule << case target
+                           when 'log'
+                             nftables_command_log(rule_resource)
+                           when 'redirect'
+                             nftables_command_redirect(rule_resource)
+                           else
+                             "#{TARGET[command.to_sym]} "
+                           end
         end
         firewall_rule
       end
