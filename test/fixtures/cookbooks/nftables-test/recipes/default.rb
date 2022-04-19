@@ -18,6 +18,8 @@ end
 nftables_rule 'allow world to ssh' do
   dport 22
   source '0.0.0.0/0'
+  command [:log, :accept]
+  log_group 0
 end
 
 nftables_rule 'allow world to mosh' do
@@ -41,12 +43,13 @@ end
 
 nftables_rule 'ssh22' do
   dport 22
-  command :allow
+  command [:log, :accept]
+  log_prefix 'TEST_PREFIX:'
 end
 
 nftables_rule 'ssh2222' do
   dport [2222, 2200]
-  command :allow
+  command [:log, :counter, :accept]
 end
 
 # other rules

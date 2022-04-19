@@ -19,13 +19,9 @@ default_action :create
 property :firewall_name,
          String,
          default: 'default'
-
 property :command,
-         Symbol,
-         default: :allow, equal_to: %i(
-           accept allow deny drop log masquerade redirect reject
-         )
-
+         [Array, Symbol],
+         default: :accept
 property :protocol,
          [Integer, Symbol],
          default: :tcp,
@@ -38,9 +34,6 @@ property :direction,
          Symbol,
          equal_to: [:in, :out, :pre, :post, :forward],
          default: :in
-property :logging,
-         Symbol,
-         equal_to: [:connections, :packets]
 # nftables handles ip6 and ip simultaneously.  Except for directions
 # :pre and :post, where where either :ip6 or :ip must be specified.
 # callback should prevent from mixing that up.
@@ -89,7 +82,10 @@ property :description,
 property :include_comment,
          [true, false],
          default: true
-
+property :log_prefix,
+         String
+property :log_group,
+         Integer
 # for when you just want to pass a raw rule
 property :raw,
          String

@@ -12,12 +12,15 @@ module FirewallCookbook
       }.freeze
 
       TARGET ||= {
+        accept: 'accept',
         allow: 'accept',
-        reject: 'reject',
+        counter: 'counter',
         deny: 'drop',
+        drop: 'drop',
+        log: 'log',
         masquerade: 'masquerade',
         redirect: 'redirect',
-        log: 'log prefix "nftables:" group 0',
+        reject: 'reject',
       }.freeze
 
       def port_to_s(ports)
@@ -34,6 +37,49 @@ module FirewallCookbook
         else
           raise "unknown class of port definition: #{ports.class}"
         end
+      end
+
+      def nftables_command_log(rule_resource)
+        log_prefix = 'prefix '
+        if rule_resource.log_prefix.nil?
+          log_prefix << "\"#{CHAIN[rule_resource.direction]}:\""
+        else
+          log_prefix << "\"#{rule_resource.log_prefix}\""
+        end
+        log_group = if rule_resource.log_group.nil?
+                      nil
+                    else
+                      "group #{rule_resource.log_group} "
+                    end
+        "log #{log_prefix} #{log_group}"
+      end
+
+      def nftables_command_redirect(rule_resource)
+        if rule_resource.redirect_port.nil?
+          raise "Specify redirect_port when using :redirect as commmand"
+        end
+
+        "redirect to #{rule_resource.redirect_port} "
+      end
+
+      def nftables_commands(rule_resource)
+        firewall_rule = ''
+        Array(rule_resource.command).each do |command|
+          begin
+            target = TARGET.fetch(command)
+          rescue KeyError => e
+            raise "Invalid command: #{command.inspect}. Use one of #{TARGET.keys}"
+          end
+          case target
+          when 'log'
+            firewall_rule << nftables_command_log(rule_resource)
+          when 'redirect'
+            firewall_rule << nftables_command_redirect(rule_resource)
+          else
+            firewall_rule << "#{TARGET[command.to_sym]} "
+          end
+        end
+        firewall_rule
       end
 
       def build_firewall_rule(rule_resource)
@@ -78,15 +124,10 @@ module FirewallCookbook
         end
 
         firewall_rule << "ct state #{Array(rule_resource.stateful).join(',').downcase} " if rule_resource.stateful
-        firewall_rule << "#{TARGET[rule_resource.command.to_sym]} "
-        firewall_rule << " to #{rule_resource.redirect_port} " if rule_resource.command == :redirect
+        firewall_rule << nftables_commands(rule_resource)
         firewall_rule << "comment \"#{rule_resource.description}\" " if rule_resource.include_comment
         firewall_rule.strip!
         firewall_rule
-      end
-
-      def nftables_packages
-        %w(nftables)
       end
 
       def default_ruleset(new_resource)
