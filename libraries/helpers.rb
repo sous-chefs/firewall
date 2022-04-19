@@ -11,10 +11,9 @@ module FirewallCookbook
         p.to_s
       elsif p && p.is_a?(Array)
         p_strings = p.map { |o| port_to_s(o) }
-        ret = p_strings.sort.join(',')
-        nftables? ? "{#{ret}}" : ret
+        p_strings.sort.join(',')
       elsif p && p.is_a?(Range)
-        if platform_family?('windows') || nftables?
+        if platform_family?('windows')
           "#{p.first}-#{p.last}"
         else
           "#{p.first}:#{p.last}"
@@ -70,10 +69,6 @@ module FirewallCookbook
 
     def debian?(current_node)
       current_node['platform_family'] == 'debian'
-    end
-
-    def nftables?
-      !!node['firewall']['debian_nftables']
     end
 
     def build_rule_file(rules)

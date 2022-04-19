@@ -23,7 +23,7 @@ firewall 'default' do
 end
 
 # create a variable to use as a condition on some rules that follow
-iptables_firewall = rhel? || amazon_linux? || node['firewall']['ubuntu_iptables'] || node['firewall']['debian_nftables']
+iptables_firewall = rhel? || amazon_linux? || node['firewall']['ubuntu_iptables']
 
 firewall_rule 'allow loopback' do
   interface 'lo'

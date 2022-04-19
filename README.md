@@ -124,7 +124,6 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 - `default['firewall']['allow_loopback'] = false`, set to true to allow all traffic on the loopback interface
 - `default['firewall']['allow_icmp'] = false`, set true to allow icmp protocol on supported OSes (note: ufw and windows implementations don't support this)
 - `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
-- `default['firewall']['debian_nftables'] = false`, set to true to use nftables on Ubuntu / Debian when using the default recipe
 - `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
 - `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 - `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
