@@ -51,6 +51,12 @@ jobs:
             suite: iptables
           - os: debian-10
             suite: nftables
+          - os: debian-11
+            suite: firewalld
+          - os: debian-11
+            suite: iptables
+          - os: debian-11
+            suite: ufw
           - os: centos-7
             suite: nftables
           - os: centos-7
