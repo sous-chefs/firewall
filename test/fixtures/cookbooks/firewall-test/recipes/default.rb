@@ -107,33 +107,4 @@ firewall_rule 'port2433' do
   command   :allow
 end
 
-firewall_rule 'esp' do
-  protocol :esp
-  command :allow
-end
-
-firewall_rule 'ah' do
-  protocol :ah
-  command :allow
-end
-
-firewall_rule 'esp-ipv6' do
-  source '::'
-  protocol :esp
-  command :allow
-end
-
-firewall_rule 'ah-ipv6' do
-  source '::'
-  protocol :ah
-  command :allow
-end
-
-firewall_rule 'redirect' do
-  direction :pre
-  port 5555
-  redirect_port 6666
-  command :redirect
-end
-
 include_recipe 'firewall-test::windows' if windows?
