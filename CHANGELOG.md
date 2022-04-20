@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 5.0.0 - *2022-04-20*
 
 - Add support for nftables
 
