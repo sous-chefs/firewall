@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Standardise files with files in sous-chefs/repo-management
+
 ## 6.0.0 - *2022-05-09*
 
 - Values for firewalld resources must be specified as one would
