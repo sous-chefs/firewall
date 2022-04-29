@@ -136,7 +136,9 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 ## Resources
 
 ### firewalld-* resources
+
 Please see the following links to find the documentation for the firewalld-resources:
+
 - [`firewalld` resource](documentation/resources/firewalld.md)
 - [`firewalld_config` resource](documentation/resources/firewalld_config.md)
 - [`firewalld_helpers` resource](documentation/resources/firewalld_helpers.md)

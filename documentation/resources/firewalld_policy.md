@@ -24,8 +24,6 @@
 | target        | String          |          |                                |
 | version       | String          |          |                                |
 
-
-
 ## Examples
 
 See the [recipe used for testing](../../test/fixtures/cookbooks/firewalld-test/recipes/default.rb).

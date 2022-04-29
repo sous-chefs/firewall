@@ -14,8 +14,6 @@
 | nf_module   | String                             |         |              |
 | ports       | Array                              |         |              |
 
-
-
 ## Examples
 
 TODO

@@ -12,7 +12,6 @@
 | log_denied     | 'all', 'unicast', 'broadcast', 'multicast', 'off' |          | configure which packages to log |
 |                |                                                   |          |                                 |
 
-
 ## Examples
 
 ```ruby

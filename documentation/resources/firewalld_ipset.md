@@ -14,7 +14,6 @@
 | options     | [Hash]          |             |                                         |
 | entries     | [Array, String] |             |                                         |
 
-
 ## Examples
 
 See the [recipe used for testing](../../test/fixtures/cookbooks/firewalld-test/recipes/default.rb).
