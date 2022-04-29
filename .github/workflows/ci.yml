@@ -31,23 +31,30 @@ jobs:
           - ubuntu-2004
         suite:
           - firewalld
+          - firewalldnew
           - iptables
           - nftables
           - ufw
         exclude:
           - os: amazonlinux-2
+            suite: firewalldnew
+          - os: amazonlinux-2
             suite: nftables
           - os: amazonlinux-2
             suite: ufw
           - os: debian-9
             suite: firewalld
           - os: debian-9
+            suite: firewalldnew
+          - os: debian-9
             suite: nftables
           - os: debian-9
             suite: iptables
           - os: debian-10
             suite: firewalld
           - os: debian-10
+            suite: firewalldnew
+          - os: debian-10
             suite: iptables
           - os: debian-10
             suite: nftables
@@ -58,15 +65,21 @@ jobs:
           - os: debian-11
             suite: ufw
           - os: centos-7
+            suite: firewalldnew
+          - os: centos-7
             suite: nftables
           - os: centos-7
             suite: ufw
+          - os: centos-stream-8
+            suite: firewalldnew
           - os: centos-stream-8
             suite: nftables
           - os: centos-stream-8
             suite: ufw
           - os: centos-stream-8
             suite: firewalld
+          - os: ubuntu-1804
+            suite: firewalldnew
           - os: ubuntu-1804
             suite: firewalld
           - os: ubuntu-1804
@@ -75,6 +88,8 @@ jobs:
             suite: nftables
           - os: ubuntu-2004
             suite: firewalld
+          - os: ubuntu-2004
+            suite: firewalldnew
           - os: ubuntu-2004
             suite: iptables
           - os: ubuntu-2004

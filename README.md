@@ -35,6 +35,7 @@ Tested on:
 - Ubuntu 16.04 with iptables, ufw
 - Debian 9 with iptables
 - Debian 11 with nftables
+- Debian 11 with new resources for firewalld
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
 - Windows Server 2012r2 with Windows Advanced Firewall
@@ -133,6 +134,17 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 - `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
 
 ## Resources
+
+### firewalld-* resources
+Please see the following links to find the documentation for the firewalld-resources:
+- [`firewalld` resource](documentation/resources/firewalld.md)
+- [`firewalld_config` resource](documentation/resources/firewalld_config.md)
+- [`firewalld_helpers` resource](documentation/resources/firewalld_helpers.md)
+- [`firewalld_icmptype` resource](documentation/resources/firewalld_icmptype.md)
+- [`firewalld_ipset` resource](documentation/resources/firewalld_ipset.md)
+- [`firewalld_policy` resource](documentation/resources/firewalld_policy.md)
+- [`firewalld_service` resource](documentation/resources/firewalld_service.md)
+- [`firewalld_zone` resource](documentation/resources/firewalld_.md)
 
 ### firewall
 
