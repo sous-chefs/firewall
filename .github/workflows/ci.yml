@@ -39,8 +39,6 @@ jobs:
             suite: firewalldnew
           - os: debian-11
             suite: nftables
-          - os: fedora-34
-            suite: firewalldnew
           - os: ubuntu-1804
             suite: ufw
           - os: ubuntu-2004
