@@ -28,6 +28,7 @@ platforms:
   - name: debian-9
   - name: debian-10
   - name: debian-11
+  - name: fedora35
   - name: freebsd-11
   - name: freebsd-12
   - name: fedora-latest
@@ -102,6 +103,7 @@ suites:
   - name: firewalldnew
     includes:
       - debian-11
+      - fedora35
     run_list:
       - recipe[firewalld-test]
 
