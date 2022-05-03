@@ -6,7 +6,7 @@ describe firewalld do
 end
 
 describe firewalld.where(zone: 'ztest') do
-  its('interfaces') { should cmp [%w(eth0 eth1337)] }
+  its('interfaces') { should cmp [%w(eth1337 eth2337)] }
   its('sources') { should cmp [['192.0.2.2']] }
   its('services') { should cmp [['ssh']] }
 end
@@ -77,7 +77,7 @@ describe command('firewall-cmd --info-policy=ptest') do
       services: ssh
       ports: 23/udp
       protocols: udp
-      masquerade: yes
+      masquerade: no
       forward-ports:#{' '}
     \tport=8080:proto=tcp:toport=80:toaddr=192.0.2.1
       source-ports: 23/udp
@@ -90,10 +90,10 @@ end
 
 describe command('firewall-cmd --info-zone=home') do
   ptest_config = <<~EOF
-    home
+    home (active)
       target: default
       icmp-block-inversion: yes
-      interfaces:#{' '}
+      interfaces: eth0
       sources:#{' '}
       services: dhcpv6-client mdns samba-client ssh
       ports:#{' '}
@@ -113,7 +113,7 @@ describe command('firewall-cmd --info-zone=ztest') do
     ztest (active)
       target: ACCEPT
       icmp-block-inversion: yes
-      interfaces: eth0 eth1337
+      interfaces: eth1337 eth2337
       sources: 192.0.2.2
       services: ssh
       ports: 23/udp

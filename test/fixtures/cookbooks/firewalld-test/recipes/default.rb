@@ -7,6 +7,8 @@ end
 
 firewalld_zone 'home' do
   icmp_block_inversion true
+  interfaces ['eth0']
+  forward false
 end
 
 firewalld_zone 'ztest' do
@@ -15,7 +17,7 @@ firewalld_zone 'ztest' do
   forward_ports [['8080', 'tcp', '80', '192.0.2.1']]
   icmp_block_inversion true
   icmp_blocks %w(echo-reply echo-request network-unreachable)
-  interfaces %w(eth0 eth1337)
+  interfaces %w(eth1337 eth2337)
   masquerade true
   ports [%w(23 udp)]
   protocols ['udp']
@@ -32,7 +34,7 @@ firewalld_policy 'ptest' do
   egress_zones ['dmz']
   forward_ports [['8080', 'tcp', '80', '192.0.2.1']]
   ingress_zones ['home']
-  masquerade true
+  masquerade false
   ports [%w(23 udp)]
   priority 10
   protocols ['udp']
