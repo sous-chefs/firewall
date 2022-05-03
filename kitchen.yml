@@ -30,8 +30,7 @@ platforms:
   - name: debian-11
     driver_config:
       vagrantfiles:
-        - test/apt_update_upgrade.rb
-
+        - test/vagrant_apt_update_upgrade.rb
   - name: fedora-34
   - name: freebsd-11
   - name: freebsd-12
