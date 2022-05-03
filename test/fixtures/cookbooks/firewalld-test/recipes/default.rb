@@ -1,3 +1,7 @@
+apt_update do
+  only_if { platform?('debian') }
+end
+
 firewalld 'default'
 
 firewalld_config 'set some values' do
