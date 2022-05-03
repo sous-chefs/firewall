@@ -96,14 +96,14 @@ suites:
 
   - name: nftables
     includes:
-      - debian11
+      - debian-11
     run_list:
       - recipe[nftables-test]
 
   - name: firewalldnew
     includes:
-      - debian11
-      - fedora35
+      - debian-11
+      - fedora-34
     run_list:
       - recipe[firewalld-test]
 
@@ -113,11 +113,13 @@ suites:
       - amazonlinux-2
       - debian-9
       - debian-10
+      - debian-11
       - centos-7
       - centos-8
+      - fedora-34
+      - fedora-latest
       - freebsd-11
       - freebsd-12
-      - fedora-latest
       - opensuse-leap-15
       - ubuntu-18.04
       - ubuntu-20.04

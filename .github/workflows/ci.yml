@@ -35,11 +35,11 @@ jobs:
             suite: ufw
           - os: debian-10
             suite: ufw
-          - os: debian11
+          - os: debian-11
             suite: firewalldnew
-          - os: debian11
+          - os: debian-11
             suite: nftables
-          - os: fedora35
+          - os: fedora-34
             suite: firewalldnew
           - os: ubuntu-1804
             suite: ufw
