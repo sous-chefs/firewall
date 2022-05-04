@@ -4,38 +4,54 @@ provides :firewalld_zone,
          os: 'linux'
 
 property :description,
-         [Array, String]
+         [Array, String],
+         description: 'see description tag in firewalld.zone(5).'
 property :forward,
-         [true, false]
+         [true, false],
+         description: 'see forward tag in firewalld.zone(5).'
 property :forward_ports,
-         [Array, String]
+         [Array, String],
+         description: 'array of (port, protocol, to-port, to-addr). See forward-port tag in firewalld.zone(5).'
 property :icmp_block_inversion,
-         [true, false]
+         [true, false],
+         description: 'see icmp-block-inversion tag in firewalld.zone(5).'
 property :icmp_blocks,
-         [Array, String]
+         [Array, String],
+         description: 'array of icmp-blocks. See icmp-block tag in firewalld.zone(5).'
 property :interfaces,
-         [Array, String]
+         [Array, String],
+         description: 'array of interfaces. See interface tag in firewalld.zone(5).'
 property :masquerade,
-         [true, false]
+         [true, false],
+         description: 'see masquerade tag in firewalld.zone(5).'
 property :ports,
-         [Array, String]
+         [Array, String],
+         description: 'array of port and protocol pairs. See port tag in firewalld.zone(5).'
 property :protocols,
-         [Array, String]
+         [Array, String],
+         description: 'array of protocols, see protocol tag in firewalld.zone(5).'
 property :rules_str,
-         [Array, String]
+         [Array, String],
+         description: 'array of rich-language rules. See rule tag in firewalld.zone(5).'
 property :services,
-         [Array, String]
+         [Array, String],
+         description: 'array of service names, see service tag in firewalld.zone(5).'
 property :short,
          String,
-         name_property: true
+         name_property: true,
+         description: 'see short tag in firewalld.zone(5).'
 property :source_ports,
-         [Array, String]
+         [Array, String],
+         description: 'array of port and protocol pairs. See source-port tag in firewalld.zone(5).'
 property :sources,
-         [Array, String]
+         [Array, String],
+         description: 'array of source addresses. See source tag in firewalld.zone(5).'
 property :target,
-         String
+         String,
+         description: 'see target attribute of zone tag in firewalld.zone(5).'
 property :version,
-         String
+         String,
+         description: 'see version attribute of zone tag in firewalld.zone(5).'
 
 load_current_value do |new_resource|
   sysbus = DBus.system_bus
