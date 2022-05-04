@@ -36,7 +36,7 @@ jobs:
           - os: debian-10
             suite: ufw
           - os: debian-11
-            suite: firewalldnew
+            suite: firewalld-dbus
           - os: debian-11
             suite: nftables
           - os: ubuntu-1804

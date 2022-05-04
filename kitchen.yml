@@ -100,7 +100,7 @@ suites:
     run_list:
       - recipe[nftables-test]
 
-  - name: firewalldnew
+  - name: firewalld-dbus
     includes:
       - debian-11
       - fedora-34
