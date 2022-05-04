@@ -3,37 +3,52 @@ unified_mode true
 provides :firewalld_policy,
          os: 'linux'
 
-property :description,   # (s): see description tag in firewalld.policy(5).
-         String
-property :egress_zones,  # as: array of zone names. See egress-zone tag in firewalld.policy(5).
-         [Array, String]
-property :forward_ports, # (a(ssss)): array of (port, protocol, to-port, to-addr). See forward-port tag in firewalld.policy(5).
-         [Array, String]
-property :icmp_blocks,   # (as): array of icmp-blocks. See icmp-block tag in firewalld.policy(5).
-         [Array, String]
-property :ingress_zones, # as: array of zone names. See ingress-zone tag in firewalld.policy(5).
-         [Array, String]
-property :masquerade,    # (b): see masquerade tag in firewalld.policy(5).
-         [true, false]
-property :ports,         # (a(ss)): array of port and protocol pairs. See port tag in firewalld.policy(5).
-         [Array, String]
-property :priority,      # (i): see priority tag in firewalld.policy(5).
-         Integer
-property :protocols,     # (as): array of protocols, see protocol tag in firewalld.policy(5).
-         [Array, String]
-property :rich_rules,    # (as): array of rich-language rules. See rule tag in firewalld.policy(5).
-         [Array, String]
-property :services,      # (as): array of service names, see service tag in firewalld.policy(5).
-         [Array, String]
-property :short, # (s): see short tag in firewalld.policy(5).
+property :description,
          String,
+         description: 'see description tag in firewalld.policy(5).'
+property :egress_zones,
+         [Array, String],
+         description: 'array of zone names. See egress-zone tag in firewalld.policy(5).'
+property :forward_ports,
+         [Array, String],
+         description: 'array of [port, protocol, to-port, to-addr]. See forward-port tag in firewalld.policy(5).'
+property :icmp_blocks,
+         [Array, String],
+         description: 'array of icmp-blocks. See icmp-block tag in firewalld.policy(5).'
+property :ingress_zones,
+         [Array, String],
+         description: 'array of zone names. See ingress-zone tag in firewalld.policy(5).'
+property :masquerade,
+         [true, false],
+         description: 'see masquerade tag in firewalld.policy(5).'
+property :ports,
+         [Array, String],
+         description: 'array of port and protocol pairs. See port tag in firewalld.policy(5).'
+property :priority,
+         Integer,
+         description: 'see priority tag in firewalld.policy(5).'
+property :protocols,
+         [Array, String],
+         description: 'array of protocols, see protocol tag in firewalld.policy(5).'
+property :rich_rules,
+         [Array, String],
+         description: 'array of rich-language rules. See rule tag in firewalld.policy(5).'
+property :services,
+         [Array, String],
+         description: 'array of service names, see service tag in firewalld.policy(5).'
+property :short,
+         String,
+         description: 'see short tag in firewalld.policy(5).',
          name_property: true
-property :source_ports,  # (a(ss)): array of port and protocol pairs. See source-port tag in firewalld.policy(5).
-         [Array, String]
-property :target,        # (s): see target attribute of policy tag in firewalld.policy(5).
-         String
-property :version,       # (s): see version attribute of policy tag in firewalld.policy(5).
-         String
+property :source_ports,
+         [Array, String],
+         description: 'array of port and protocol pairs. See source-port tag in firewalld.policy(5).'
+property :target,
+         String,
+         description: 'see target attribute of policy tag in firewalld.policy(5).'
+property :version,
+         String,
+         description: 'see version attribute of policy tag in firewalld.policy(5).'
 
 load_current_value do |new_resource|
   sysbus = DBus.system_bus
