@@ -5,17 +5,26 @@ provides :firewalld_helper,
 
 property :version,
          String,
-         default: ''
+         default: '',
+         description: 'see version attribute of helper tag in firewalld.helper(5).'
+property :name,
+         String,
+         name_property: true,
+         description: 'see short tag in firewalld.helper(5).'
 property :description,
-         String
+         String,
+         description: 'see description tag in firewalld.helper(5).'
 property :family,
          ['ipv4', 'ipv6', %w(ipv4 ipv6)],
-         default: 'ipv4'
+         default: 'ipv4',
+         description: 'see family tag in firewalld.helper(5).'
 property :nf_module,
-         String
+         String,
+         description: 'see module tag in firewalld.helper(5).'
 property :ports,
          Array,
-         default: []
+         default: [],
+         description: 'array of port and protocol pairs. See port tag in firewalld.helper(5).'
 
 load_current_value do |new_resource|
   sysbus = DBus.system_bus

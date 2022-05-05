@@ -5,12 +5,18 @@ provides :firewalld_icmptype,
 
 property :version,
          String,
-         default: ''
+         default: '',
+         description: 'see version attribute of icmptype tag in firewalld.icmptype(5).'
+property :name,
+         String,
+         description: 'see short tag in firewalld.icmptype(5).'
 property :description,
-         String
+         String,
+         description: 'see description tag in firewalld.icmptype(5).'
 property :destinations,
          ['ipv4', 'ipv6', %w(ipv4 ipv6)],
-         default: 'ipv4'
+         default: 'ipv4',
+         description: 'array, either empty or containing strings \'ipv4\' and/or \'ipv6\', see destination tag in firewalld.icmptype(5).'
 
 load_current_value do |new_resource|
   sysbus = DBus.system_bus

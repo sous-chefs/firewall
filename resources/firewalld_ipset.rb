@@ -4,17 +4,25 @@ provides :firewalld_ipset,
          os: 'linux'
 
 property :version,
-         String
+         String,
+         description: 'see version attribute of ipset tag in firewalld.ipset(5).'
+property :name,
+         String,
+         description: 'see short tag in firewalld.ipset(5).'
 property :description,
-         String
+         String,
+         description: 'see description tag in firewalld.ipset(5).'
 property :type,
          String,
-         default: 'hash:ip'
+         default: 'hash:ip',
+         description: 'see type attribute of ipset tag in firewalld.ipset(5).'
 property :options,
          [Hash],
-         default: {}
+         default: {},
+         description: 'hash of {option : value} . See options tag in firewalld.ipset(5).'
 property :entries,
          [Array, String],
+         description: 'array of entries, see entry tag in firewalld.ipset(5).'
          coerce: proc { |o| Array(o) }
 
 load_current_value do |new_resource|

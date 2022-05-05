@@ -1,31 +1,38 @@
 unified_mode true
 
-action_class do
-  include FirewallCookbook::Helpers
-  include FirewallCookbook::Helpers::Firewalld
-end
-
 provides :firewalld_service,
          os: 'linux'
 
 property :version,
-         String
+         String,
+         description: 'see version attribute of service tag in firewalld.service(5).'
+property :name,
+         String,
+         description: 'see short tag in firewalld.service(5).'
 property :description,
-         String
+         String,
+         description: 'see description tag in firewalld.service(5).'
 property :ports,
-         [Array, String]
+         [Array, String],
+         description: 'array of port and protocol pairs. See port tag in firewalld.service(5).'
 property :module_names,
-         [Array, String]
+         [Array, String],
+         description: 'array of kernel netfilter helpers, see module tag in firewalld.service(5).'
 property :destination,
-         Hash
+         Hash,
+         description: 'hash of {IP family : IP address} where \'IP family\' key can be either \'ipv4\' or \'ipv6\'. See destination tag in firewalld.service(5).'
 property :protocols,
-         [Array, String]
+         [Array, String],
+         description: 'array of protocols, see protocol tag in firewalld.service(5).'
 property :source_ports,
-         [Array, String]
+         [Array, String],
+         description: 'array of port and protocol pairs. See source-port tag in firewalld.service(5).'
 property :includes,
-         [Array, String]
+         [Array, String],
+         description: 'array of service includes, see include tag in firewalld.service(5).'
 property :helpers,
-         [Array, String]
+         [Array, String],
+         description: 'array of service helpers, see helper tag in firewalld.service(5).'
 
 load_current_value do |new_resource|
   sysbus = DBus.system_bus
