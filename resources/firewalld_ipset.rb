@@ -22,7 +22,7 @@ property :options,
          description: 'hash of {option : value} . See options tag in firewalld.ipset(5).'
 property :entries,
          [Array, String],
-         description: 'array of entries, see entry tag in firewalld.ipset(5).'
+         description: 'array of entries, see entry tag in firewalld.ipset(5).',
          coerce: proc { |o| Array(o) }
 
 load_current_value do |new_resource|
