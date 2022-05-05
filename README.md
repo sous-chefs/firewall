@@ -135,18 +135,7 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 
 ## Resources
 
-### firewalld-* resources
-
-Please see the following links to find the documentation for the firewalld-resources:
-
-- [`firewalld` resource](documentation/resources/firewalld.md)
-- [`firewalld_config` resource](documentation/resources/firewalld_config.md)
-- [`firewalld_helpers` resource](documentation/resources/firewalld_helpers.md)
-- [`firewalld_icmptype` resource](documentation/resources/firewalld_icmptype.md)
-- [`firewalld_ipset` resource](documentation/resources/firewalld_ipset.md)
-- [`firewalld_policy` resource](documentation/resources/firewalld_policy.md)
-- [`firewalld_service` resource](documentation/resources/firewalld_service.md)
-- [`firewalld_zone` resource](documentation/resources/firewalld_.md)
+There is a separate folder for [`firewalld` resources](documentation/README.md).
 
 ### firewall
 

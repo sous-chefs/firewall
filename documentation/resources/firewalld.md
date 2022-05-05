@@ -1,5 +1,15 @@
 # firewalld
 
+[Back to resource list](../README.md#resources)
+
+The resource manages the `firewalld`-services and installs `ruby-dbus`
+to the chef environment, so that it may be used in the other resources
+later on.
+
+## Provides
+
+- :firewalld
+
 ## Actions
 
 - `:install`
@@ -9,9 +19,7 @@
 
 ## Properties
 
-There are no properties.  The resource manages the
-`firewalld`-services and installs `ruby-dbus` to the chef environment,
-so that it may be use in the other resources later on.
+There are no properties.
 
 ## Examples
 

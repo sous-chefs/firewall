@@ -15,7 +15,8 @@ property :description,
          String,
          description: 'see description tag in firewalld.helper(5).'
 property :family,
-         ['ipv4', 'ipv6', %w(ipv4 ipv6)],
+         [String, Array],
+         equal_to: ['ipv4', 'ipv6', %w(ipv4 ipv6)],
          default: 'ipv4',
          description: 'see family tag in firewalld.helper(5).'
 property :nf_module,
