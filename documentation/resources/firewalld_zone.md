@@ -14,7 +14,7 @@
 
 | Name                 | Type              | Default | Description                                                                                                                                                  |
 | -----------          | -------------     | ------- | ------------------------------------                                                                                                                         |
-| `description`           | `[Array, String]` |         | see description tag in [firewalld.zone(5)](https://firewalld.org/documentation/man-pages/firewalld.zone.html).                                               |
+| `description`           | `String` |         | see description tag in [firewalld.zone(5)](https://firewalld.org/documentation/man-pages/firewalld.zone.html).                                               |
 | `forward`               | `[true, false]`   |         | see forward tag in [firewalld.zone(5)](https://firewalld.org/documentation/man-pages/firewalld.zone.html).                                                   |
 | `forward_ports`         | `[Array, String]` |         | array of (port, protocol, to-port, to-addr). See forward-port tag in [firewalld.zone(5)](https://firewalld.org/documentation/man-pages/firewalld.zone.html). |
 | `icmp_block_inversion`  | `[true, false]`   |         | see icmp-block-inversion tag in [firewalld.zone(5)](https://firewalld.org/documentation/man-pages/firewalld.zone.html).                                      |

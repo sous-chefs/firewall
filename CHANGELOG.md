@@ -4,6 +4,12 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Values for firewalld resources must be specified as one would
+  specify them to `firewall-cmd`.
+- Do not use begin/rescue blocks when adding firewalld-objects, as
+  that resulted in errors being logged by firewalld.
+- Various bug fixes that were found along the way.
+
 ## 5.1.0 - *2022-05-07*
 
 - Add new providers for firewalld using the dbus-interface of firewalld.
