@@ -20,65 +20,29 @@ jobs:
     runs-on: macos-10.15
     strategy:
       matrix:
-        os:
-          - amazonlinux-2
-          - debian-9
-          - debian-10
-          - debian-11
-          - centos-7
-          - centos-stream-8
-          - ubuntu-1804
-          - ubuntu-2004
-        suite:
-          - firewalld
-          - iptables
-          - nftables
-          - ufw
-        exclude:
+        include:
           - os: amazonlinux-2
-            suite: nftables
+            suite: firewalld
           - os: amazonlinux-2
-            suite: ufw
-          - os: debian-9
-            suite: firewalld
-          - os: debian-9
-            suite: nftables
-          - os: debian-9
             suite: iptables
-          - os: debian-10
-            suite: firewalld
-          - os: debian-10
-            suite: iptables
-          - os: debian-10
-            suite: nftables
-          - os: debian-11
-            suite: firewalld
-          - os: debian-11
-            suite: iptables
-          - os: debian-11
-            suite: ufw
           - os: centos-7
-            suite: nftables
+            suite: firewalld
           - os: centos-7
-            suite: ufw
-          - os: centos-stream-8
-            suite: nftables
-          - os: centos-stream-8
-            suite: ufw
-          - os: centos-stream-8
-            suite: firewalld
-          - os: ubuntu-1804
-            suite: firewalld
-          - os: ubuntu-1804
             suite: iptables
-          - os: ubuntu-1804
-            suite: nftables
-          - os: ubuntu-2004
-            suite: firewalld
-          - os: ubuntu-2004
+          - os: centos-stream-8
             suite: iptables
-          - os: ubuntu-2004
+          - os: debian-9
+            suite: ufw
+          - os: debian-10
+            suite: ufw
+          - os: debian-11
+            suite: firewalld-dbus
+          - os: debian-11
             suite: nftables
+          - os: ubuntu-1804
+            suite: ufw
+          - os: ubuntu-2004
+            suite: ufw
       fail-fast: false
     steps:
       - name: Check out code

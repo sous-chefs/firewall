@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Add new providers for firewalld using the dbus-interface of firewalld.
+
 ## 5.0.0 - *2022-04-20*
 
 - Add support for nftables
