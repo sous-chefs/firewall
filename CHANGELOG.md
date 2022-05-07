@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 5.1.0 - *2022-05-07*
 
 - Add new providers for firewalld using the dbus-interface of firewalld.
