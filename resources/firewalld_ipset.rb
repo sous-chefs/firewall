@@ -6,8 +6,9 @@ provides :firewalld_ipset,
 property :version,
          String,
          description: 'see version attribute of ipset tag in firewalld.ipset(5).'
-property :name,
+property :short,
          String,
+         name_property: true,
          description: 'see short tag in firewalld.ipset(5).'
 property :description,
          String,
@@ -15,10 +16,11 @@ property :description,
 property :type,
          String,
          default: 'hash:ip',
-         description: 'see type attribute of ipset tag in firewalld.ipset(5).'
+         description: 'see type attribute of ipset tag in firewalld.ipset(5).',
+         equal_to:
+           %w(hash:ip hash:ip,mark hash:ip,port hash:ip,port,ip hash:ip,port,net hash:mac hash:net hash:net,iface hash:net,net hash:net,port hash:net,port,net)
 property :options,
-         [Hash],
-         default: {},
+         Hash,
          description: 'hash of {option : value} . See options tag in firewalld.ipset(5).'
 property :entries,
          [Array, String],
@@ -29,20 +31,20 @@ load_current_value do |new_resource|
   sysbus = DBus.system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
-  interface = firewalld_object['org.fedoraproject.FirewallD1.config']
-  begin
-    ipset_path = interface.getIPSetByName(new_resource.name)
+  fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
+  if fw_config.getIPSetNames.include?(new_resource.short)
+    ipset_path = fw_config.getIPSetByName(new_resource.short)
     object = firewalld_service[ipset_path]
-    interface = object['org.fedoraproject.FirewallD1.config.ipset']
-    settings = interface.getSettings
+    config_ipset = object['org.fedoraproject.FirewallD1.config.ipset']
+    settings = config_ipset.getSettings
     version settings[0]
-    # name settings[1]
+    # short settings[1]
     description settings[2]
     type settings[3]
     options settings[4]
     entries settings[5]
-  rescue DBus::Error
-    Chef::Log.info "Ipset #{new_resource.name} does not exist. Will be created."
+  else
+    Chef::Log.info "Ipset #{new_resource.short} does not exist. Will be created."
   end
 end
 
@@ -51,28 +53,42 @@ action :update do
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   reload = false
-  begin
-    ipset_path = fw_config.getIpsetByName(new_resource.name)
-    ipset = ipset_interface(dbus, ipset_path)
-
-    reload = false
-    values = properties.map do |property|
-      new_resource.send(property)
-    end
-    ipset.update(values)
-  rescue
+  if !fw_config.getIPSetNames.include?(new_resource.short)
     values = [
       new_resource.version || '',
-      new_resource.name,
-      new_resource.description || default_description(new_resource),
+      new_resource.short,
+      default_description(new_resource),
       new_resource.type,
-      new_resource.options,
+      new_resource.options || {},
       new_resource.entries,
     ]
-    converge_by "Add ipset #{new_resource.name}" do
-      fw_config.addIPSet(new_resource.name, values)
+    converge_by "Add ipset #{new_resource.short}" do
+      fw_config.addIPSet(new_resource.short, values)
     end
     reload = true
+  else
+    ipset_path = fw_config.getIPSetByName(new_resource.short)
+    ipset = ipset_interface(dbus, ipset_path)
+    converge_if_changed :version do
+      ipset.setVersion new_resource.version
+      reload = true
+    end
+    converge_if_changed :description do
+      ipset.setDescriptions default_description(new_resource)
+      reload = true
+    end
+    converge_if_changed :type do
+      ipset.setType new_resource.type
+      reload = true
+    end
+    converge_if_changed :options do
+      ipset.setOptions(new_resource.options || {})
+      reload = true
+    end
+    converge_if_changed :entries do
+      ipset.setEntries new_resource.entries
+      reload = true
+    end
   end
 
   if reload

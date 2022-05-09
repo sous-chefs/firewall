@@ -7,7 +7,8 @@ property :default_zone,
          String,
          description: 'Set default zone for connections and interfaces where no zone has been selected to zone. Setting the default zone changes the zone for the connections or interfaces, that are using the default zone.'
 property :log_denied,
-         %w(all unicast broadcast multicast off),
+         String,
+         equal_to: %w(all unicast broadcast multicast off),
          description: 'Set LogDenied value to value. If LogDenied is enabled, then logging rules are added right before reject and drop rules in the INPUT, FORWARD and OUTPUT chains for the default rules and also final reject and drop rules in zones.'
 
 load_current_value do |_new_resource|
