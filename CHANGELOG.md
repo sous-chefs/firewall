@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 6.0.1 - *2022-05-13*
 
 - Standardise files with files in sous-chefs/repo-management
