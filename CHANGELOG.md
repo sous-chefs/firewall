@@ -6,6 +6,30 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 - Default to `firewalld` on EL8
 
+## 6.0.2 - *2022-05-15*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.0.1 - *2022-05-13*
+
+- Standardise files with files in sous-chefs/repo-management
+
+## 6.0.0 - *2022-05-09*
+
+- Values for firewalld resources must be specified as one would
+  specify them to `firewall-cmd`.
+- Do not use begin/rescue blocks when adding firewalld-objects, as
+  that resulted in errors being logged by firewalld.
+- Various bug fixes that were found along the way.
+
+## 5.1.0 - *2022-05-07*
+
+- Add new providers for firewalld using the dbus-interface of firewalld.
+
+## 5.0.0 - *2022-04-20*
+
+- Add support for nftables
+
 ## 4.0.3 - *2022-04-11*
 
 - Use resuable workflows instead of Chef Delivery

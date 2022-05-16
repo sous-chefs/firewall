@@ -28,11 +28,14 @@ depends 'firewall'
 - IPTables - Red Hat & CentOS, Ubuntu
 - FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
 - Windows Advanced Firewall - 2012 R2
+- nftables
 
 Tested on:
 
 - Ubuntu 16.04 with iptables, ufw
 - Debian 9 with iptables
+- Debian 11 with nftables
+- Debian 11 with new resources for firewalld
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
 - Windows Server 2012r2 with Windows Advanced Firewall
@@ -49,6 +52,10 @@ By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, se
 default['firewall']['redhat7_iptables'] = true
 ```
 
+In order to use nftables, just use the resource `nftables` and
+`nftables_rule`.  These resources are written in more modern design
+styles and are not configurable by node attributes.
+
 ## Considerations that apply to all firewall providers and resources
 
 This cookbook comes with two resources, firewall and firewall rule. The typical usage scenario is as follows:
@@ -58,6 +65,8 @@ This cookbook comes with two resources, firewall and firewall rule. The typical 
 - run the delayed notification with action `:restart` on the `firewall` resource. if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
 
 There is a fundamental mismatch between the idea of a chef action and the action that should be taken on a firewall rule. For this reason, the chef action for a firewall_rule may be `:nothing` (the rule should not be present in the firewall) or `:create` (the rule should be present in the firewall), but the action taken on a packet in a firewall (`DROP`, `ACCEPT`, etc) is denoted as a `command` parameter on the `firewall_rule` resource.
+
+The same points hold for the `nftables`- and `nftables_rule`-resources.
 
 ## iptables considerations
 
@@ -92,6 +101,12 @@ end
 Note that any line starting with `COMMIT` will become just `COMMIT`, as hash
 keys must be unique but we need multiple commit lines.
 
+## nftables
+
+Please read the documentation for the
+[`nftables` resource](documentation/resource_nftables.md) and the
+[`nftables_rule` resource](documentation/resource_nftables_rule.md)
+
 ## Recipes
 
 ### default
@@ -119,6 +134,8 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 - `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
 
 ## Resources
+
+There is a separate folder for [`firewalld` resources](documentation/README.md).
 
 ### firewall
 
