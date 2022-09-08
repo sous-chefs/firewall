@@ -40,7 +40,7 @@ end
 action :rebuild do
   ensure_default_rules_exist(new_resource)
 
-  file '/etc/nftables.conf' do
+  file nftables_conf_location do
     content  <<~NFT
       #!/usr/sbin/nft -f
       flush ruleset

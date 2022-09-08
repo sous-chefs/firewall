@@ -38,3 +38,11 @@ describe service('nftables') do
   it { should be_enabled }
   it { should be_running }
 end
+
+describe file('/etc/sysconfig/nftables.conf') do
+  it { should exist }
+end if os.redhat?
+
+describe file('/etc/nftables.conf') do
+  it { should exist }
+end if os.debian?
