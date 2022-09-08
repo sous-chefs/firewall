@@ -38,6 +38,7 @@ Tested on:
 - Debian 11 with new resources for firewalld
 - CentOS 6 with iptables
 - CentOS 7.1 with firewalld
+- Oracle 8 with nftables
 - Windows Server 2012r2 with Windows Advanced Firewall
 
 By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute file:
