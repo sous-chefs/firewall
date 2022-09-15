@@ -154,6 +154,17 @@ module FirewallCookbook
         input = new_resource.rules || {}
         input.merge!(default_ruleset(new_resource))
       end
+
+      def default_nftables_conf_path
+        case node['platform_family']
+        when 'rhel'
+          '/etc/sysconfig/nftables.conf'
+        when 'debian'
+          '/etc/nftables.conf'
+        else
+          raise "default_nftables_conf_path: Unsupported platform_family #{node['platform_family']}."
+        end
+      end
     end
   end
 end
