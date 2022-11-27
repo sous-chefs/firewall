@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+- Add support for for the description attribute when using UFW
+
 ## 6.1.0 - *2022-09-15*
 
 - Add filepath selection based on OS for nftables.conf
