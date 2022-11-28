@@ -189,12 +189,12 @@ end
 - `include_comment` (_default: true_): Used to optionally exclude the comment in the rule.
 - `position` (_default: 50_): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 - `command`: What action to take on a particular packet
-  - `:allow` (_default action_): the rule should allow matching packets
-  - `:deny`: the rule should deny matching packets
-  - `:reject`: the rule should reject matching packets
-  - `:masqerade`: Masquerade the matching packets
-  - `:redirect`: Redirect the matching packets
-  - `:log`: Configure logging
+   - `:allow` (_default action_): the rule should allow matching packets
+   - `:deny`: the rule should deny matching packets
+   - `:reject`: the rule should reject matching packets
+   - `:masqerade`: Masquerade the matching packets
+   - `:redirect`: Redirect the matching packets
+   - `:log`: Configure logging
 - `stateful`: a symbol or array of symbols, such as ``[:related, :established]` that will be passed to the state module in iptables or firewalld.
 - `protocol`: `:tcp` (_default_), `:udp`, `:icmp`, `:none` or protocol number. Using protocol numbers is not supported using the ufw provider (default for debian/ubuntu systems).
 - `direction`: For ufw, direction of the rule. valid values are: `:in` (_default_), `:out`, `:pre`, `:post`.

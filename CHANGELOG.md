@@ -249,9 +249,9 @@ Minor bugfix release.
 ## v2.0.0 (2015-08-31)
 
 - 84, major rewrite
-  - Allow relative positioning of rules
-  - Use delayed notifications to create one firewall ruleset instead of incremental changes
-  - Remove poise dependency
+   - Allow relative positioning of rules
+   - Use delayed notifications to create one firewall ruleset instead of incremental changes
+   - Remove poise dependency
 - #82 - Introduce Windows firewall support and test-kitchen platform
 - #73 - Add the option to disable ipv6 commands on iptables
 - #78 - Use Chef-12 style `provides` to address provider mapping issues
@@ -277,7 +277,7 @@ Minor bugfix release.
 ## v1.5.0 (2015-07-06)
 
 - 70 - Add chef service resource to ensure firewall-related services are enabled/disabled
-  - Add testing and support for iptables on ubuntu in iptables provider
+   - Add testing and support for iptables on ubuntu in iptables provider
 
 ## v1.4.0 (2015-06-30)
 
