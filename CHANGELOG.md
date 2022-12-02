@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 6.2.0 - *2022-12-02*
 
 - Add support for for the description attribute when using UFW
