@@ -4,6 +4,10 @@ module FirewallCookbook
       include FirewallCookbook::Helpers
       include Chef::Mixin::ShellOut
 
+      def icmp?(protocol)
+        [:icmp, :icmpv4, :icmpv6, 1, 58].any?(protocol)
+      end
+
       def fixup_cidr(str)
         newstr = str.clone
         newstr.gsub!('0.0.0.0/0', 'any') if newstr.include?('0.0.0.0/0')
@@ -60,20 +64,25 @@ module FirewallCookbook
 
         new_resource.program && parameters['program'] = new_resource.program
         new_resource.service && parameters['service'] = new_resource.service
-        parameters['protocol'] = new_resource.protocol
+        # Keep interface the same and handle windows specific changes here.
+        parameters['protocol'] = case new_resource.protocol
+                                 when :icmp then :icmpv4
+                                 else new_resource.protocol
+                                 end
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
-          parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
           parameters['interfacetype'] = new_resource.interface || 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
         else
           parameters['localip'] = new_resource.destination || 'any'
-          parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
           parameters['interfacetype'] = new_resource.dest_interface || 'any'
           parameters['remoteip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
-          parameters['remoteport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+        end
+
+        unless icmp?(new_resource.protocol)
+          parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
+          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
         end
 
         parameters['action'] = type.to_s
@@ -109,10 +118,12 @@ module FirewallCookbook
             current_parameters['service'] = Regexp.last_match(1).chomp if line =~ /^Service:\s+(.*)$/
             current_parameters['protocol'] = Regexp.last_match(1).chomp if line =~ /^Protocol:\s+(.*)$/
             current_parameters['localip'] = Regexp.last_match(1).chomp if line =~ /^LocalIP:\s+(.*)$/
-            current_parameters['localport'] = Regexp.last_match(1).chomp if line =~ /^LocalPort:\s+(.*)$/
             current_parameters['interfacetype'] = Regexp.last_match(1).chomp if line =~ /^InterfaceTypes:\s+(.*)$/
             current_parameters['remoteip'] = Regexp.last_match(1).chomp if line =~ /^RemoteIP:\s+(.*)$/
-            current_parameters['remoteport'] = Regexp.last_match(1).chomp if line =~ /^RemotePort:\s+(.*)$/
+            unless icmp?(new_resource.protocol)
+              current_parameters['localport'] = Regexp.last_match(1).chomp if line =~ /^LocalPort:\s+(.*)$/
+              current_parameters['remoteport'] = Regexp.last_match(1).chomp if line =~ /^RemotePort:\s+(.*)$/
+            end
             current_parameters['action'] = Regexp.last_match(1).chomp if line =~ /^Action:\s+(.*)$/
           end
 
