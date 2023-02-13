@@ -1,6 +1,6 @@
 name: ci
 
-'on':
+"on":
   pull_request:
   push:
     branches: [main]
@@ -48,9 +48,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Install Chef
-        uses: actionshub/chef-install@main
+        uses: actionshub/chef-install@2.0.4
       - name: kitchen
-        uses: actionshub/test-kitchen@main
+        uses: actionshub/test-kitchen@2.1.0
         env:
           CHEF_LICENSE: accept-no-persist
         with:
