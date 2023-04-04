@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 6.2.11 - *2023-04-04*
 
 Fixed a typo in the readme
