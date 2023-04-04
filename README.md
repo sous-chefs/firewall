@@ -192,7 +192,7 @@ end
    - `:allow` (_default action_): the rule should allow matching packets
    - `:deny`: the rule should deny matching packets
    - `:reject`: the rule should reject matching packets
-   - `:masqerade`: Masquerade the matching packets
+   - `:masquerade`: Masquerade the matching packets
    - `:redirect`: Redirect the matching packets
    - `:log`: Configure logging
 - `stateful`: a symbol or array of symbols, such as ``[:related, :established]` that will be passed to the state module in iptables or firewalld.
