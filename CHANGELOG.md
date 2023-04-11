@@ -6,6 +6,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 Fix documentation to pass markdown lint
 
+## 6.2.12 - *2023-04-07*
+
+Standardise files with files in sous-chefs/repo-management
+
 ## 6.2.11 - *2023-04-04*
 
 Fixed a typo in the readme
