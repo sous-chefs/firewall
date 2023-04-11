@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+Fix documentation to pass markdown lint
+
 ## 6.2.12 - *2023-04-07*
 
 Standardise files with files in sous-chefs/repo-management
@@ -380,7 +382,7 @@ Minor bugfix release.
 
 ### Bug
 
-- **[COOK-3615](https://tickets.opscode.com/browse/COOK-3615)** - Install required UFW package on Debian
+- [COOK-3615]: Install required UFW package on Debian
 
 ## v0.11.0
 
