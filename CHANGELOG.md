@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 6.2.13 - *2023-04-11*
 
 Fix documentation to pass markdown lint
 
