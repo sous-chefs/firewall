@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+Update CI runner to MacOS 12
+
 ## 6.2.14 - *2023-04-17*
 
 ## 6.2.13 - *2023-04-11*
