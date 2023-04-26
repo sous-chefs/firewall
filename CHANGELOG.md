@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 6.2.15 - *2023-04-26*
 
 Update CI runner to MacOS 12
 
