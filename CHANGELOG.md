@@ -2,6 +2,8 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
+## Unreleased
+
 ## 6.2.18 - *2023-07-31*
 
 Fixes typo in FORWARD chain of nftables default ruleset
