@@ -6,6 +6,74 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 - Default to `firewalld` on EL8
 
+## 6.2.18 - *2023-07-31*
+
+Fixes typo in FORWARD chain of nftables default ruleset
+
+## 6.2.17 - *2023-07-10*
+
+## 6.2.16 - *2023-05-17*
+
+## 6.2.15 - *2023-04-26*
+
+Update CI runner to MacOS 12
+
+## 6.2.14 - *2023-04-17*
+
+## 6.2.13 - *2023-04-11*
+
+Fix documentation to pass markdown lint
+
+## 6.2.12 - *2023-04-07*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.11 - *2023-04-04*
+
+Fixed a typo in the readme
+
+## 6.2.10 - *2023-04-01*
+
+## 6.2.9 - *2023-04-01*
+
+## 6.2.8 - *2023-04-01*
+
+Standardise files with files in sous-chefs/repo-management
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.7 - *2023-03-02*
+
+## 6.2.6 - *2023-02-23*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.5 - *2023-02-16*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.4 - *2023-02-15*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.3 - *2022-12-08*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.2 - *2022-12-08*
+
+Standardise files with files in sous-chefs/repo-management
+
+## 6.2.1 - *2022-12-02*
+
+## 6.2.0 - *2022-12-02*
+
+- Add support for for the description attribute when using UFW
+
+## 6.1.0 - *2022-09-15*
+
+- Add filepath selection based on OS for nftables.conf
+
 ## 6.0.2 - *2022-05-15*
 
 Standardise files with files in sous-chefs/repo-management
@@ -245,9 +313,9 @@ Minor bugfix release.
 ## v2.0.0 (2015-08-31)
 
 - 84, major rewrite
-  - Allow relative positioning of rules
-  - Use delayed notifications to create one firewall ruleset instead of incremental changes
-  - Remove poise dependency
+   - Allow relative positioning of rules
+   - Use delayed notifications to create one firewall ruleset instead of incremental changes
+   - Remove poise dependency
 - #82 - Introduce Windows firewall support and test-kitchen platform
 - #73 - Add the option to disable ipv6 commands on iptables
 - #78 - Use Chef-12 style `provides` to address provider mapping issues
@@ -273,7 +341,7 @@ Minor bugfix release.
 ## v1.5.0 (2015-07-06)
 
 - 70 - Add chef service resource to ensure firewall-related services are enabled/disabled
-  - Add testing and support for iptables on ubuntu in iptables provider
+   - Add testing and support for iptables on ubuntu in iptables provider
 
 ## v1.4.0 (2015-06-30)
 
@@ -332,7 +400,7 @@ Minor bugfix release.
 
 ### Bug
 
-- **[COOK-3615](https://tickets.opscode.com/browse/COOK-3615)** - Install required UFW package on Debian
+- [COOK-3615]: Install required UFW package on Debian
 
 ## v0.11.0
 

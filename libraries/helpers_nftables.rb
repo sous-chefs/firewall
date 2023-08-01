@@ -135,7 +135,7 @@ module FirewallCookbook
           'add table inet filter' => 1,
           "add chain inet filter INPUT { type filter hook input priority 0 ; policy #{new_resource.input_policy}; }" => 2,
           "add chain inet filter OUTPUT { type filter hook output priority 0 ; policy #{new_resource.output_policy}; }" => 2,
-          "add chain inet filter FOWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2,
+          "add chain inet filter FORWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2,
         }
         if new_resource.table_ip_nat
           rules['add table ip nat'] = 1
@@ -153,6 +153,17 @@ module FirewallCookbook
       def ensure_default_rules_exist(new_resource)
         input = new_resource.rules || {}
         input.merge!(default_ruleset(new_resource))
+      end
+
+      def default_nftables_conf_path
+        case node['platform_family']
+        when 'rhel'
+          '/etc/sysconfig/nftables.conf'
+        when 'debian'
+          '/etc/nftables.conf'
+        else
+          raise "default_nftables_conf_path: Unsupported platform_family #{node['platform_family']}."
+        end
       end
     end
   end

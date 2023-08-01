@@ -1,9 +1,7 @@
 unified_mode true
 
-action_class do
-  include FirewallCookbook::Helpers
-  include FirewallCookbook::Helpers::Nftables
-end
+include FirewallCookbook::Helpers
+include FirewallCookbook::Helpers::Nftables
 
 provides :nftables,
          os: 'linux'
@@ -29,6 +27,9 @@ property :table_ip_nat,
 property :table_ip6_nat,
          [true, false],
          default: false
+property :nftables_conf_path, String,
+         description: 'nftables.conf filepath',
+         default: lazy { default_nftables_conf_path }
 
 action :install do
   package 'nftables' do
@@ -40,7 +41,7 @@ end
 action :rebuild do
   ensure_default_rules_exist(new_resource)
 
-  file '/etc/nftables.conf' do
+  file new_resource.nftables_conf_path do
     content  <<~NFT
       #!/usr/sbin/nft -f
       flush ruleset

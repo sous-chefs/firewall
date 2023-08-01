@@ -1,13 +1,13 @@
 name: ci
 
-'on':
+"on":
   pull_request:
   push:
     branches: [main]
 
 jobs:
   lint-unit:
-    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@0.0.3
+    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@2.0.5
     permissions:
       actions: write
       checks: write
@@ -17,7 +17,7 @@ jobs:
 
   integration:
     needs: lint-unit
-    runs-on: macos-10.15
+    runs-on: macos-12
     strategy:
       matrix:
         include:
@@ -46,11 +46,11 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Chef
-        uses: actionshub/chef-install@main
+        uses: actionshub/chef-install@2.0.4
       - name: kitchen
-        uses: actionshub/test-kitchen@main
+        uses: actionshub/test-kitchen@2.1.0
         env:
           CHEF_LICENSE: accept-no-persist
         with:
