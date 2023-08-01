@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 6.3.0 - *2023-08-01*
 
 - Default to `firewalld` on EL8
 
