@@ -17,7 +17,7 @@ jobs:
 
   integration:
     needs: lint-unit
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       matrix:
         include:
@@ -45,8 +45,11 @@ jobs:
             suite: ufw
       fail-fast: false
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4 # v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install VirtualBox
+        run: |
+          brew install virtualbox
       - name: Install Chef
         uses: actionshub/chef-install@2.0.4
       - name: kitchen
