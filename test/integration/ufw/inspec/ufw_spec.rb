@@ -10,6 +10,7 @@ expected_rules = [
   %r{ 1000:1100/tcp + ALLOW IN +Anywhere},
   %r{ 1234,5000:5100,5678/tcp + ALLOW IN +Anywhere},
   %r{ 23/tcp + LIMIT IN +Anywhere},
+  %r{ 80,88,389,443,464,636/tcp + ALLOW IN +10\.10\.10\.10},
   /# ssh22/,
 ]
 
@@ -27,4 +28,13 @@ describe service('ufw') do
   describe command('ufw status 2>&1') do
     its(:stdout) { should match(/Status: active/) }
   end
+end
+
+describe file('/etc/default/ufw-chef.rules') do
+  it { should exist }
+  its(:size) { should > 0 }
+  its(:mode) { should cmp '0644' }
+  it { should be_owned_by 'root' }
+  it { should be_grouped_into 'root' }
+  its(:content) { should match %r{ufw allow in proto tcp to any port 80,88,389,443,464,636 from 10.10.10.10 comment "FreeIPA ports"} }
 end
