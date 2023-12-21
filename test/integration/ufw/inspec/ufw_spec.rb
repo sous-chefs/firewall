@@ -36,5 +36,5 @@ describe file('/etc/default/ufw-chef.rules') do
   its(:mode) { should cmp '0644' }
   it { should be_owned_by 'root' }
   it { should be_grouped_into 'root' }
-  its(:content) { should match %r{ufw allow in proto tcp to any port 80,88,389,443,464,636 from 10.10.10.10 comment "FreeIPA ports"} }
+  its(:content) { should match /ufw allow in proto tcp to any port 80,88,389,443,464,636 from 10.10.10.10 comment "FreeIPA ports"/ }
 end
