@@ -6,6 +6,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 fix port sorting in generated firewall rules file
 
+## 6.3.4 - *2023-12-21*
+
 ## 6.3.3 - *2023-09-28*
 
 ## 6.3.2 - *2023-09-04*
