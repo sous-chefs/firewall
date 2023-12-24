@@ -117,6 +117,7 @@ The default recipe creates a firewall resource with action install.
 Used to disable platform specific firewall. Many clouds have their own firewall configured outside of the OS instance such as AWS Security Groups.
 
 ### firewalld
+
 A firewalld specific recipe creates a firewall resource with action install with the default zone (default: `drop`)
 
 ## Attributes
