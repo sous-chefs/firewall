@@ -1,0 +1,62 @@
+name: ci
+
+"on":
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-unit:
+    uses: sous-chefs/.github/.github/workflows/lint-unit.yml@3.0.0
+    permissions:
+      actions: write
+      checks: write
+      pull-requests: write
+      statuses: write
+      issues: write
+
+  integration:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        include:
+          - os: amazonlinux-2
+            suite: firewalld
+          - os: amazonlinux-2
+            suite: iptables
+          - os: centos-7
+            suite: firewalld
+          - os: centos-7
+            suite: iptables
+          - os: centos-stream-8
+            suite: iptables
+          - os: debian-9
+            suite: ufw
+          - os: debian-10
+            suite: ufw
+          - os: debian-11
+            suite: firewalld-dbus
+          - os: debian-11
+            suite: nftables
+          - os: ubuntu-1804
+            suite: ufw
+          - os: ubuntu-2004
+            suite: ufw
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install VirtualBox
+        run: |
+          brew update
+          brew upgrade virtualbox
+      - name: Install Chef
+        uses: actionshub/chef-install@2.0.4
+      - name: kitchen
+        uses: actionshub/test-kitchen@2.1.0
+        env:
+          CHEF_LICENSE: accept-no-persist
+        with:
+          suite: ${{ matrix.suite }}
+          os: ${{ matrix.os }}

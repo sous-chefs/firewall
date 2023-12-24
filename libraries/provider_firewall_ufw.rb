@@ -3,7 +3,7 @@
 # Cookbook:: firewall
 # Resource:: default
 #
-# Copyright:: 2011-2016, Chef Software, Inc.
+# Copyright:: 2011-2019, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ class Chef
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       pkg_ufw = package 'ufw' do
@@ -58,7 +58,7 @@ class Chef
       new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # ensure it's initialized
@@ -99,7 +99,7 @@ class Chef
       new_resource.updated_by_last_action(true)
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       ufw_file = lookup_or_create_rulesfile
@@ -112,7 +112,7 @@ class Chef
       new_resource.updated_by_last_action(true)
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
 
       ufw_reset!

@@ -1,9 +1,9 @@
 #
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Cookbook Name:: firewall
+# Cookbook:: firewall
 # Resource:: default
 #
-# Copyright:: 2011, Opscode, Inc.
+# Copyright:: 2011-2019, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ class Chef
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       # Ensure the package is installed
@@ -64,7 +64,7 @@ class Chef
       end
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # prints all the firewall rules
@@ -98,6 +98,8 @@ class Chef
         end
       end
 
+      restart_service = false
+
       rule_files = %w(iptables)
       rule_files << 'ip6tables' if ipv6_enabled?(new_resource)
 
@@ -120,17 +122,19 @@ class Chef
         iptables_file.run_action(:create)
 
         # if the file was changed, restart iptables
-        next unless iptables_file.updated_by_last_action?
+        restart_service = true if iptables_file.updated_by_last_action?
+      end
+
+      if restart_service
         service_affected = service 'iptables-persistent' do
           action :nothing
         end
-
-        new_resource.notifies(:restart, service_affected, :delayed)
+        service_affected.run_action(:restart)
         new_resource.updated_by_last_action(true)
       end
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
@@ -153,7 +157,7 @@ class Chef
       end
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)

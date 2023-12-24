@@ -3,7 +3,7 @@
 # Cookbook:: firewall
 # Resource:: default
 #
-# Copyright:: 2011-2016, Chef Software, Inc.
+# Copyright:: 2011-2019, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,15 +22,15 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: 'linux', platform_family: %w(rhel fedora) do |node|
-      node['platform_version'].to_f < 7.0 || node['firewall']['redhat7_iptables']
+    provides :firewall, os: 'linux', platform_family: %w(rhel fedora amazon) do |node|
+      (node['platform_version'].to_i < 7 && !amazon_linux?) || node['platform_version'].to_i >= 8 || node['firewall']['redhat7_iptables']
     end
 
     def whyrun_supported?
       false
     end
 
-    def action_install
+    action :install do
       return if disabled?(new_resource)
 
       # Ensure the package is installed
@@ -60,7 +60,7 @@ class Chef
       end
     end
 
-    def action_restart
+    action :restart do
       return if disabled?(new_resource)
 
       # prints all the firewall rules
@@ -104,12 +104,12 @@ class Chef
         next unless iptables_file.updated_by_last_action?
 
         iptables_service = lookup_or_create_service(iptables_type)
-        new_resource.notifies(:restart, iptables_service, :delayed)
+        iptables_service.run_action(:restart)
         new_resource.updated_by_last_action(true)
       end
     end
 
-    def action_disable
+    action :disable do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)
@@ -131,7 +131,7 @@ class Chef
       end
     end
 
-    def action_flush
+    action :flush do
       return if disabled?(new_resource)
 
       iptables_flush!(new_resource)

@@ -1,18 +1,15 @@
-name 'firewall'
-maintainer 'Chef Software, Inc.'
-maintainer_email 'cookbooks@chef.io'
-license 'Apache-2.0'
-description 'Provides a set of primitives for managing firewalls and associated rules.'
-long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
-version '2.7.0'
+name              'firewall'
+maintainer        'Sous Chefs'
+maintainer_email  'help@sous-chefs.org'
+license           'Apache-2.0'
+description       'Provides a set of primitives for managing firewalls and associated rules.'
+version           '6.3.4'
+source_url        'https://github.com/sous-chefs/firewall'
+issues_url        'https://github.com/sous-chefs/firewall/issues'
+chef_version      '>= 15.5'
 
+supports 'amazon'
 supports 'centos'
 supports 'debian'
 supports 'ubuntu'
 supports 'windows'
-
-depends 'chef-sugar'
-
-source_url 'https://github.com/chef-cookbooks/firewall'
-issues_url 'https://github.com/chef-cookbooks/firewall/issues'
-chef_version '>= 12.5' if respond_to?(:chef_version)

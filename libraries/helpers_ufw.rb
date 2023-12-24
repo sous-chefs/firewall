@@ -74,6 +74,7 @@ module FirewallCookbook
         rule << rule_proto(new_resource)
         rule << rule_dest_port(new_resource)
         rule << rule_source_port(new_resource)
+        rule << rule_description(new_resource)
         rule = rule.strip
 
         if rule == 'ufw allow in proto tcp to any from any'
@@ -94,6 +95,12 @@ module FirewallCookbook
       def rule_proto(new_resource)
         rule = ''
         rule << "proto #{new_resource.protocol} " if new_resource.protocol && new_resource.protocol.to_s.to_sym != :none
+        rule
+      end
+
+      def rule_description(new_resource)
+        rule = ''
+        rule << "comment \"#{new_resource.description}\" " if new_resource.description && new_resource.include_comment
         rule
       end
 

@@ -2,7 +2,7 @@
 # Cookbook:: firewall
 # Recipe:: default
 #
-# Copyright:: 2011-2016, Chef Software, Inc.
+# Copyright:: 2011-2019, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,17 +17,13 @@
 # limitations under the License.
 #
 
-chef_sugar_cookbook_version = Gem::Version.new(run_context.cookbook_collection['chef-sugar'].metadata.version)
-
-include_recipe 'chef-sugar' if chef_sugar_cookbook_version < Gem::Version.new('4.0.0')
-
 firewall 'default' do
   ipv6_enabled node['firewall']['ipv6_enabled']
   action :install
 end
 
 # create a variable to use as a condition on some rules that follow
-iptables_firewall = rhel? || node['firewall']['ubuntu_iptables']
+iptables_firewall = rhel? || amazon_linux? || node['firewall']['ubuntu_iptables']
 
 firewall_rule 'allow loopback' do
   interface 'lo'
@@ -41,7 +37,7 @@ firewall_rule 'allow icmp' do
   command :allow
   # debian ufw doesn't allow 'icmp' protocol, but does open
   # icmp by default, so we skip it in default recipe
-  only_if { (!debian?(node) || iptables_firewall) && node['firewall']['allow_icmp'] }
+  only_if { iptables_firewall && node['firewall']['allow_icmp'] }
 end
 
 firewall_rule 'allow world to ssh' do
