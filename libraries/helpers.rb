@@ -11,7 +11,7 @@ module FirewallCookbook
         p.to_s
       elsif p && p.is_a?(Array)
         p_strings = p.map { |o| port_to_s(o) }
-        p_strings.sort.join(',')
+        p_strings.sort_by { |s| s.scan(/\d+/).first.to_i }.join(',')
       elsif p && p.is_a?(Range)
         if platform_family?('windows')
           "#{p.first}-#{p.last}"

@@ -107,4 +107,9 @@ firewall_rule 'port2433' do
   command   :allow
 end
 
+firewall_rule 'FreeIPA ports' do
+  port %w(80 88 389 443 464 636)
+  source '10.10.10.10'
+end
+
 include_recipe 'firewall-test::windows' if windows?
