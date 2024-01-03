@@ -5,6 +5,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 ## Unreleased
 
 fix port sorting in generated firewall rules file
+Added support for firewalld zone attribute
 
 ## 6.3.4 - *2023-12-21*
 
