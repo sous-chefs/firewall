@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+fix port sorting in generated firewall rules file
+
 ## 6.3.6 - *2024-05-06*
 
 ## 6.3.5 - *2024-05-06*
