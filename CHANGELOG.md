@@ -2,7 +2,7 @@
 
 This file is used to list changes made in each version of the firewall cookbook.
 
-## Unreleased
+## 6.3.5 - *2024-05-06*
 
 Added support for firewalld zone attribute
 
