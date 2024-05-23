@@ -6,9 +6,11 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 Standardise files with files in sous-chefs/repo-management
 
-Standardise files with files in sous-chefs/repo-management
+## 6.3.6 - *2024-05-06*
 
-Standardise files with files in sous-chefs/repo-management
+## 6.3.5 - *2024-05-06*
+
+Added support for firewalld zone attribute
 
 ## 6.3.4 - *2023-12-21*
 
