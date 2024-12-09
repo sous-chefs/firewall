@@ -15,34 +15,16 @@ jobs:
       statuses: write
       issues: write
 
-  integration:
+  firewalld:
     needs: lint-unit
     runs-on: macos-latest
     strategy:
       matrix:
-        include:
-          - os: amazonlinux-2
-            suite: firewalld
-          - os: amazonlinux-2
-            suite: iptables
-          - os: centos-7
-            suite: firewalld
-          - os: centos-7
-            suite: iptables
-          - os: centos-stream-8
-            suite: iptables
-          - os: debian-9
-            suite: ufw
-          - os: debian-10
-            suite: ufw
-          - os: debian-11
-            suite: firewalld-dbus
-          - os: debian-11
-            suite: nftables
-          - os: ubuntu-1804
-            suite: ufw
-          - os: ubuntu-2004
-            suite: ufw
+        os:
+          - amazonlinux-2
+          - centos-7
+          - debian-11
+          - debian-12
       fail-fast: false
     steps:
       - name: Checkout code
@@ -50,14 +32,118 @@ jobs:
       - name: Install VirtualBox
         run: |
           brew update
-          brew install virtualbox vagrant
-          brew upgrade
+          brew upgrade virtualbox
       - name: Install Chef
         uses: actionshub/chef-install@3.0.1
-      - name: kitchen
-        uses: actionshub/test-kitchen@3.0.0
+      - name: Kitchen Converge
+        uses: actionshub/test-kitchen@2.1.0
+        with:
+          suite: firewalld
+          os: ${{ matrix.os }}
+
+  iptables:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - amazonlinux-2
+          - centos-7
+          - centos-stream-8
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install VirtualBox
+        run: |
+          brew update
+          brew upgrade virtualbox
+      - name: Install Chef
+        uses: actionshub/chef-install@3.0.1
+      - name: Kitchen Converge
+        uses: actionshub/test-kitchen@2.1.0
+        with:
+          suite: iptables
+          os: ${{ matrix.os }}
+
+  ufw:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - ubuntu-2004
+          - ubuntu-2204
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Chef
+        uses: actionshub/chef-install@3.0.1
+      - name: Install VirtualBox
+        run: |
+          brew update
+          brew upgrade virtualbox
+      - name: Kitchen Converge
+        uses: actionshub/test-kitchen@2.1.0
         env:
           CHEF_LICENSE: accept-no-persist
+          KITCHEN_LOCAL_YAML: kitchen.dokken.yml
         with:
-          suite: ${{ matrix.suite }}
+          suite: ufw
           os: ${{ matrix.os }}
+
+  nftables:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - debian-11
+          - debian-12
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Chef
+        uses: actionshub/chef-install@3.0.1
+      - name: Install VirtualBox
+        run: |
+          brew update
+          brew upgrade virtualbox
+      - name: Kitchen Converge
+        uses: actionshub/test-kitchen@2.1.0
+        with:
+          suite: nftables
+          os: ${{ matrix.os }}
+
+  firewalld-dbus:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - debian-11
+          - debian-12
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Chef
+        uses: actionshub/chef-install@3.0.1
+      - name: Install VirtualBox
+        run: |
+          brew update
+          brew upgrade virtualbox
+      - name: Kitchen Converge
+        uses: actionshub/test-kitchen@2.1.0
+        with:
+          suite: firewalld-dbus
+          os: ${{ matrix.os }}
+
+  verify:
+    needs: [firewalld, iptables, ufw, nftables, firewalld-dbus]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Success
+        run: echo "All test suites completed successfully!"
