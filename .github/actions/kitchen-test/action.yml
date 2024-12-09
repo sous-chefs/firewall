@@ -1,0 +1,28 @@
+name: 'Kitchen Test'
+description: 'Runs Test Kitchen tests for a specific suite'
+
+inputs:
+  suite:
+    description: 'Test suite to run'
+    required: true
+  os:
+    description: 'OS to test against'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install VirtualBox
+      shell: bash
+      run: |
+        brew update
+        brew install virtualbox vagrant
+
+    - name: Install Chef
+      uses: actionshub/chef-install@3.0.1
+
+    - name: Kitchen Converge
+      uses: actionshub/test-kitchen@2.1.0
+      with:
+        suite: ${{ inputs.suite }}
+        os: ${{ inputs.os }}
