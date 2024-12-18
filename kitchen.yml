@@ -22,17 +22,18 @@ verifier:
 
 platforms:
   - name: almalinux-8
+  - name: almalinux-9
   - name: amazonlinux-2
-  - name: centos-7
-  - name: centos-stream-8
-  - name: debian-9
-  - name: debian-10
+  - name: amazonlinux-2023
+  - name: centos-stream-9
   - name: debian-11
-  - name: fedora-34
+  - name: debian-12
   - name: fedora-latest
   - name: opensuse-leap-15
   - name: oracle-8
-  - name: ubuntu-18.04
+  - name: oracle-9
+  - name: rockylinux-8
+  - name: rockylinux-9
   - name: ubuntu-20.04
   - name: ubuntu-22.04
   - name: ubuntu-24.04
@@ -51,11 +52,11 @@ suites:
 
   - name: firewalld
     excludes:
-      - debian-9
-      - debian-10
       - debian-11
-      - ubuntu-18.04
+      - debian-12
       - ubuntu-20.04
+      - ubuntu-22.04
+      - ubuntu-24.04
       - windows-2016
       - windows-2019
     run_list:
@@ -65,13 +66,18 @@ suites:
   - name: ufw
     excludes:
       - almalinux-8
+      - almalinux-9
+      - almalinux-10
       - amazonlinux-2
-      - centos-7
-      - centos-stream-8
-      - fedora-34
+      - amazonlinux-2023
+      - centos-stream-9
+      - centos-stream-10
       - fedora-latest
       - opensuse-leap-15
       - oracle-8
+      - oracle-9
+      - rockylinux-8
+      - rockylinux-9
       - windows-2016
       - windows-2019
     run_list:
@@ -80,9 +86,7 @@ suites:
 
   - name: iptables
     excludes:
-      - debian-9
-      - debian-10
-      - debian-11
+      - opensuse-leap-15
       - windows-2016
       - windows-2019
     run_list:
@@ -96,14 +100,17 @@ suites:
   - name: nftables
     includes:
       - debian-11
+      - debian-12
       - oracle-8
+      - oracle-9
     run_list:
       - recipe[nftables-test]
 
   - name: firewalld-dbus
     includes:
       - debian-11
-      - fedora-34
+      - debian-12
+      - fedora-latest
     run_list:
       - recipe[firewalld-test]
 
