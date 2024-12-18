@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+### Fixed
+
+- Fixed: `firewall_rule` resource fails with a `--zone is an invalid option with --direct` error on firewalld.
+
 ## 6.3.9 - *2024-12-05*
 
 ## 6.3.8 - *2024-11-18*

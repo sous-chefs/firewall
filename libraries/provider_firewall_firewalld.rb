@@ -64,8 +64,16 @@ class Chef
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
         ip_versions(firewall_rule).each do |ip_version|
+          if firewall_rule.zone
+            # Bug introduced in https://github.com/sous-chefs/firewall/pull/206
+            # firewalld zones are not compatible with direct rules. Need to
+            # migrate to firewalld rich rules in order to support configuring a
+            # rule in a specific zone.
+            Chef::Log.warn "zone \"#{firewall_rule.zone}\" on firewall_rule \"#{firewall_rule.name}\" is ignored. The zone property exists but has not been implemented internally in the firewall_rule resource."
+          end
+
           # build rules to apply with weight
-          k = "firewall-cmd --zone=#{firewall_rule.zone} --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
+          k = "firewall-cmd --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
           v = firewall_rule.position
 
           # unless we're adding them for the first time.... bail out.
@@ -75,7 +83,7 @@ class Chef
           # If persistent rules is enabled (default) make sure we add a permanent rule at the same time
           perm_rules = node && node['firewall'] && node['firewall']['firewalld'] && node['firewall']['firewalld']['permanent']
           if firewall_rule.permanent || perm_rules
-            k = "firewall-cmd --zone=#{firewall_rule.zone}  --permanent --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
+            k = "firewall-cmd --permanent --direct --add-rule #{build_firewall_rule(firewall_rule, ip_version)}"
             new_resource.rules['firewalld'][k] = v
           end
         end

@@ -36,7 +36,7 @@ class Chef
 
     # only used for firewalld
     attribute(:permanent, kind_of: [TrueClass, FalseClass], default: false)
-    attribute(:zone, kind_of: String, default: 'drop')
+    attribute(:zone, kind_of: String)
 
     # only used for Windows Firewalls
     attribute(:program, kind_of: String)
