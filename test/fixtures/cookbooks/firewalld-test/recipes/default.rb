@@ -2,6 +2,14 @@ apt_update do
   only_if { platform?('debian') }
 end
 
+# Workaround for a bug when using firewalld:
+# * Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1074789
+# * Ubuntu: https://bugs.launchpad.net/ubuntu/+source/policykit-1/+bug/2054716
+user 'polkitd' do
+  system true
+  only_if { platform?('debian', 'ubuntu') }
+end
+
 firewalld 'default'
 
 firewalld_config 'set some values' do
@@ -146,4 +154,19 @@ end
 firewalld_zone 'ztest2' do
   sources '192.0.2.0/24'
   version '1'
+end
+
+test_zone_priority =
+  (platform?('ubuntu') && node['platform_version'].to_f >= 24.04) ||
+  (platform?('rocky') && node['platform_version'] >= 10)
+
+firewalld_zone 'zpriority1' do
+  priority -10
+  only_if { test_zone_priority }
+end
+
+firewalld_zone 'zpriority2' do
+  ingress_priority 100
+  egress_priority 200
+  only_if { test_zone_priority }
 end

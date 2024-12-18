@@ -2,6 +2,11 @@ driver:
   name: dokken
   privileged: true
   chef_version: <%= ENV['CHEF_VERSION'] || 'current' %>
+  intermediate_instructions:
+    - | # Need to set "IPv6_rpfilter=no" otherwise firewalld won't start inside Docker container
+        RUN mkdir -p /etc/firewalld && \
+            echo "DefaultZone=public" > /etc/firewalld/firewalld.conf && \
+            echo "IPv6_rpfilter=no" >> /etc/firewalld/firewalld.conf
 
 transport: { name: dokken }
 provisioner: { name: dokken }
@@ -47,15 +52,18 @@ platforms:
       image: dokken/debian-12
       pid_one_command: /bin/systemd
 
-  - name: fedora-latest
-    driver:
-      image: dokken/fedora-latest
-      pid_one_command: /usr/lib/systemd/systemd
+  # TODO: Fix. Resources uses dnf when it should use yum
+  # - name: fedora-latest
+  #   driver:
+  #     image: dokken/fedora-latest
+  #     pid_one_command: /usr/lib/systemd/systemd
+  #     intermediate_instructions: *firewalld_fix
 
-  - name: opensuse-leap-15
-    driver:
-      image: dokken/opensuse-leap-15
-      pid_one_command: /usr/lib/systemd/systemd
+  # # TODO: Add support for openSUSE in resource
+  # - name: opensuse-leap-15
+  #   driver:
+  #     image: dokken/opensuse-leap-15
+  #     pid_one_command: /usr/lib/systemd/systemd
 
   - name: oracle-8
     driver:
