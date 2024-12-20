@@ -85,7 +85,10 @@ action :update do
   fw_config = config_interface(dbus)
 
   unless fw_config.getZoneNames.include?(new_resource.short)
-    fw_config.addZone2(new_resource.short, {})
+    # Need to explicity disable "forward" when creating a zone via DBus
+    # Due to https://github.com/firewalld/firewalld/issues/1438
+    zone_settings = { 'forward' => false }
+    fw_config.addZone2(new_resource.short, zone_settings)
   end
   zone_path = fw_config.getZoneByName(new_resource.short)
   zone = zone_interface(dbus, zone_path)

@@ -11,6 +11,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 ### Fixed
 
 - Fixed: `firewall_rule` resource fails with a `--zone is an invalid option with --direct` error on firewalld.
+- Fixed: New zones created by `firewalld_zone` unexpectedly have forwarding enabled by default.
 
 ## 6.3.9 - *2024-12-05*
 
