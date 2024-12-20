@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+### Changed
+
+- Ensure `firewalld` service remains enabled and started when installed.
+
 ### Fixed
 
 - Fixed: `firewall_rule` resource fails with a `--zone is an invalid option with --direct` error on firewalld.

@@ -6,7 +6,14 @@ provides :firewalld,
 action :install do
   chef_gem 'ruby-dbus'
   require 'dbus'
-  package 'firewalld'
+
+  package 'firewalld' do
+    action :install
+  end
+
+  service 'firewalld' do
+    action [:enable, :start]
+  end
 end
 
 action :reload do
