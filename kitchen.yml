@@ -107,10 +107,13 @@ suites:
       - recipe[nftables-test]
 
   - name: firewalld-dbus
-    includes:
-      - debian-11
-      - debian-12
-      - fedora-latest
+    excludes:
+      - almalinux-10 # TODO: Get working with firewalld (undefined method `ingress_priority').
+      - centos-stream-10 # TODO: Get working with firewalld (undefined method `ingress_priority').
+      - ubuntu-20.04 # firewalld version too old.
+      - ubuntu-24.04 # TODO: Get working with firewalld (undefined method `ingress_priority').
+      - windows-2016
+      - windows-2019
     run_list:
       - recipe[firewalld-test]
 

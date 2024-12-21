@@ -149,13 +149,14 @@ describe command('firewall-cmd --info-service=minimal-service') do
 end
 
 describe command('firewall-cmd --info-zone=home') do
-  ptest_config = <<~EOF
+  cockpit = %w(almalinux centos oracle rocky).include?(os.name) ? 'cockpit ' : ''
+  expected_config = <<~EOF
     home (active)
       target: default
       icmp-block-inversion: yes
       interfaces: eth0
       sources:#{' '}
-      services: dhcpv6-client mdns samba-client ssh
+      services: #{cockpit}dhcpv6-client mdns samba-client ssh
       ports:#{' '}
       protocols:#{' '}
       forward: no
@@ -165,7 +166,7 @@ describe command('firewall-cmd --info-zone=home') do
       icmp-blocks:#{' '}
       rich rules:#{' '}
   EOF
-  its(:stdout) { should cmp ptest_config }
+  its(:stdout) { should cmp expected_config }
 end
 
 describe command('firewall-cmd --info-zone=ztest') do
