@@ -96,8 +96,9 @@ action :update do
   reload = false
   properties = new_resource.class.state_properties.map(&:name)
   properties.each do |property|
+    next unless property_is_set?(property)
     new_value = new_resource.send(property)
-    next unless new_value
+
     if [:ports, :source_ports].include?(property)
       new_value = DBus.variant('a(ss)', new_value.map { |e| e.split('/') })
     elsif [:forward_ports].include?(property)
