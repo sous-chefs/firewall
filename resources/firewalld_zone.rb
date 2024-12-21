@@ -6,6 +6,9 @@ provides :firewalld_zone,
 property :description,
          String,
          description: 'see description tag in firewalld.zone(5).'
+property :egress_priority,
+         [Integer],
+         description: 'set the zone priority for egress traffic. A lower priority value has higher precedence. Added in firewalld 2.0.0. See https://firewalld.org/2023/04/zone-priorities for more information.'
 property :forward,
          [true, false],
          description: 'see forward tag in firewalld.zone(5).'
@@ -20,6 +23,9 @@ property :icmp_blocks,
          [Array, String],
          description: 'array of icmp-blocks. See icmp-block tag in firewalld.zone(5).',
          coerce: proc { |o| Array(o) }
+property :ingress_priority,
+         [Integer],
+         description: 'set the zone priority for ingress traffic. A lower priority value has higher precedence. Added in firewalld 2.0.0. See https://firewalld.org/2023/04/zone-priorities for more information.'
 property :interfaces,
          [Array, String],
          description: 'array of interfaces. See interface tag in firewalld.zone(5).',
@@ -31,6 +37,9 @@ property :ports,
          [Array, String],
          description: 'array of port and protocol pairs. See port tag in firewalld.zone(5).',
          coerce: proc { |o| Array(o) }
+property :priority,
+         [Integer],
+         description: 'set the zone priority for both ingress and egress traffic. A lower priority value has higher precedence. Added in firewalld 2.0.0. See https://firewalld.org/2023/04/zone-priorities for more information.'
 property :protocols,
          [Array, String],
          description: 'array of protocols, see protocol tag in firewalld.zone(5).',
@@ -93,9 +102,20 @@ action :update do
   zone_path = fw_config.getZoneByName(new_resource.short)
   zone = zone_interface(dbus, zone_path)
 
+  if property_is_set?(:priority) && (property_is_set?(:ingress_priority) || property_is_set?(:egress_priority))
+    raise 'The "priority" property cannot be used together with "ingress_priority" or "egress_priority". ' \
+          'You may either specify "priority" alone or one/both of "ingress_priority" and "egress_priority", ' \
+          'but not both types together.'
+  end
+
   reload = false
   properties = new_resource.class.state_properties.map(&:name)
   properties.each do |property|
+    if [:ingress_priority, :egress_priority].include?(property) && property_is_set?(:priority)
+      new_resource.send("#{property}=", new_resource.priority)
+    end
+    next if property == :priority # Shorthand property that sets :ingress_priority and :egress_priority to the same value
+
     next unless property_is_set?(property)
     new_value = new_resource.send(property)
 

@@ -21,6 +21,10 @@ module FirewallCookbook
         config_object(system_bus)['org.fedoraproject.FirewallD1.config']
       end
 
+      def get_firewalld_version(system_bus)
+        firewalld_interface(system_bus)['version']
+      end
+
       def icmptype_interface(dbus, icmptype_path)
         icmptype_object = firewalld(dbus)[icmptype_path]
         icmptype_object['org.fedoraproject.FirewallD1.config.icmptype']

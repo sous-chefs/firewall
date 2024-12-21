@@ -4,6 +4,11 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+### Added
+
+- Support for firewalld 2.0.0 and the platforms that use it; RHEL 10 and Ubuntu 24.04.
+  - `priority`, `ingress_priority`, `egress_priority` properties added to `firewalld_zone`.
+
 ### Changed
 
 - Ensure `firewalld` service remains enabled and started when installed.

@@ -161,7 +161,7 @@ test_zone_priority =
   (platform?('rocky') && node['platform_version'] >= 10)
 
 firewalld_zone 'zpriority1' do
-  priority -10
+  priority(-10)
   only_if { test_zone_priority }
 end
 
