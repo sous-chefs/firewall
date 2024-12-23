@@ -86,6 +86,7 @@ suites:
 
   - name: iptables
     excludes:
+      - oracle-9 # iptables fails to install from Oracle repo
       - opensuse-leap-15
       - windows-2016
       - windows-2019
