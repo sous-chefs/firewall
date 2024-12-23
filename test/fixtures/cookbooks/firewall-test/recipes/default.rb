@@ -76,7 +76,7 @@ end
 
 # if using with iptables-restart, this produces an unreadable line; no problem, IF disabled
 firewall_rule 'ufw raw test' do
-  raw 'limit 23/tcp'
+  raw 'allow from 192.168.1.1 to 192.168.2.1 port 25 proto tcp'
   only_if { platform_family?('debian') && !node['firewall']['ubuntu_iptables'] }
 end
 
