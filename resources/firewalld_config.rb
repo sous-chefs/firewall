@@ -11,14 +11,12 @@ property :log_denied,
          equal_to: %w(all unicast broadcast multicast off),
          description: 'Set LogDenied value to value. If LogDenied is enabled, then logging rules are added right before reject and drop rules in the INPUT, FORWARD and OUTPUT chains for the default rules and also final reject and drop rules in zones.'
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |_new_resource|
   sysbus = DBus.system_bus
-  firewalld_service = sysbus['org.fedoraproject.FirewallD1']
-  firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1']
-  interface = firewalld_object['org.fedoraproject.FirewallD1']
-
-  default_zone interface.getDefaultZone
-  log_denied interface.getLogDenied
+  default_zone get_default_zone(sysbus)
+  log_denied get_log_denied(sysbus)
 end
 
 action :update do

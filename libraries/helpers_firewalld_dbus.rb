@@ -21,8 +21,16 @@ module FirewallCookbook
         config_object(system_bus)['org.fedoraproject.FirewallD1.config']
       end
 
+      def get_default_zone(system_bus)
+        firewalld_interface(system_bus).getDefaultZone
+      end
+
       def get_firewalld_version(system_bus)
         firewalld_interface(system_bus)['version']
+      end
+
+      def get_log_denied(system_bus)
+        firewalld_interface(system_bus).getLogDenied
       end
 
       def icmptype_interface(dbus, icmptype_path)

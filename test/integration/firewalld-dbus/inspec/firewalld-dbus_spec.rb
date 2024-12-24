@@ -2,7 +2,37 @@ describe firewalld do
   it { should be_installed }
   it { should be_running }
   its('default_zone') { should eq 'home' }
+  it { should have_rule_enabled('rule port port="443" protocol="tcp" audit accept', 'home') }
   it { should have_zone('ztest') }
+  it { should have_zone('rich-rules') }
+
+  # Test rich rules in rich-rules zone
+  [
+    'rule priority="-10" family="ipv4" source address="172.16.0.0/12" reject',
+    'rule family="ipv4" destination NOT address="172.16.2.1" accept',
+    'rule family="ipv4" forward-port port="8080" protocol="tcp" to-port="80"',
+    'rule icmp-block name="neighbour-solicitation"',
+    'rule port port="1000-2000" protocol="udp" drop',
+    'rule service name="ssh" accept',
+    'rule family="ipv4" forward-port port="5353" protocol="udp" to-port="53" to-addr="10.10.10.10"',
+    'rule family="ipv6" service name="radius" accept limit value="100/m"',
+    'rule family="ipv4" source address="192.168.1.1" log prefix="LOG_PREFIX" accept',
+    'rule source-port port="12000-12999" protocol="tcp" log level="info" limit value="5/s" accept',
+    'rule service name="ftp" mark set=0x1',
+    'rule family="ipv6" source address="1:2:3:4:6::" forward-port port="4011" protocol="tcp" to-port="4012" to-addr="1::2:3:4:7"',
+    'rule protocol value="icmp" accept',
+    'rule family="ipv4" source address="192.168.2.3" reject type="icmp-admin-prohibited"',
+    'rule source-port port="25" protocol="tcp" accept',
+    'rule family="ipv4" source NOT address="172.16.2.1" accept',
+    'rule masquerade',
+    'rule icmp-type name="router-advertisement" drop',
+    'rule family="ipv4" destination address="10.0.0.0/8" accept',
+    'rule family="ipv4" source address="192.168.0.0/24" service name="tftp" log prefix="tftp" level="info" limit value="1/m" accept',
+    'rule port port="443" protocol="tcp" audit accept',
+    'rule family="ipv6" source address="::1" log prefix="RAW_RULE" accept',
+  ].each do |rule|
+    it { should have_rule_enabled(rule, 'rich-rules') }
+  end
 end
 
 describe firewalld.where(zone: 'ztest') do
@@ -10,19 +40,6 @@ describe firewalld.where(zone: 'ztest') do
   its('sources') { should cmp [['192.0.2.2']] }
   its('services') { should cmp [['ssh']] }
 end
-
-# Why does it give me undefined method `target' for Firewall Rules with zone == "ztest"?
-# describe firewalld.where (zone: 'ztest') do
-#   its('target') { should cmp 'asdf' }
-#   its('ports') { should cmp 'asdf' }
-#   its('protocols') { should cmp 'asdf' }
-#   its('forward_ports') { should cmp 'asdf' }
-#   its('source_ports') { should cmp 'asdf' }
-#   its('icmp_blocks') { should cmp 'asdf' }
-#   its('rich_rules') { should cmp 'asdf' }
-#   it { should have_icmp_block_inversion_enabled }
-#   it { should have_masquerade_enabled }
-# end
 
 describe command('firewall-cmd --info-helper=example-helper') do
   example_helper = <<~EOF
@@ -174,6 +191,7 @@ describe command('firewall-cmd --info-zone=home') do
       source-ports:#{' '}
       icmp-blocks:#{' '}
       rich rules:#{' '}
+    \trule port port="443" protocol="tcp" audit accept
   EOF
   its(:stdout) { should cmp expected_config }
 end

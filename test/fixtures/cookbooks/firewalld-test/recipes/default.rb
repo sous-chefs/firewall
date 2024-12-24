@@ -146,3 +146,5 @@ firewalld_zone 'zpriority2' do
   egress_priority 200
   only_if { test_zone_priority }
 end
+
+include_recipe 'firewalld-test::rich_rules'
