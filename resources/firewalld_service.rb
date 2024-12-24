@@ -15,7 +15,7 @@ property :description,
          description: 'see description tag in firewalld.service(5).'
 property :ports,
          [Array, String],
-         description: 'array of port and protocol pairs. See port tag in firewalld.service(5).',
+         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 property :module_names,
          [Array, String],
@@ -30,7 +30,7 @@ property :protocols,
          coerce: proc { |o| Array(o) }
 property :source_ports,
          [Array, String],
-         description: 'array of port and protocol pairs. See source-port tag in firewalld.service(5).',
+         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See source-port tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 property :includes,
          [Array, String],
@@ -51,6 +51,8 @@ load_current_value do |new_resource|
     object = firewalld_service[service_path]
     config_service = object['org.fedoraproject.FirewallD1.config.service']
     config_service.getSettings2.each do |k, v|
+      # Load the current value of ports in the same format as the resource property to make it idempotent
+      v = v.map { |port, protocol| "#{port}/#{protocol}" } if %w(ports source_ports).include?(k)
       send(k, v)
     end
   else

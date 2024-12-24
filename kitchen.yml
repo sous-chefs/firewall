@@ -114,6 +114,9 @@ suites:
       - windows-2019
     run_list:
       - recipe[firewalld-test]
+    provisioner:
+      enforce_idempotency: true
+      multiple_converge: 2
 
   - name: windows
     includes:

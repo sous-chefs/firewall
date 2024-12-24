@@ -27,33 +27,23 @@ end
 
 firewalld_helper 'minimal-helper' do
   nf_module 'nf_conntrack_netbios_ns'
-  ports '7777/udp'
-end
-
-firewalld_helper 'change-minimal-helper' do
-  short 'minimal-helper'
   ports '7778/udp'
-end
-
-firewalld_icmptype 'rick-rolled' do
-  version '1'
-  description 'never gonna give you up'
-  destinations %w(ipv4 ipv6)
 end
 
 firewalld_icmptype 'change-rick-rolled' do
   short 'rick-rolled'
+  description 'never gonna give you up'
+  version '1'
   destinations 'ipv4'
 end
-
-firewalld_icmptype 'minimal-icmptype'
 
 firewalld_icmptype 'change-minimal-icmptype' do
   short 'minimal-icmptype'
   destinations %w(ipv4 ipv6)
 end
 
-firewalld_ipset 'example-ips' do
+firewalld_ipset 'change-example-ips' do
+  short 'example-ips'
   version '1'
   description 'some ips as an example ipset'
   type 'hash:ip'
@@ -64,11 +54,6 @@ firewalld_ipset 'example-ips' do
     'hashsize' => '1000',
     'maxelem' => '255',
   })
-  entries ['192.0.2.16', '192.0.2.32']
-end
-
-firewalld_ipset 'change-example-ips' do
-  short 'example-ips'
   entries ['192.0.2.16', '192.0.2.32']
 end
 
@@ -98,11 +83,6 @@ end
 firewalld_policy 'pminimal' do
   egress_zones 'external'
   ingress_zones 'internal'
-  masquerade true
-end
-
-firewalld_policy 'change-pminimal' do
-  short 'pminimal'
   masquerade false
 end
 
@@ -116,10 +96,6 @@ firewalld_service 'ssh2' do
   source_ports '23/tcp'
   includes 'ssh'
   helpers 'tftp'
-end
-
-firewalld_service 'minimal-service' do
-  ports '2/tcp'
 end
 
 firewalld_service 'change-minimal-service' do
