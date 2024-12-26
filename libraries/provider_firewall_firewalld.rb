@@ -59,7 +59,7 @@ class Chef
       new_resource.rules['firewalld'] = {} unless new_resource.rules['firewalld']
 
       # this populates the hash of rules from firewall_rule resources
-      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.resource_name == :firewall_rule }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 
