@@ -21,6 +21,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 - Fixed: `firewalld_*` resources ignore properties whose value is `false`.
 - Fixed: `firewalld_*` resources were not idempotent when using `ports`, `source_ports`, and `rich_rules` properties.
 
+### Removed
+
+- Removed deprecated `disabled` property from `firewall` resource.
+
 ## 6.3.9 - *2024-12-05*
 
 ## 6.3.8 - *2024-11-18*
