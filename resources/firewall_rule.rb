@@ -1,40 +1,20 @@
 
-require 'ipaddr'
-
 unified_mode true
 
-provides :firewall_rule
+# Common properties defined in a resource partial
+use '_partial/_firewall_rule'
 
-default_action :create
-
-property :firewall_name, String, default: 'default'
-property :command, Symbol, equal_to: [:reject, :allow, :deny, :masquerade, :redirect, :log], default: :allow
-property :protocol, [Integer, Symbol], default: :tcp,
-         callbacks: {
-          'must be either :tcp, :udp, :icmp, :\'ipv6-icmp\', :icmpv6, :none, or a valid IP protocol number' =>
-            lambda do |p|
-              !!(p.to_s =~ /(udp|tcp|icmp|icmpv6|ipv6-icmp|esp|ah|ipv6|none)/ || (p.to_s =~ /^\d+$/ && p.between?(0, 142)))
-            end }
+# non-firewalld platforms only
+provides :firewall_rule do
+  !platform_family?('rhel', 'fedora', 'amazon')
+end
 
 property :direction, Symbol, equal_to: [:in, :out, :pre, :post], default: :in
 property :logging, Symbol, equal_to: [:connections, :packets]
-property :source, String, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } }
-property :source_port, [Integer, Array, Range]
 property :interface, String
-property :port, [Integer, Array, Range]
-property :destination, String, callbacks: { 'must be a valid ip address' => ->(ip) { !!IPAddr.new(ip) } }
-property :dest_port, [Integer, Array, Range]
 property :dest_interface, String
-property :position, Integer, default: 50
 property :stateful, [Symbol, Array]
-property :redirect_port, Integer
-property :description, String, name_property: true
 property :include_comment, [true, false], default: true
-
-# only used for firewalld
-property :permanent, [true, false], default: false
-
-property :zone, String
 
 # only used for Windows Firewalls
 property :program, String

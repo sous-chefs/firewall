@@ -17,27 +17,12 @@
 # limitations under the License.
 #
 
-firewall 'default' do
-  ipv6_enabled node['firewall']['ipv6_enabled']
-  action :install
-end
-
 # create a variable to use as a condition on some rules that follow
-iptables_firewall = rhel? || amazon_linux? || node['firewall']['ubuntu_iptables']
+iptables_firewall = !platform_family?('rhel', 'amazon') && node['firewall']['ubuntu_iptables']
 
-firewall_rule 'allow loopback' do
-  interface 'lo'
-  protocol :none
-  command :allow
-  only_if { linux? && node['firewall']['allow_loopback'] }
-end
-
-firewall_rule 'allow icmp' do
-  protocol :icmp
-  command :allow
-  # debian ufw doesn't allow 'icmp' protocol, but does open
-  # icmp by default, so we skip it in default recipe
-  only_if { iptables_firewall && node['firewall']['allow_icmp'] }
+firewall 'default' do
+  ipv6_enabled node['firewall']['ipv6_enabled'] if iptables_firewall
+  action :install
 end
 
 firewall_rule 'allow world to ssh' do
@@ -57,6 +42,31 @@ firewall_rule 'allow world to mosh' do
   port 60000..61000
   source '0.0.0.0/0'
   only_if { linux? && node['firewall']['allow_mosh'] }
+end
+
+return unless iptables_firewall
+
+# iptables only rules below
+
+# TODO: These should probably just be removed. They are a bit deceiving because
+# if one sets `node['firewall']['allow_icmp'] = false`, one would expect that to
+# mean disable/remove the rule but really it means "ignore", which leaves the
+# port open instead of closing it.
+
+firewall_rule 'allow loopback' do
+  interface 'lo'
+  protocol :none
+  command :allow
+  # Modern firewalls allow loopback by default, limit to just iptables
+  only_if { iptables_firewall && node['firewall']['allow_loopback'] }
+end
+
+firewall_rule 'allow icmp' do
+  protocol :icmp
+  command :allow
+  # debian ufw doesn't allow 'icmp' protocol, but does open
+  # icmp by default, so we skip it in default recipe
+  only_if { iptables_firewall && node['firewall']['allow_icmp'] }
 end
 
 # allow established connections, ufw defaults to this but iptables does not

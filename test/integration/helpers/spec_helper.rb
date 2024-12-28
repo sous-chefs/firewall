@@ -1,8 +1,12 @@
 # helpers
 def firewalld?
-  (os.redhat? && os[:release].to_i == 7) || os.name == 'amazon'
+  %w(redhat suse).include?(os.family)
+end
+
+def ufw?
+  os.debian?
 end
 
 def iptables?
-  (os.redhat? && (os[:release].to_i < 7 || os[:release].to_i >= 8)) && os.name != 'amazon'
+  !firewalld? && !ufw?
 end

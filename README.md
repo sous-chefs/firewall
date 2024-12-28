@@ -26,7 +26,7 @@ depends 'firewall'
 
 - UFW - Ubuntu, Debian (except 9)
 - IPTables - Red Hat & CentOS, Ubuntu
-- FirewallD - Red Hat & CentOS >= 7.0 (IPv4 only support, [needs contributions/testing](https://github.com/chef-cookbooks/firewall/issues/86))
+- FirewallD - Red Hat & CentOS >= 7.0
 - Windows Advanced Firewall - 2012 R2
 - nftables
 
@@ -57,15 +57,32 @@ In order to use nftables, just use the resource `nftables` and
 `nftables_rule`.  These resources are written in more modern design
 styles and are not configurable by node attributes.
 
-## Considerations that apply to all firewall providers and resources
+## Quickstart
 
-This cookbook comes with two resources, firewall and firewall rule. The typical usage scenario is as follows:
+To use this cookbook to open a port in the system's default firewall:
 
-- run the `:install` action on the `firewall` resource named 'default', which installs appropriate packages and configures services to start on boot and starts them
-- run the `:create` action on every `firewall_rule` resource, which adds to the list of rules that should be configured on the firewall. `firewall_rule` then automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
-- run the delayed notification with action `:restart` on the `firewall` resource. if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
+```ruby
+include_recipe 'firewall'
 
-There is a fundamental mismatch between the idea of a chef action and the action that should be taken on a firewall rule. For this reason, the chef action for a firewall_rule may be `:nothing` (the rule should not be present in the firewall) or `:create` (the rule should be present in the firewall), but the action taken on a packet in a firewall (`DROP`, `ACCEPT`, etc) is denoted as a `command` parameter on the `firewall_rule` resource.
+firewall_rule 'ssh' do
+  port 22
+end
+```
+
+## How it works
+
+The most basic use involves two resources, `firewall` and `firewall_rule`. The typical usage scenario is as follows:
+
+- include the `'firewall::default'` recipe or run the `:install` action on the `firewall` resource named `'default'`, which installs appropriate packages and configures services to start on boot and starts them.
+- run the `:create` action on every `firewall_rule` resource, which adds to the list of rules that should be configured on the firewall. How the rules are implemented depends on the firewall platform:
+  - **firewalld**: `firewall_rule` implements the rules under the hood as firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) in the system's default zone.
+  - **iptables, ufw, windows**: `firewall_rule` automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
+    - when the delayed `:restart` notification on the `firewall` resource fires, if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
+
+There is a fundamental mismatch between the idea of a Chef action and the action that should be taken on a firewall
+rule. For this reason, the Chef action for a `firewall_rule` may be `:create` (the rule should be present in the
+firewall) but the action taken on a packet in a firewall (`DROP`, `ACCEPT`, etc) is denoted as a `command` property on
+the `firewall_rule` resource.
 
 The same points hold for the `nftables`- and `nftables_rule`-resources.
 
@@ -108,17 +125,24 @@ Please read the documentation for the
 [`nftables` resource](documentation/resource_nftables.md) and the
 [`nftables_rule` resource](documentation/resource_nftables_rule.md)
 
-### default
+## firewalld
+
+For most rules it's sufficient to simply use the `firewall_rule` resource which is a platform-agnostic way to add
+firewall rules. On firewalld systems it adds rules to the default zone as firewalld [rich
+rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html). See the
+[`firewall_rule`](#firewall_rule) section for examples.
+
+For more advanced firewalld configuration, see the documentation for the various [`firewalld` resources](documentation/README.md).
+
+## Recipes
+
+### `firewall::default`
 
 The default recipe creates a firewall resource with action install.
 
-### disable_firewall
+### `firewall::disable_firewall`
 
 Used to disable platform specific firewall. Many clouds have their own firewall configured outside of the OS instance such as AWS Security Groups.
-
-### firewalld
-
-A firewalld specific recipe creates a firewall resource with action install with the default zone (default: `drop`)
 
 ## Attributes
 
@@ -134,39 +158,30 @@ A firewalld specific recipe creates a firewall resource with action install with
 - `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
 - `default['firewall']['allow_established'] = true`, set to false if you don't want a related/established default rule on iptables
 - `default['firewall']['ipv6_enabled'] = true`, set to false if you don't want IPv6 related/established default rule on iptables (this enables ICMPv6, which is required for much of IPv6 communication)
-- `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
-- `default['firewall']['firewalld']['permanent'] = false`, set to true if you want firewalld rules to be added with `--permanent` so they survive a reboot. This will be changed to `true` by default in a future major version release.
-- `default['firewall']['firewalld']['zone'] = 'drop'`, Default zone for firewall
-- `default['firewall']['firewalld']['loopback_zone'] = 'trusted'`, zone for loopback to be enabled (using `allow_loopback`)
-- `default['firewall']['firewalld']['icmp_zone'] = 'public'`, zone for icmp to be enabled (using `allow_icmp`)
-- `default['firewall']['firewalld']['ssh_zone'] = 'public'`, zone for ssh to be enabled (using `allow_ssh`)
-- `default['firewall']['firewalld']['mosh_zone'] = 'public'`, zone for mosh to be enabled (using `allow_mosh`)
-- `default['firewall']['firewalld']['established_zone'] = 'public'`, zone for loopback to be enabled (using `allow_established`)
 
 ## Resources
 
-There is a separate folder for [`firewalld` resources](documentation/README.md).
+### `firewall`
 
-### firewall
+It's not recommended to use this resource directly. Instead simply `include_recipe 'firewall'` and then add your desired
+`firewall_rule` resources. See the [`firewall_rule`](#firewall_rule) section for examples.
 
 ***NB***: The name 'default' of this resource is important as it is used for firewall_rule providers to locate the firewall resource. If you change it, you must also supply the same value to any firewall_rule resources using the `firewall_name` parameter.
 
 #### Actions
 
 - `:install` (*default action*): Install and Enable the firewall. This will ensure the appropriate packages are installed and that any services have been started.
+- `:reload`: _firewalld only_. Reloads the runtime state to match the permanent configuration. All runtime-only rules are flushed out.
 - `:disable`: Disable the firewall. Drop any rules and put the node in an unprotected state. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
-- `:flush`: Flush all current rules. Also erase any internal state used to detect when rules should be applied.
-- `:save`: Ensure all rules are added permanently under firewalld using `--permanent`. Not supported on ufw, iptables. You must notify this action at the end of the chef run if you want permanent firewalld rules (they are not persistent by default).
+- `:flush`: _Except firewalld_. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
 
-#### Parameters
+#### Properties
 
 - `enabled` (default to `true`): If set to `false`, all actions will no-op on this resource. This is a way to prevent
   included cookbooks from configuring a firewall.
+- `ipv6_enabled` (default to `true`): _Iptables only_. If set to false, firewall will not perform any ipv6 related work.
 - `log_level`: UFW only. Level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full, :off. default is :low.
-- `rules`: This is used internally for firewall_rule resources to append their rules. You should NOT touch this value unless you plan to supply an entire firewall ruleset at once, and skip using firewall_rule resources.
-- `disabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be disabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:public.`
-- `enabled_zone` (firewalld only): The zone to set on firewalld when the firewall should be enabled. Can be any string in symbol form, e.g. :public, :drop, etc. Defaults to `:drop.`
-- `package_options`: Used to pass options to the package install of firewall
+- `package_options`: Pass additional options to the package manager when installing the firewall.
 
 ```ruby
 # all defaults
@@ -184,41 +199,87 @@ firewall 'default' do
 end
 ```
 
-### firewall_rule
+### `firewall_rule`
 
 #### Actions
 
-- `:create` (*default action*): If a firewall_rule runs this action, the rule will be recorded in a chef resource's internal state, and applied when providers automatically notify the firewall resource with action `:reload`. The notification happens automatically.
+- `:create`: Create the firewall rule and notify the firewall to reload after the rule has been saved. On firewalld systems, the rules are added to the default zone as firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html).
 
-#### Parameters
+#### Properties
+
+The full syntax for all properties and which platforms they're available for:
+
+```ruby
+firewall_rule 'name' do
+  firewall_name   String            # Default: 'default'
+  command         Symbol            # Default: :allow
+  protocol        Integer, Symbol   # Default: :tcp
+  source          String
+  source_port     Integer, Array, Range
+  port            Integer, Array, Range
+  dest_port       Integer, Array, Range
+  destination     String
+  position        Integer           # Default: 50
+  description     String            # Default: 'name' unless specified
+
+  # Platform-specific properties
+  zone            String            # Platforms: firewalld
+  logging         Symbol            # platforms: ufw
+  redirect_port   Integer           # platforms: iptables, firewalld
+  dest_interface  String            # platforms: iptables, windows
+  interface       String            # platforms: iptables, ufw, windows
+  include_comment true, false       # platforms: iptables, ufw. Default: true
+  stateful        Symbol, Array     # platforms: iptables, ufw
+  raw             String            # platforms: iptables, ufw
+  direction       Symbol            # Platforms: iptables, ufw, windows. Default: :in
+  notify_firewall true, false       # platforms: iptables, ufw, windows. Default: true
+  program         String            # platforms: windows
+  service         String            # platforms: windows
+end
+```
+
+Platform-agnostic properties that can be used with `firewall_rule` on any firewall system:
 
 - `firewall_name`: the matching firewall resource that this rule applies to. Default value: `default`
-- `raw`: Used to pass an entire rule as a string, omitting all other parameters. This line will be directly loaded by `iptables-restore`, fed directly into `ufw` on the command line, or run using `firewall-cmd`.
 - `description` (*default: same as rule name*): Used to provide a comment that will be included when adding the firewall rule.
-- `include_comment` (*default: true*): Used to optionally exclude the comment in the rule.
-- `position` (*default: 50*): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 - `command`: What action to take on a particular packet
    - `:allow` (*default action*): the rule should allow matching packets
-   - `:deny`: the rule should deny matching packets
+   - `:deny`: the rule should deny (drop) matching packets
    - `:reject`: the rule should reject matching packets
    - `:masquerade`: Masquerade the matching packets
    - `:redirect`: Redirect the matching packets
    - `:log`: Configure logging
-- `stateful`: a symbol or array of symbols, such as ``[:related, :established]` that will be passed to the state module in iptables or firewalld.
-- `zone`: (*firewalld only*), a string, such as `public` that the rule will be applied.
-- `protocol`: `:tcp` (*default*), `:udp`, `:icmp`, `:none` or protocol number. Using protocol numbers is not supported using the ufw provider (default for debian/ubuntu systems).
-- `direction`: For ufw, direction of the rule. valid values are: `:in` (*default*), `:out`, `:pre`, `:post`.
+- `protocol`: `:tcp` (*default*), `:udp`, `:icmp`, `:none`, or protocol number. Using protocol numbers is not supported
+  using the ufw provider (default for debian/ubuntu systems).
 - `source` (*Default is `0.0.0.0/0` or `Anywhere`*): source ip address or subnet to filter.
 - `source_port` (*Default is nil*): source port for filtering packets.
+- `port` or `dest_port`: target port number (ie. `22` to allow inbound SSH), an array of incoming port numbers (ie.
+  `[80,443]` to allow inbound HTTP & HTTPS), or a range of incoming ports `(12000..12100)`.
 - `destination`: ip address or subnet to filter on packet destination, must be a valid IP
-- `port` or `dest_port`: target port number (ie. 22 to allow inbound SSH), or an array of incoming port numbers (ie. [80,443] to allow inbound HTTP & HTTPS).
-  NOTE: `protocol` attribute is required with multiple ports, or a range of incoming port numbers (ie. 60000..61000 to allow inbound mobile-shell. NOTE: `protocol`, or an attribute is required with a range of ports.
-- `interface`: (source) interface to apply rule (ie. `eth0`).
-- `dest_interface`: interface where packets may be destined to go
-- `redirect_port`: redirected port for rules with command `:redirect`
-- `logging`: may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`. In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
+- `position` (*default: 50*): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
+
+Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are _not_ platform-agnostic, so you must ensure they are used only on the appropriate platforms**:
+
+- `zone`: (*firewalld*), a string, such as `public` that the rule will be applied. Defaults to the system's configured
+  default zone.
+- `logging` (*ufw*): may be added to enable logging for a particular rule. valid values are: `:connections`, `:packets`.
+  In the ufw provider, `:connections` logs new connections while `:packets` logs all packets.
+- `redirect_port` (*iptables, firewalld*): redirected port for rules with command `:redirect`.
+- `dest_interface` (*iptables, windows*): interface where packets may be destined to go.
+- `interface` (*iptables, ufw, windows*): (source) interface to apply rule (ie. `eth0`).
+- `include_comment` (*iptables, ufw*): Used to optionally exclude the comment in the rule. Default: `true`.
+- `stateful` (*iptables, ufw*): a symbol or array of symbols, such as ``[:related, :established]` that will be passed to the state module in iptables or firewalld.
+- `raw` (*iptables, ufw*): Used to pass an entire rule as a string, omitting all other parameters. This line will be directly loaded by `iptables-restore`/fed directly into `ufw` on the command line.
+- `direction` (*iptables, ufw, windows*): Direction of the rule. Valid values are: `:in` (*default*), `:out`, `:pre`,
+`:post`.
+- `notify_firewall` (*iptables, ufw, windows*): Notify the firewall to recalculate (and potentially reapply) the
+  `firewall_rule`(s) it finds. Default: `true`
+
+#### Examples
 
 ```ruby
+include_recipe 'firewall'
+
 # open standard ssh port
 firewall_rule 'ssh' do
   port     22
@@ -233,39 +294,11 @@ firewall_rule 'http' do
   command   :allow
 end
 
-# restrict port 13579 to 10.0.111.0/24 on eth0
-firewall_rule 'myapplication' do
-  port      13579
-  source    '10.0.111.0/24'
-  direction :in
-  interface 'eth0'
-  command    :allow
-end
-
-# specify a protocol number (supported on centos/redhat)
-firewall_rule 'vrrp' do
-  protocol    112
-  command      :allow
-end
-
-# use the iptables provider to specify protocol number on debian/ubuntu
-firewall_rule 'vrrp' do
-  provider    Chef::Provider::FirewallRuleIptables
-  protocol    112
-  command      :allow
-end
-
-# can use :raw command with UFW provider for VRRP
-firewall_rule "VRRP" do
-  command   :allow
-  raw "allow to 224.0.0.18"
-end
-
 # open UDP ports 60000..61000 for mobile shell (mosh.org), note
 # that the protocol attribute is required when using port_range
 firewall_rule 'mosh' do
-  protocol   :udp
-  port       60000..61000
+  protocol    :udp
+  port        60000..61000
   command     :allow
 end
 
@@ -283,18 +316,7 @@ firewall_rule 'ssh' do
   zone    "public"
   command :allow
 end
-
-firewall 'default' do
-  enabled false
-  action :nothing
-end
 ```
-
-#### Providers
-
-- See `libraries/z_provider_mapping.rb` for a full list of providers for each platform and version.
-
-Different providers will determine the current state of the rules differently -- parsing the output of a command, maintaining the state in a file, or some other way. If the firewall is adjusted from outside of chef (non-idempotent), it's possible that chef may be caught unaware of the current state of the firewall. The best workaround is to add a `:flush` action to the firewall resource as early as possible in the chef run, if you plan to modify the firewall state outside of chef.
 
 ## Troubleshooting
 

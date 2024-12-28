@@ -14,8 +14,6 @@ provisioner:
       allow_mosh: true
       allow_loopback: true
       allow_icmp: true
-      firewalld:
-        permanent: true
 
 verifier:
   name: inspec
