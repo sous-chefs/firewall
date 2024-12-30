@@ -56,6 +56,10 @@ class Chef
       ufw_file.run_action(:create)
 
       new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
+
+      ufw_service = lookup_or_create_service('ufw')
+      ufw_service.run_action(:enable)
+      new_resource.updated_by_last_action(true) if ufw_service.updated_by_last_action?
     end
 
     action :restart do
@@ -122,6 +126,17 @@ class Chef
       ufw_file.content '# created by chef to allow service to start'
       ufw_file.run_action(:create)
       new_resource.updated_by_last_action(true) if ufw_file.updated_by_last_action?
+    end
+
+    def lookup_or_create_service(name)
+      begin
+        ufw_service = Chef.run_context.resource_collection.find(service: svc)
+      rescue
+        ufw_service = service name do
+          action :nothing
+        end
+      end
+      ufw_service
     end
 
     def lookup_or_create_rulesfile

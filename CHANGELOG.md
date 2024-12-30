@@ -22,6 +22,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 - Fixed: New zones created by `firewalld_zone` unexpectedly have forwarding enabled by default.
 - Fixed: `firewalld_*` resources ignore properties whose value is `false`.
 - Fixed: `firewalld_*` resources were not idempotent when using `ports`, `source_ports`, and `rich_rules` properties.
+- Fixed: `ufw` provider doesn't ensure `ufw` service is enabled.
 
 ### Removed
 
