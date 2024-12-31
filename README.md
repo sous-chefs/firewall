@@ -181,15 +181,15 @@ It's not recommended to use this resource directly. Instead simply `include_reci
 #### Actions
 
 - `:install` (*default action*): Install and Enable the firewall. This will ensure the appropriate packages are installed and that any services have been started.
-- `:reload`: _firewalld only_. Reloads the runtime state to match the permanent configuration. All runtime-only rules are flushed out.
+- `:reload`: *firewalld only*. Reloads the runtime state to match the permanent configuration. All runtime-only rules are flushed out.
 - `:disable`: Disable the firewall. Drop any rules and put the node in an unprotected state. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
-- `:flush`: _Except firewalld_. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
+- `:flush`: *Except firewalld*. Flush all current rules. Also erase any internal state used to detect when rules should be applied.
 
 #### Properties
 
 - `enabled` (default to `true`): If set to `false`, all actions will no-op on this resource. This is a way to prevent
   included cookbooks from configuring a firewall.
-- `ipv6_enabled` (default to `true`): _Iptables only_. If set to false, firewall will not perform any ipv6 related work.
+- `ipv6_enabled` (default to `true`): *Iptables only*. If set to false, firewall will not perform any ipv6 related work.
 - `log_level`: UFW only. Level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full, :off. default is :low.
 - `package_options`: Pass additional options to the package manager when installing the firewall.
 
@@ -266,7 +266,7 @@ Firewall-agnostic properties that can be used with `firewall_rule` on any firewa
 - `destination`: ip address or subnet to filter on packet destination, must be a valid IP
 - `position` (*default: 50*): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 
-Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are _not_ firewall-agnostic, so you must ensure they are used only on the appropriate firewall solutions**:
+Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are *not* firewall-agnostic, so you must ensure they are used only on the appropriate firewall solutions**:
 
 - `zone`: (*firewalld*), a string, such as `public` that the rule will be applied. Defaults to the system's configured
   default zone.
