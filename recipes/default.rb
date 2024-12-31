@@ -18,7 +18,7 @@
 #
 
 # create a variable to use as a condition on some rules that follow
-iptables_firewall = !platform_family?('rhel', 'amazon') && node['firewall']['ubuntu_iptables']
+iptables_firewall = node['firewall']['solution'] == 'iptables'
 
 firewall 'default' do
   ipv6_enabled node['firewall']['ipv6_enabled'] if iptables_firewall

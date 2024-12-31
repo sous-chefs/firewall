@@ -1,7 +1,29 @@
 
-firewalld = rhel? || amazon_linux?
-iptables = !firewalld && node['firewall']['ubuntu_iptables']
-ufw = !firewalld && !iptables
+firewalld = node['firewall']['solution'] == 'firewalld'
+iptables = node['firewall']['solution'] == 'iptables'
+ufw = node['firewall']['solution'] == 'ufw'
+
+# UFW provided by opt-in EPEL repository on RHEL platforms
+package 'epel-release' do
+  only_if { platform_family?('rhel') }
+end
+
+# The package resource on Fedora is broken until this is installed.
+# Just a Test Kitchen issue?
+execute 'install-python3-dnf' do
+  command 'dnf install -y python3-dnf'
+  not_if 'python3 -c "import dnf"'
+  only_if { platform_family?('fedora') }
+  action :run
+end
+
+# Workaround for a bug when using firewalld:
+# * Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1074789
+# * Ubuntu: https://bugs.launchpad.net/ubuntu/+source/policykit-1/+bug/2054716
+user 'polkitd' do
+  system true
+  only_if { firewalld && platform?('debian', 'ubuntu') }
+end
 
 include_recipe 'firewall'
 
@@ -29,7 +51,7 @@ end
 firewall_rule 'addremove' do
   port 1236
   command :allow
-  only_if { rhel? || amazon_linux? || node['firewall']['ubuntu_iptables'] } # don't do this on ufw, will reset ufw on every converge
+  not_if { ufw } # don't do this on ufw, will reset ufw on every converge
 end
 
 firewall_rule 'addremove2' do
@@ -37,7 +59,7 @@ firewall_rule 'addremove2' do
   command :deny
 end
 
-firewall_rule 'protocolnum' do
+firewall_rule 'vrrp protocol by number' do
   protocol 112
   command :allow
   not_if { ufw } # debian ufw doesn't support protocol numbers
@@ -90,11 +112,8 @@ if iptables
     protocol :tcp
     command :allow
     direction :in
-
-    # # centos 5 is broken for ipv6 ranges
-    # # see https://github.com/chef-cookbooks/firewall/pull/111#issuecomment-163520156
-    # not_if { rhel? && node['platform_version'].to_f < 6.0 }
   end
+
   firewall_rule 'HTTP HTTPS' do
     port [80, 443]
     protocol :tcp

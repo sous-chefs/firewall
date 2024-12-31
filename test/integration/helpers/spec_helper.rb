@@ -1,6 +1,6 @@
 # helpers
 def firewalld?
-  %w(redhat suse).include?(os.family)
+  %w(fedora redhat suse).include?(os.family)
 end
 
 def ufw?

@@ -5,8 +5,8 @@ unified_mode true
 use '_partial/_firewall_rule'
 
 # firewalld platforms only
-provides :firewall_rule, os: 'linux', platform_family: %w(rhel fedora amazon) do |node|
-  (node['platform_version'].to_i >= 7 && !node['firewall']['redhat7_iptables']) || (amazon_linux? && !node['firewall']['redhat7_iptables'])
+provides :firewall_rule, os: 'linux' do |node|
+  node['firewall']['solution'] == 'firewalld'
 end
 
 # Additional firewalld-only properties

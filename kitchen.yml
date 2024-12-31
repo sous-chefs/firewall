@@ -45,56 +45,43 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[firewall::default]
       - recipe[firewall-test::default]
 
-  - name: firewalld
+  - name: firewalld-simple
     excludes:
-      - debian-11
-      - debian-12
-      - ubuntu-20.04
-      - ubuntu-22.04
-      - ubuntu-24.04
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
-
-  - name: ufw
-    excludes:
-      - almalinux-8
-      - almalinux-9
-      - almalinux-10
-      - amazonlinux-2
-      - amazonlinux-2023
-      - centos-stream-9
-      - centos-stream-10
-      - fedora-latest
-      - opensuse-leap-15
-      - oracle-8
-      - oracle-9
-      - rockylinux-8
-      - rockylinux-9
-      - windows-2016
-      - windows-2019
-    run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
-
-  - name: iptables
-    excludes:
-      - oracle-9 # iptables fails to install from Oracle repo
-      - opensuse-leap-15
-      - windows-2016
-      - windows-2019
-    run_list:
-      - recipe[firewall::default]
       - recipe[firewall-test::default]
     attributes:
       firewall:
-        ubuntu_iptables: true
-        redhat7_iptables: true
+        solution: firewalld
+
+  - name: ufw
+    excludes:
+      - almalinux-10     # UFW not available in EPEL 10 (yet?)
+      - amazonlinux-2023 # No EPEL for AL2023
+      - centos-stream-10 # UFW not available in EPEL 10 (yet?)
+      - opensuse-leap-15 # openSUSE only supports firewalld
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        solution: ufw
+
+  - name: iptables
+    excludes:
+      - oracle-9         # iptables fails to install from Oracle repo
+      - opensuse-leap-15 # openSUSE only supports firewalld
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        solution: iptables
 
   - name: nftables
     includes:
@@ -105,9 +92,9 @@ suites:
     run_list:
       - recipe[nftables-test]
 
-  - name: firewalld-dbus
+  - name: firewalld-advanced
     excludes:
-      - ubuntu-20.04 # firewalld version too old.
+      - ubuntu-20.04 # firewalld version too old for advanced usage.
       - windows-2016
       - windows-2019
     run_list:

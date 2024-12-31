@@ -52,18 +52,15 @@ platforms:
       image: dokken/debian-12
       pid_one_command: /bin/systemd
 
-  # TODO: Fix. Resources uses dnf when it should use yum
-  # - name: fedora-latest
-  #   driver:
-  #     image: dokken/fedora-latest
-  #     pid_one_command: /usr/lib/systemd/systemd
-  #     intermediate_instructions: *firewalld_fix
+  - name: fedora-latest
+    driver:
+      image: dokken/fedora-latest
+      pid_one_command: /usr/lib/systemd/systemd
 
-  # # TODO: Add support for openSUSE in resource
-  # - name: opensuse-leap-15
-  #   driver:
-  #     image: dokken/opensuse-leap-15
-  #     pid_one_command: /usr/lib/systemd/systemd
+  - name: opensuse-leap-15
+    driver:
+      image: dokken/opensuse-leap-15
+      pid_one_command: /usr/lib/systemd/systemd
 
   - name: oracle-8
     driver:

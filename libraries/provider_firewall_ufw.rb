@@ -21,8 +21,8 @@ class Chef
   class Provider::FirewallUfw < Chef::Provider::LWRPBase
     include FirewallCookbook::Helpers::Ufw
 
-    provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
-      !(node['firewall'] && node['firewall']['ubuntu_iptables'])
+    provides :firewall, os: 'linux' do |node|
+      node['firewall']['solution'] == 'ufw'
     end
 
     def whyrun_supported?

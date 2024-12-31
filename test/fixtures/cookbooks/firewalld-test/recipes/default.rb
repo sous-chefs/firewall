@@ -2,6 +2,15 @@ apt_update do
   only_if { platform?('debian') }
 end
 
+# The package resource on Fedora is broken until this is installed.
+# Just a Test Kitchen issue?
+execute 'install-python3-dnf' do
+  command 'dnf install -y python3-dnf'
+  not_if 'python3 -c "import dnf"'
+  only_if { platform_family?('fedora') }
+  action :run
+end
+
 # Workaround for a bug when using firewalld:
 # * Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1074789
 # * Ubuntu: https://bugs.launchpad.net/ubuntu/+source/policykit-1/+bug/2054716

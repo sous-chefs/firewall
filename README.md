@@ -22,44 +22,55 @@ This cookbook is maintained by the Sous Chefs. The Sous Chefs are a community of
 depends 'firewall'
 ```
 
-### Supported firewalls and platforms
+## Supported firewalls and platforms
 
-- UFW - Ubuntu, Debian (except 9)
-- IPTables - Red Hat & CentOS, Ubuntu
-- FirewallD - Red Hat & CentOS >= 7.0
-- Windows Advanced Firewall - 2012 R2
-- nftables
+- [UFW (Uncomplicated Firewall)](https://help.ubuntu.com/community/UFW)
+- [Firewalld](https://firewalld.org/)
+- [IPTables](https://manpages.debian.org/stable/iptables/iptables.8.en.html)
+- [Windows Firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/)
+- [nftables](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page)
 
-Tested on:
+The default firewall solution used on Linux is based on the platform family:
 
-- Ubuntu 16.04 with iptables, ufw
-- Debian 9 with iptables
-- Debian 11 with nftables
-- Debian 11 with new resources for firewalld
-- CentOS 6 with iptables
-- CentOS 7.1 with firewalld
-- Oracle 8 with nftables
-- Windows Server 2012r2 with Windows Advanced Firewall
+| Platform Family | Default Firewall Solution |
+|-----------------|---------------------------|
+| `amazon`        | firewalld                 |
+| `debian`        | ufw                       |
+| `fedora`        | firewalld                 |
+| `rhel`          | firewalld                 |
+| `suse`          | firewalld                 |
+| `ubuntu`        | ufw                       |
+| `windows`       | windows                   |
+| Other           | iptables                  |
 
-By default, Ubuntu chooses ufw. To switch to iptables, set this in an attribute file:
-
-```ruby
-default['firewall']['ubuntu_iptables'] = true
-```
-
-By default, Red Hat & CentOS >= 7.0 chooses firewalld. To switch to iptables, set this in an attribute file:
+If you'd like to use a firewall solution other than the platform's default, set the `default['firewall']['solution']`
+attribute to the desired firewall:
 
 ```ruby
-default['firewall']['redhat7_iptables'] = true
+# firewalld
+default['firewall']['solution'] = 'firewalld'
+
+# iptables
+default['firewall']['solution'] = 'iptables'
+
+# ufw
+default['firewall']['solution'] = 'ufw'
 ```
+
+### nftables
 
 In order to use nftables, just use the resource `nftables` and
 `nftables_rule`.  These resources are written in more modern design
 styles and are not configurable by node attributes.
 
+### Supported operating systems
+
+See the [kitchen.yml](https://github.com/sous-chefs/firewall/blob/main/kitchen.yml) for the full matrix of platforms
+this cookbook is tested on.
+
 ## Quickstart
 
-To use this cookbook to open a port in the system's default firewall:
+To simply open a port in the system's default firewall:
 
 ```ruby
 include_recipe 'firewall'
@@ -132,7 +143,7 @@ firewall rules. On firewalld systems it adds rules to the default zone as firewa
 rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html). See the
 [`firewall_rule`](#firewall_rule) section for examples.
 
-For more advanced firewalld configuration, see the documentation for the various [`firewalld` resources](documentation/README.md).
+See the [`firewalld` resources](documentation/README.md) documentation for advanced firewalld configuration.
 
 ## Recipes
 
@@ -146,13 +157,12 @@ Used to disable platform specific firewall. Many clouds have their own firewall 
 
 ## Attributes
 
+- `default['firewall']['solution'] = <firewalld|iptables|ufw>`, sets the firewall solution to use on Linux platforms. Defaults to the default firewall solution used by the platform family. See [Supported firewalls and platforms](#supported-firewalls-and-platforms) for more info.
 - `default['firewall']['allow_ssh'] = false`, set true to open port 22 for SSH when the default recipe runs
 - `default['firewall']['allow_mosh'] = false`, set to true to open UDP ports 60000 - 61000 for [Mosh][0] when the default recipe runs
 - `default['firewall']['allow_winrm'] = false`, set true to open port 5989 for WinRM when the default recipe runs
 - `default['firewall']['allow_loopback'] = false`, set to true to allow all traffic on the loopback interface
 - `default['firewall']['allow_icmp'] = false`, set true to allow icmp protocol on supported OSes (note: ufw and windows implementations don't support this)
-- `default['firewall']['ubuntu_iptables'] = false`, set to true to use iptables on Ubuntu / Debian when using the default recipe
-- `default['firewall']['redhat7_iptables'] = false`, set to true to use iptables on Red Hat / CentOS 7 when using the default recipe
 - `default['firewall']['ufw']['defaults']` hash for template `/etc/default/ufw`
 - `default['firewall']['iptables']['defaults']` hash for default policies for 'filter' table's chains`
 - `default['firewall']['windows']['defaults']` hash to define inbound / outbound firewall policy on Windows platform
@@ -207,8 +217,6 @@ end
 
 #### Properties
 
-The full syntax for all properties and which platforms they're available for:
-
 ```ruby
 firewall_rule 'name' do
   firewall_name   String            # Default: 'default'
@@ -222,23 +230,23 @@ firewall_rule 'name' do
   position        Integer           # Default: 50
   description     String            # Default: 'name' unless specified
 
-  # Platform-specific properties
-  zone            String            # Platforms: firewalld
-  logging         Symbol            # platforms: ufw
-  redirect_port   Integer           # platforms: iptables, firewalld
-  dest_interface  String            # platforms: iptables, windows
-  interface       String            # platforms: iptables, ufw, windows
-  include_comment true, false       # platforms: iptables, ufw. Default: true
-  stateful        Symbol, Array     # platforms: iptables, ufw
-  raw             String            # platforms: iptables, ufw
-  direction       Symbol            # Platforms: iptables, ufw, windows. Default: :in
-  notify_firewall true, false       # platforms: iptables, ufw, windows. Default: true
-  program         String            # platforms: windows
-  service         String            # platforms: windows
+  # Firewall-specific properties
+  zone            String            # Firewall: firewalld
+  logging         Symbol            # Firewall: ufw
+  redirect_port   Integer           # Firewall: iptables, firewalld
+  dest_interface  String            # Firewall: iptables, windows
+  interface       String            # Firewall: iptables, ufw, windows
+  include_comment true, false       # Firewall: iptables, ufw. Default: true
+  stateful        Symbol, Array     # Firewall: iptables, ufw
+  raw             String            # Firewall: iptables, ufw
+  direction       Symbol            # Firewall: iptables, ufw, windows. Default: :in
+  notify_firewall true, false       # Firewall: iptables, ufw, windows. Default: true
+  program         String            # Firewall: windows
+  service         String            # Firewall: windows
 end
 ```
 
-Platform-agnostic properties that can be used with `firewall_rule` on any firewall system:
+Firewall-agnostic properties that can be used with `firewall_rule` on any firewall system:
 
 - `firewall_name`: the matching firewall resource that this rule applies to. Default value: `default`
 - `description` (*default: same as rule name*): Used to provide a comment that will be included when adding the firewall rule.
@@ -258,7 +266,7 @@ Platform-agnostic properties that can be used with `firewall_rule` on any firewa
 - `destination`: ip address or subnet to filter on packet destination, must be a valid IP
 - `position` (*default: 50*): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 
-Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are _not_ platform-agnostic, so you must ensure they are used only on the appropriate platforms**:
+Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are _not_ firewall-agnostic, so you must ensure they are used only on the appropriate firewall solutions**:
 
 - `zone`: (*firewalld*), a string, such as `public` that the rule will be applied. Defaults to the system's configured
   default zone.

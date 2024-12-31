@@ -5,8 +5,8 @@ unified_mode true
 use '_partial/_firewall_rule'
 
 # non-firewalld platforms only
-provides :firewall_rule do
-  !platform_family?('rhel', 'fedora', 'amazon')
+provides :firewall_rule do |node|
+  node['firewall']['solution'] != 'firewalld'
 end
 
 property :direction, Symbol, equal_to: [:in, :out, :pre, :post], default: :in

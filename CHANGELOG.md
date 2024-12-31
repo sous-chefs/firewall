@@ -10,6 +10,7 @@ This file is used to list changes made in each version of the firewall cookbook.
   - `priority`, `ingress_priority`, `egress_priority` properties added to `firewalld_zone`.
 - Added `firewalld_rich_rule` resource for adding/removing rich rules to/from firewalld zones.
 - Support for IPv6 rules on firewalld platforms.
+- Support for using any compatible firewall solution on any platform. Defaults to the operating system's default firewall solution.
 
 ### Changed
 
@@ -32,6 +33,7 @@ This file is used to list changes made in each version of the firewall cookbook.
 - Removed firewalld property `permanent` from `firewall_rule` resource. Firewalld rules are now always added permanently.
 - Removed properties `disabled_zone` and `enabled_zone` from `firewall` resource. Use the `firewalld_zone` resource to manage firewalld zone configuration.
 - Removed recipe `firewall::firewalld`. Its functionality has been merged into the `firewall::default` recipe.
+- Removed attributes `default['firewall']['ubuntu_iptables']` and `default['firewall']['redhat7_iptables']`. Use the new `default['firewall']['solution']` attribute to set the desired firewall solution to use.
 
 ## 6.3.9 - *2024-12-05*
 

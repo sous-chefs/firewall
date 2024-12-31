@@ -5,8 +5,8 @@ unified_mode true
 use '_partial/_firewall'
 
 # firewalld platforms only
-provides :firewall, os: 'linux', platform_family: %w(rhel fedora amazon) do |node|
-  (node['platform_version'].to_i >= 7 && !node['firewall']['redhat7_iptables']) || (amazon_linux? && !node['firewall']['redhat7_iptables'])
+provides :firewall, os: 'linux' do |node|
+  node['firewall']['solution'] == 'firewalld'
 end
 
 action :install do

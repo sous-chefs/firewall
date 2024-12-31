@@ -22,9 +22,8 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
-      node['firewall'] && node['firewall']['ubuntu_iptables'] &&
-        node['platform_version'].to_f > (node['platform'] == 'ubuntu' ? 14.04 : 7)
+    provides :firewall, os: 'linux' do |node|
+      node['firewall']['solution'] == 'iptables' && node['platform_family'] == 'debian'
     end
 
     def whyrun_supported?

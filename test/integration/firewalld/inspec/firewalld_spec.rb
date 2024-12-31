@@ -1,4 +1,4 @@
-# these tests only for redhat with iptables
+
 expected_rules = [
   /rule port port="22" protocol="tcp" accept/,
   /rule port port="2222" protocol="tcp" accept/,

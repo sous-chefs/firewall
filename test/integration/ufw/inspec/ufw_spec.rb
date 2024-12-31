@@ -1,4 +1,4 @@
-# these tests only for debian/ubuntu with ufw
+
 expected_rules = [
   %r{ 22/tcp + ALLOW IN +Anywhere},
   %r{ 2200,2222/tcp + ALLOW IN +Anywhere},
