@@ -26,8 +26,7 @@ module FirewallCookbook
     end
 
     def disabled?(new_resource)
-      # if either flag is found in the non-default boolean state
-      disable_flag = !(new_resource.enabled && !new_resource.disabled)
+      disable_flag = !new_resource.enabled
 
       Chef::Log.warn("#{new_resource} has been disabled, not proceeding") if disable_flag
       disable_flag

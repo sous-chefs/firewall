@@ -1,7 +1,14 @@
 driver:
   name: dokken
   privileged: true
-  chef_version: <%= ENV['CHEF_VERSION'] || 'current' %>
+  # Latest Chef container (18.6.2) is broken: https://github.com/chef/chef/issues/14760
+  # chef_version: <%= ENV['CHEF_VERSION'] || 'current' %>
+  chef_version: '18.3'
+  intermediate_instructions:
+    - | # Need to set "IPv6_rpfilter=no" otherwise firewalld won't start inside Docker container
+        RUN mkdir -p /etc/firewalld && \
+            echo "DefaultZone=public" > /etc/firewalld/firewalld.conf && \
+            echo "IPv6_rpfilter=no" >> /etc/firewalld/firewalld.conf
 
 transport: { name: dokken }
 provisioner: { name: dokken }
@@ -57,12 +64,12 @@ platforms:
       image: dokken/opensuse-leap-15
       pid_one_command: /usr/lib/systemd/systemd
 
-  - name: oraclelinux-8
+  - name: oracle-8
     driver:
       image: dokken/oraclelinux-8
       pid_one_command: /usr/lib/systemd/systemd
 
-  - name: oraclelinux-9
+  - name: oracle-9
     driver:
       image: dokken/oraclelinux-9
       pid_one_command: /usr/lib/systemd/systemd

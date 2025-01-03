@@ -4,6 +4,57 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+### Summary
+
+Key changes in this release:
+
+- **Rich Rules on firewalld**: The `firewall_rule` resource now creates [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) on firewalld platforms instead of using the deprecated `--direct` interface.
+- **Flexible firewall selection**: The cookbook now uses the `default['firewall']['solution']` attribute to determine the firewall solution to use instead of a hardcoded assignment for each platform. It defaults to the platform's native firewall (same as previous hardcoded values).
+- **Firewalld 2.0.0**: Platforms using firewalld 2.0.0 and later, such as RHEL 10 and Ubuntu 24.04, are now supported.
+
+### Upgrade Instructions
+
+This release introduces breaking changes. To upgrade to this release:
+
+- Migrate usages of the `disabled` property on `firewall` resources to the `enabled` property instead.
+- Migrate usages of `default['firewall']['firewalld']` attributes to `firewalld_zone` resources.
+- Remove usages of the `:save` action from `firewall_rule` resources. Rules are now always saved permanently.
+- Remove usages of the `permanent` property on `firewall_rule` resources. Rules are now always saved permanently.
+- Remove usages of the `disabled_zone` and `enabled_zone` properties on `firewall` resources. Use the `firewalld_zone` resource to manage firewalld zone configuration.
+- Replace usages of the `firewall::firewalld` recipe with `firewall::default`.
+- Migrate usages of attributes `default['firewall']['ubuntu_iptables']` and `default['firewall']['redhat7_iptables']` with `default['firewall']['solution']`.
+
+### Added
+
+- Support for firewalld 2.0.0 and the platforms that use it; RHEL 10 and Ubuntu 24.04.
+  - `priority`, `ingress_priority`, `egress_priority` properties added to `firewalld_zone`.
+- Added `firewalld_rich_rule` resource for adding/removing [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) to/from firewalld zones.
+- Support for IPv6 rules on firewalld platforms.
+- Support for using any compatible firewall solution on any platform. Defaults to the operating system's default firewall solution.
+
+### Changed
+
+- Ensure `firewalld` service remains enabled and started when installed.
+- `firewall_rule` resource now creates rich rules on firewalld platforms, instead of the using the deprecated `--direct` firewalld interface.
+
+### Fixed
+
+- Fixed: `firewall_rule` resource fails with a `--zone is an invalid option with --direct` error on firewalld.
+- Fixed: New zones created by `firewalld_zone` unexpectedly have forwarding enabled by default.
+- Fixed: `firewalld_*` resources ignore properties whose value is `false`.
+- Fixed: `firewalld_*` resources were not idempotent when using `ports`, `source_ports`, and `rich_rules` properties.
+- Fixed: `ufw` provider doesn't ensure `ufw` service is enabled.
+
+### Removed
+
+- Removed deprecated `disabled` property from `firewall` resource.
+- Removed all `default['firewall']['firewalld']` attributes. Use the `firewalld_zone` resource to manage firewalld zone configuration.
+- Removed firewalld action `:save` from `firewall` resource. Firewalld rules are now always added permanently.
+- Removed firewalld property `permanent` from `firewall_rule` resource. Firewalld rules are now always added permanently.
+- Removed properties `disabled_zone` and `enabled_zone` from `firewall` resource. Use the `firewalld_zone` resource to manage firewalld zone configuration.
+- Removed recipe `firewall::firewalld`. Its functionality has been merged into the `firewall::default` recipe.
+- Removed attributes `default['firewall']['ubuntu_iptables']` and `default['firewall']['redhat7_iptables']`. Use the new `default['firewall']['solution']` attribute to set the desired firewall solution to use.
+
 ## 6.3.9 - *2024-12-05*
 
 ## 6.3.8 - *2024-11-18*

@@ -18,7 +18,7 @@ describe service('ufw') do
   describe command('ufw status 2>&1') do
     its(:stdout) { should match(/Status: active/) }
   end
-end if os.debian?
+end if ufw?
 
 describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
   its(:stdout) { should match('BlockInbound,AllowOutbound') }

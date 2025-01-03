@@ -17,46 +17,196 @@ jobs:
 
   integration:
     needs: lint-unit
-    runs-on: macos-latest
+    runs-on: ubuntu-24.04
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: amazonlinux-2
-            suite: firewalld
-          - os: amazonlinux-2
-            suite: iptables
-          - os: centos-7
-            suite: firewalld
-          - os: centos-7
-            suite: iptables
-          - os: centos-stream-8
-            suite: iptables
-          - os: debian-9
-            suite: ufw
-          - os: debian-10
-            suite: ufw
-          - os: debian-11
-            suite: firewalld-dbus
-          - os: debian-11
-            suite: nftables
-          - os: ubuntu-1804
-            suite: ufw
-          - os: ubuntu-2004
-            suite: ufw
-      fail-fast: false
+          # Default suite
+          - suite: default
+            os: almalinux-8
+          - suite: default
+            os: almalinux-9
+          - suite: default
+            os: almalinux-10
+          - suite: default
+            os: amazonlinux-2023
+          - suite: default
+            os: centos-stream-9
+          - suite: default
+            os: centos-stream-10
+          - suite: default
+            os: debian-11
+          - suite: default
+            os: debian-12
+          - suite: default
+            os: fedora-latest
+          - suite: default
+            os: opensuse-leap-15
+          - suite: default
+            os: oracle-8
+          - suite: default
+            os: oracle-9
+          - suite: default
+            os: rockylinux-8
+          - suite: default
+            os: rockylinux-9
+          - suite: default
+            os: ubuntu-2204
+          - suite: default
+            os: ubuntu-2404
+
+          # Firewalld simple suite
+          - suite: firewalld-simple
+            os: almalinux-8
+          - suite: firewalld-simple
+            os: almalinux-9
+          - suite: firewalld-simple
+            os: almalinux-10
+          - suite: firewalld-simple
+            os: amazonlinux-2023
+          - suite: firewalld-simple
+            os: centos-stream-9
+          - suite: firewalld-simple
+            os: centos-stream-10
+          - suite: firewalld-simple
+            os: debian-11
+          - suite: firewalld-simple
+            os: debian-12
+          - suite: firewalld-simple
+            os: fedora-latest
+          - suite: firewalld-simple
+            os: opensuse-leap-15
+          - suite: firewalld-simple
+            os: oracle-8
+          - suite: firewalld-simple
+            os: oracle-9
+          - suite: firewalld-simple
+            os: rockylinux-8
+          - suite: firewalld-simple
+            os: rockylinux-9
+          - suite: firewalld-simple
+            os: ubuntu-2004
+          - suite: firewalld-simple
+            os: ubuntu-2204
+          - suite: firewalld-simple
+            os: ubuntu-2404
+
+          # UFW suite
+          - suite: ufw
+            os: almalinux-8
+          - suite: ufw
+            os: almalinux-9
+          - suite: ufw
+            os: centos-stream-9
+          - suite: ufw
+            os: debian-11
+          - suite: ufw
+            os: debian-12
+          # - suite: ufw # Fails on GitHub Actions with: Module ip6_tables not found in directory /lib/modules/6.8.0-1017-azure
+          #   os: fedora-latest
+          - suite: ufw
+            os: oracle-8
+          - suite: ufw
+            os: oracle-9
+          - suite: ufw
+            os: rockylinux-8
+          - suite: ufw
+            os: rockylinux-9
+          - suite: ufw
+            os: ubuntu-2204
+          - suite: ufw
+            os: ubuntu-2404
+
+          # Iptables suite
+          - suite: iptables
+            os: almalinux-8
+          - suite: iptables
+            os: almalinux-9
+          - suite: iptables
+            os: almalinux-10
+          - suite: iptables
+            os: amazonlinux-2023
+          - suite: iptables
+            os: centos-stream-9
+          - suite: iptables
+            os: centos-stream-10
+          - suite: iptables
+            os: debian-11
+          - suite: iptables
+            os: debian-12
+          # - suite: iptables # Fails on GitHub Actions with: ip6tables.service failed
+          #   os: fedora-latest
+          - suite: iptables
+            os: oracle-8
+          - suite: iptables
+            os: rockylinux-8
+          - suite: iptables
+            os: rockylinux-9
+          - suite: iptables
+            os: ubuntu-2204
+          - suite: iptables
+            os: ubuntu-2404
+
+          # NFTables suite
+          - suite: nftables
+            os: debian-11
+          - suite: nftables
+            os: debian-12
+          - suite: nftables
+            os: oracle-8
+          - suite: nftables
+            os: oracle-9
+
+          # Firewalld advanced suite
+          - suite: firewalld-advanced
+            os: almalinux-8
+          - suite: firewalld-advanced
+            os: almalinux-9
+          - suite: firewalld-advanced
+            os: almalinux-10
+          - suite: firewalld-advanced
+            os: amazonlinux-2023
+          - suite: firewalld-advanced
+            os: centos-stream-9
+          - suite: firewalld-advanced
+            os: centos-stream-10
+          - suite: firewalld-advanced
+            os: debian-11
+          - suite: firewalld-advanced
+            os: debian-12
+          - suite: firewalld-advanced
+            os: fedora-latest
+          - suite: firewalld-advanced
+            os: opensuse-leap-15
+          - suite: firewalld-advanced
+            os: oracle-8
+          - suite: firewalld-advanced
+            os: oracle-9
+          - suite: firewalld-advanced
+            os: rockylinux-8
+          - suite: firewalld-advanced
+            os: rockylinux-9
+          - suite: firewalld-advanced
+            os: ubuntu-2204
+          - suite: firewalld-advanced
+            os: ubuntu-2404
+
+          # TODO: Windows suite
+          # - suite: windows
+          #   os: windows-2016
+          # - suite: windows
+          #   os: windows-2019
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Install VirtualBox
-        run: |
-          brew update
-          brew upgrade virtualbox
       - name: Install Chef
         uses: actionshub/chef-install@3.0.1
-      - name: kitchen
+      - name: Dokken
         uses: actionshub/test-kitchen@3.0.0
         env:
           CHEF_LICENSE: accept-no-persist
+          KITCHEN_LOCAL_YAML: kitchen.dokken.yml
         with:
           suite: ${{ matrix.suite }}
           os: ${{ matrix.os }}

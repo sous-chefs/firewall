@@ -26,7 +26,7 @@ property :masquerade,
          description: 'see masquerade tag in firewalld.policy(5).'
 property :ports,
          [Array, String],
-         description: 'array of port and protocol pairs. See port tag in firewalld.policy(5).',
+         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.policy(5).',
          coerce: proc { |o| Array(o) }
 property :priority,
          Integer,
@@ -68,6 +68,8 @@ load_current_value do |new_resource|
     object = firewalld_service[policy_path]
     config_policy = object['org.fedoraproject.FirewallD1.config.policy']
     config_policy.getSettings.each do |k, v|
+      # Load the current value of ports in the same format as the resource property to make it idempotent
+      v = v.map { |port, protocol| "#{port}/#{protocol}" } if %w(ports source_ports).include?(k)
       send(k, v)
     end
   else
@@ -90,6 +92,14 @@ action :update do
   properties.each do |property|
     new_value = new_resource.send(property)
     next if new_value.nil?
+
+    if property == :rich_rules
+      # quote the values in the rich rule just like firewalld does so it's idempotent
+      # 'rule family=ipv4 source address=192.168.0.14 accept' ➔ 'rule family="ipv4" source address="192.168.0.14" accept'
+      new_value = new_value.map { |rule| rule.gsub(/(\b\w+=)([^"\s]+)/, '\1"\2"') }
+      new_resource.rich_rules = new_value
+    end
+
     if [:ports, :source_ports].include?(property)
       new_value = DBus.variant('a(ss)', new_value.map { |e| e.split('/') })
     elsif [:forward_ports].include?(property)
