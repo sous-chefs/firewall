@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+### Fixed
+
+- `firewall_rule` doesn't default protocol to `tcp` when using `dest_port` property.
+
 ## 7.0.0 - *2025-01-03*
 
 ### Summary

@@ -37,6 +37,16 @@ firewall_rule 'ssh2222' do
   command :allow
 end
 
+firewall_rule 'dest_port' do
+  dest_port 25
+  command :allow
+end
+
+firewall_rule 'source_port' do
+  source_port 31000
+  command :allow
+end
+
 # other rules
 firewall_rule 'temp1' do
   port 1234
