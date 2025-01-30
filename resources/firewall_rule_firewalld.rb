@@ -45,7 +45,7 @@ action :create do
     deny: :drop,
   }
 
-  protocol_required = property_is_set?(:protocol) || property_is_set?(:port) | property_is_set?(:source_port)
+  protocol_required = property_is_set?(:protocol) || property_is_set?(:port) | property_is_set?(:dest_port) | property_is_set?(:source_port)
   array_property = check_for_port_array_property(new_resource)
 
   if array_property
