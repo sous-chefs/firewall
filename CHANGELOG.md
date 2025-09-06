@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the firewall cookbook.
 
 ## Unreleased
 
+Standardise files with files in sous-chefs/repo-management
+
 ## 7.0.2 - *2025-09-04*
 
 ## 7.0.1 - *2025-01-30*
