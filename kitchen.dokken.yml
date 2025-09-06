@@ -2,11 +2,6 @@ driver:
   name: dokken
   privileged: true
   chef_version: <%= ENV['CHEF_VERSION'] || 'current' %>
-  intermediate_instructions:
-    - | # Need to set "IPv6_rpfilter=no" otherwise firewalld won't start inside Docker container
-        RUN mkdir -p /etc/firewalld && \
-            echo "DefaultZone=public" > /etc/firewalld/firewalld.conf && \
-            echo "IPv6_rpfilter=no" >> /etc/firewalld/firewalld.conf
 
 transport: { name: dokken }
 provisioner: { name: dokken }
