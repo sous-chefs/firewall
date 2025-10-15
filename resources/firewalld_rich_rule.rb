@@ -157,7 +157,7 @@ property :raw,
          description: "A raw rule string (e.g. \"rule ...\") passed directly to firewalld, bypassing this resource's internal validation and handling. All other properties are ignored. See \"Rule\" in firewalld.richlanguage(5)."
 
 action :add do
-  rule = get_rich_rule_string()
+  rule = get_rich_rule_string
 
   begin
     sysbus = DBus.system_bus
@@ -176,7 +176,7 @@ action :add do
 end
 
 action :remove do
-  rule = get_rich_rule_string()
+  rule = get_rich_rule_string
 
   begin
     sysbus = DBus.system_bus
@@ -209,7 +209,7 @@ action_class do
 
     # :raw takes precedence if specified, ignoring all other properties.
     # Otherwise, build the rich rule string based on given properties
-    rule = property_is_set?(:raw) ? new_resource.raw : build_rich_rule()
+    rule = property_is_set?(:raw) ? new_resource.raw : build_rich_rule
     Chef::Log.debug rule
     rule
   end
@@ -236,7 +236,7 @@ action_class do
     # If they explicitly set family then leave as-is
     return new_resource.family if property_is_set?(:family)
 
-    return unless requires_family?()
+    return unless requires_family?
 
     # Determine the IP address family based on provided properties
     [:source, :source_not, :destination, :destination_not, :to_address].each do |property|
@@ -254,7 +254,7 @@ action_class do
 
     rule_parts = []
     rule_parts << 'rule'
-    rule_parts << "family=\"#{ip_family()}\""                          if ip_family()
+    rule_parts << "family=\"#{ip_family}\"" if ip_family
     rule_parts << "priority=\"#{r.priority}\""                         if property_is_set?(:priority)
     rule_parts << "source address=\"#{r.source}\""                     if property_is_set?(:source)
     rule_parts << "source not address=\"#{r.source_not}\""             if property_is_set?(:source_not)
@@ -301,7 +301,7 @@ action_class do
     end
 
     if property_is_set?(:rule_action)
-      rule_parts << "#{r.rule_action}"
+      rule_parts << r.rule_action.to_s
 
       rule_parts << "type=\"#{r.reject_type}\""  if property_is_set?(:reject_type)
       rule_parts << "set=\"#{r.mark_set}\""      if property_is_set?(:mark_set)

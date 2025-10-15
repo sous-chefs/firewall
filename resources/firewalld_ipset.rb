@@ -37,7 +37,7 @@ load_current_value do |new_resource|
     object = firewalld_service[ipset_path]
     config_ipset = object['org.fedoraproject.FirewallD1.config.ipset']
     settings = config_ipset.getSettings
-    version settings[0]
+    version settings.first
     # short settings[1]
     description settings[2]
     type settings[3]

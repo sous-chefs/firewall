@@ -31,7 +31,7 @@ load_current_value do |new_resource|
     object = firewalld_service[icmptype_path]
     config_icmptype = object['org.fedoraproject.FirewallD1.config.icmptype']
     settings = config_icmptype.getSettings
-    version settings[0]
+    version settings.first
     # short settings[1]
     description settings[2]
     destinations settings[3]
