@@ -38,7 +38,7 @@ load_current_value do |new_resource|
     object = firewalld_service[helper_path]
     config_helper = object['org.fedoraproject.FirewallD1.config.helper']
     settings = config_helper.getSettings
-    version settings[0]
+    version settings.first
     # short settings[1]
     description settings[2]
     family settings[3]
