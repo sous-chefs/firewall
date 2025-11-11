@@ -19,7 +19,7 @@
 |`description`           ||String                  |                                  |see description tag in [firewalld.helper(5)](https://firewalld.org/documentation/man-pages/firewalld.helper.html).       |                      |
 |`family`                ||String  |             `'ipv4'`                |see family tag in [firewalld.helper(5)](https://firewalld.org/documentation/man-pages/firewalld.helper.html).            | `'ipv4'`, `'ipv6'`  |
 |`nf_module`             ||String                  |                                  |see module tag in [firewalld.helper(5)](https://firewalld.org/documentation/man-pages/firewalld.helper.html).            |                      |
-|`ports`                 ||Array, String                   |                                  |array of port and protocol pairs. See port tag in [firewalld.helper(5)](https://firewalld.org/documentation/man-pages/firewalld.helper.html).|                      |
+|`ports`                 ||Array, String                   |                                  | array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in [firewalld.helper(5)](https://firewalld.org/documentation/man-pages/firewalld.helper.html).|                      |
 
 ## Examples
 

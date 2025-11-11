@@ -2,7 +2,37 @@ describe firewalld do
   it { should be_installed }
   it { should be_running }
   its('default_zone') { should eq 'home' }
+  it { should have_rule_enabled('rule port port="443" protocol="tcp" audit accept', 'home') }
   it { should have_zone('ztest') }
+  it { should have_zone('rich-rules') }
+
+  # Test rich rules in rich-rules zone
+  [
+    'rule priority="-10" family="ipv4" source address="172.16.0.0/12" reject',
+    'rule family="ipv4" destination NOT address="172.16.2.1" accept',
+    'rule family="ipv4" forward-port port="8080" protocol="tcp" to-port="80"',
+    'rule icmp-block name="neighbour-solicitation"',
+    'rule port port="1000-2000" protocol="udp" drop',
+    'rule service name="ssh" accept',
+    'rule family="ipv4" forward-port port="5353" protocol="udp" to-port="53" to-addr="10.10.10.10"',
+    'rule family="ipv6" service name="radius" accept limit value="100/m"',
+    'rule family="ipv4" source address="192.168.1.1" log prefix="LOG_PREFIX" accept',
+    'rule source-port port="12000-12999" protocol="tcp" log level="info" limit value="5/s" accept',
+    'rule service name="ftp" mark set=0x1',
+    'rule family="ipv6" source address="1:2:3:4:6::" forward-port port="4011" protocol="tcp" to-port="4012" to-addr="1::2:3:4:7"',
+    'rule protocol value="icmp" accept',
+    'rule family="ipv4" source address="192.168.2.3" reject type="icmp-admin-prohibited"',
+    'rule source-port port="25" protocol="tcp" accept',
+    'rule family="ipv4" source NOT address="172.16.2.1" accept',
+    'rule masquerade',
+    'rule icmp-type name="router-advertisement" drop',
+    'rule family="ipv4" destination address="10.0.0.0/8" accept',
+    'rule family="ipv4" source address="192.168.0.0/24" service name="tftp" log prefix="tftp" level="info" limit value="1/m" accept',
+    'rule port port="443" protocol="tcp" audit accept',
+    'rule family="ipv6" source address="::1" log prefix="RAW_RULE" accept',
+  ].each do |rule|
+    it { should have_rule_enabled(rule, 'rich-rules') }
+  end
 end
 
 describe firewalld.where(zone: 'ztest') do
@@ -10,19 +40,6 @@ describe firewalld.where(zone: 'ztest') do
   its('sources') { should cmp [['192.0.2.2']] }
   its('services') { should cmp [['ssh']] }
 end
-
-# Why does it give me undefined method `target' for Firewall Rules with zone == "ztest"?
-# describe firewalld.where (zone: 'ztest') do
-#   its('target') { should cmp 'asdf' }
-#   its('ports') { should cmp 'asdf' }
-#   its('protocols') { should cmp 'asdf' }
-#   its('forward_ports') { should cmp 'asdf' }
-#   its('source_ports') { should cmp 'asdf' }
-#   its('icmp_blocks') { should cmp 'asdf' }
-#   its('rich_rules') { should cmp 'asdf' }
-#   it { should have_icmp_block_inversion_enabled }
-#   it { should have_masquerade_enabled }
-# end
 
 describe command('firewall-cmd --info-helper=example-helper') do
   example_helper = <<~EOF
@@ -77,9 +94,15 @@ describe command('firewall-cmd --info-ipset=single-ip') do
   its(:stdout) { should cmp single_ip_config }
 end
 
+firewalld_version = command('firewall-cmd --version').stdout.strip
+supports_zone_priority = Gem::Version.new(firewalld_version) >= Gem::Version.new('2.0.0')
+
+# https://github.com/firewalld/firewalld/commit/b2024038623c94784321053dc766bf961c3db79d
+supports_runtime_active_only = Gem::Version.new(firewalld_version) >= Gem::Version.new('2.0.1')
+
 describe command('firewall-cmd --info-policy=ptest') do
   ptest_config = <<~EOF
-    ptest (active)
+    ptest#{' (active)' unless supports_runtime_active_only}
       priority: 10
       target: ACCEPT
       ingress-zones: home
@@ -101,7 +124,7 @@ end
 
 describe command('firewall-cmd --info-policy=pminimal') do
   pminimal = <<~EOF
-    pminimal (active)
+    pminimal#{' (active)' unless supports_runtime_active_only}
       priority: -1
       target: CONTINUE
       ingress-zones: internal
@@ -148,14 +171,18 @@ describe command('firewall-cmd --info-service=minimal-service') do
   its(:stdout) { should cmp ssh2_config }
 end
 
+cockpit = %w(almalinux centos oracle rocky).include?(os.name) ? 'cockpit ' : ''
+
 describe command('firewall-cmd --info-zone=home') do
-  ptest_config = <<~EOF
-    home (active)
+  expected_config = <<~EOF.gsub(/(\n[ ]{2}){2,}/, "\n  ")
+    home (#{'default, ' if supports_runtime_active_only}active)
       target: default
+      #{'ingress-priority: 0' if supports_zone_priority}
+      #{'egress-priority: 0' if supports_zone_priority}
       icmp-block-inversion: yes
       interfaces: eth0
       sources:#{' '}
-      services: dhcpv6-client mdns samba-client ssh
+      services: #{cockpit}dhcpv6-client mdns samba-client ssh
       ports:#{' '}
       protocols:#{' '}
       forward: no
@@ -164,14 +191,17 @@ describe command('firewall-cmd --info-zone=home') do
       source-ports:#{' '}
       icmp-blocks:#{' '}
       rich rules:#{' '}
+    \trule port port="443" protocol="tcp" audit accept
   EOF
-  its(:stdout) { should cmp ptest_config }
+  its(:stdout) { should cmp expected_config }
 end
 
 describe command('firewall-cmd --info-zone=ztest') do
-  ptest_config = <<~EOF
+  ptest_config = <<~EOF.gsub(/(\n[ ]{2}){2,}/, "\n  ")
     ztest (active)
       target: ACCEPT
+      #{'ingress-priority: 0' if supports_zone_priority}
+      #{'egress-priority: 0' if supports_zone_priority}
       icmp-block-inversion: yes
       interfaces: eth1337 eth2337
       sources: 192.0.2.2
@@ -191,9 +221,11 @@ describe command('firewall-cmd --info-zone=ztest') do
 end
 
 describe command('firewall-cmd --info-zone=ztest2') do
-  ptest_config = <<~EOF
+  ptest_config = <<~EOF.gsub(/(\n[ ]{2}){2,}/, "\n  ")
     ztest2 (active)
       target: default
+      #{'ingress-priority: 0' if supports_zone_priority}
+      #{'egress-priority: 0' if supports_zone_priority}
       icmp-block-inversion: no
       interfaces:#{' '}
       sources: 192.0.2.0/24
@@ -208,6 +240,56 @@ describe command('firewall-cmd --info-zone=ztest2') do
       rich rules:#{' '}
   EOF
   its(:stdout) { should cmp ptest_config }
+end
+
+test_zone_priority =
+  (os.name == 'ubuntu' && os.release.to_f >= 24.04) ||
+  (os.name == 'rocky' && os.release.to_i >= 10)
+
+if test_zone_priority
+  describe command('firewall-cmd --info-zone=zpriority1') do
+    ptest_config = <<~EOF
+      zpriority1
+        target: default
+        ingress-priority: -10
+        egress-priority: -10
+        icmp-block-inversion: no
+        interfaces:#{' '}
+        sources:#{' '}
+        services:#{' '}
+        ports:#{' '}
+        protocols:#{' '}
+        forward: no
+        masquerade: no
+        forward-ports:#{' '}
+        source-ports:#{' '}
+        icmp-blocks:#{' '}
+        rich rules:#{' '}
+    EOF
+    its(:stdout) { should cmp ptest_config }
+  end
+
+  describe command('firewall-cmd --info-zone=zpriority2') do
+    ptest_config = <<~EOF
+      zpriority2
+        target: default
+        ingress-priority: 100
+        egress-priority: 200
+        icmp-block-inversion: no
+        interfaces:#{' '}
+        sources:#{' '}
+        services:#{' '}
+        ports:#{' '}
+        protocols:#{' '}
+        forward: no
+        masquerade: no
+        forward-ports:#{' '}
+        source-ports:#{' '}
+        icmp-blocks:#{' '}
+        rich rules:#{' '}
+    EOF
+    its(:stdout) { should cmp ptest_config }
+  end
 end
 
 describe service('firewalld') do

@@ -25,7 +25,7 @@ property :nf_module,
 property :ports,
          [Array, String],
          default: [],
-         description: 'array of port and protocol pairs. See port tag in firewalld.helper(5).',
+         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.helper(5).',
          coerce: proc { |o| Array(o) }
 
 load_current_value do |new_resource|
@@ -38,12 +38,13 @@ load_current_value do |new_resource|
     object = firewalld_service[helper_path]
     config_helper = object['org.fedoraproject.FirewallD1.config.helper']
     settings = config_helper.getSettings
-    version settings[0]
+    version settings.first
     # short settings[1]
     description settings[2]
     family settings[3]
     nf_module settings[4]
-    ports settings[5]
+    # Load the current value of ports in the same format as the resource property to make it idempotent
+    ports settings[5].map { |port, protocol| "#{port}/#{protocol}" }
   else
     Chef::Log.info "Helper #{new_resource.short} does not exist. Will be created."
   end

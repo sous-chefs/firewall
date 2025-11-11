@@ -10,5 +10,6 @@
 - [firewalld_icmptype](resources/firewalld_icmptype.md)
 - [firewalld_ipset](resources/firewalld_ipset.md)
 - [firewalld_policy](resources/firewalld_policy.md)
+- [firewalld_rich_rule](resources/firewalld_rich_rule.md)
 - [firewalld_service](resources/firewalld_service.md)
 - [firewalld_zone](resources/firewalld_zone.md)

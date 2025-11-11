@@ -22,9 +22,8 @@ class Chef
     include FirewallCookbook::Helpers
     include FirewallCookbook::Helpers::Iptables
 
-    provides :firewall, os: 'linux', platform_family: %w(debian) do |node|
-      node['firewall'] && node['firewall']['ubuntu_iptables'] &&
-        node['platform_version'].to_f > (node['platform'] == 'ubuntu' ? 14.04 : 7)
+    provides :firewall, os: 'linux' do |node|
+      node['firewall']['solution'] == 'iptables' && node['platform_family'] == 'debian'
     end
 
     def whyrun_supported?
@@ -75,7 +74,7 @@ class Chef
       ensure_default_rules_exist(node, new_resource)
 
       # this populates the hash of rules from firewall_rule resources
-      firewall_rules = Chef.run_context.resource_collection.select { |item| item.is_a?(Chef::Resource::FirewallRule) }
+      firewall_rules = Chef.run_context.resource_collection.select { |item| item.resource_name == :firewall_rule }
       firewall_rules.each do |firewall_rule|
         next unless firewall_rule.action.include?(:create) && !firewall_rule.should_skip?(:create)
 

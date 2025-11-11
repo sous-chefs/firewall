@@ -2,6 +2,23 @@ apt_update do
   only_if { platform?('debian') }
 end
 
+# The package resource on Fedora is broken until this is installed.
+# Just a Test Kitchen issue?
+execute 'install-python3-dnf' do
+  command 'dnf install -y python3-dnf'
+  not_if 'python3 -c "import dnf"'
+  only_if { platform_family?('fedora') }
+  action :run
+end
+
+# Workaround for a bug when using firewalld:
+# * Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1074789
+# * Ubuntu: https://bugs.launchpad.net/ubuntu/+source/policykit-1/+bug/2054716
+user 'polkitd' do
+  system true
+  only_if { platform?('debian', 'ubuntu') }
+end
+
 firewalld 'default'
 
 firewalld_config 'set some values' do
@@ -19,48 +36,33 @@ end
 
 firewalld_helper 'minimal-helper' do
   nf_module 'nf_conntrack_netbios_ns'
-  ports '7777/udp'
-end
-
-firewalld_helper 'change-minimal-helper' do
-  short 'minimal-helper'
   ports '7778/udp'
-end
-
-firewalld_icmptype 'rick-rolled' do
-  version '1'
-  description 'never gonna give you up'
-  destinations %w(ipv4 ipv6)
 end
 
 firewalld_icmptype 'change-rick-rolled' do
   short 'rick-rolled'
+  description 'never gonna give you up'
+  version '1'
   destinations 'ipv4'
 end
-
-firewalld_icmptype 'minimal-icmptype'
 
 firewalld_icmptype 'change-minimal-icmptype' do
   short 'minimal-icmptype'
   destinations %w(ipv4 ipv6)
 end
 
-firewalld_ipset 'example-ips' do
+firewalld_ipset 'change-example-ips' do
+  short 'example-ips'
   version '1'
   description 'some ips as an example ipset'
   type 'hash:ip'
   options({
-    'family' => 'inet',
-    # timeout is not applicable for permanent configuration
-    # 'timeout' => '12',
-    'hashsize' => '1000',
-    'maxelem' => '255',
-  })
-  entries ['192.0.2.16', '192.0.2.32']
-end
-
-firewalld_ipset 'change-example-ips' do
-  short 'example-ips'
+            'family' => 'inet',
+            # timeout is not applicable for permanent configuration
+            # 'timeout' => '12',
+            'hashsize' => '1000',
+            'maxelem' => '255',
+          })
   entries ['192.0.2.16', '192.0.2.32']
 end
 
@@ -90,11 +92,6 @@ end
 firewalld_policy 'pminimal' do
   egress_zones 'external'
   ingress_zones 'internal'
-  masquerade true
-end
-
-firewalld_policy 'change-pminimal' do
-  short 'pminimal'
   masquerade false
 end
 
@@ -108,10 +105,6 @@ firewalld_service 'ssh2' do
   source_ports '23/tcp'
   includes 'ssh'
   helpers 'tftp'
-end
-
-firewalld_service 'minimal-service' do
-  ports '2/tcp'
 end
 
 firewalld_service 'change-minimal-service' do
@@ -147,3 +140,20 @@ firewalld_zone 'ztest2' do
   sources '192.0.2.0/24'
   version '1'
 end
+
+test_zone_priority =
+  (platform?('ubuntu') && node['platform_version'].to_f >= 24.04) ||
+  (platform?('rocky') && node['platform_version'] >= 10)
+
+firewalld_zone 'zpriority1' do
+  priority(-10)
+  only_if { test_zone_priority }
+end
+
+firewalld_zone 'zpriority2' do
+  ingress_priority 100
+  egress_priority 200
+  only_if { test_zone_priority }
+end
+
+include_recipe 'firewalld-test::rich_rules'

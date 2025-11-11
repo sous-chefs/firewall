@@ -14,28 +14,30 @@ provisioner:
       allow_mosh: true
       allow_loopback: true
       allow_icmp: true
-      firewalld:
-        permanent: true
 
 verifier:
   name: inspec
 
 platforms:
   - name: almalinux-8
+  - name: almalinux-9
   - name: amazonlinux-2
-  - name: centos-7
-  - name: centos-stream-8
+  - name: amazonlinux-2023
+  - name: centos-stream-9
   - name: debian-11
   - name: debian-12
-  - name: fedora-38
-  - name: fedora-39
   - name: fedora-latest
-  - name: freebsd-12
-  - name: freebsd-13
   - name: opensuse-leap-15
   - name: oracle-8
+  - name: oracle-9
+  - name: rockylinux-8
+  - name: rockylinux-9
   - name: ubuntu-20.04
   - name: ubuntu-22.04
+  - name: ubuntu-24.04
+  - name: windows-2016
+    driver_config:
+      box: tas50/windows_2016
   - name: windows-2019
     driver_config:
       box: tas50/windows_2019
@@ -46,71 +48,63 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[firewall::default]
       - recipe[firewall-test::default]
 
-  - name: firewalld
+  - name: firewalld-simple
     excludes:
-      - almalinux-8
-      - centos-8
-      - debian-9
-      - debian-10
-      - oracle-8
-      - ubuntu-18.04
-      - ubuntu-20.04
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
-
-  - name: ufw
-    excludes:
-      - almalinux-8
-      - amazonlinux-2
-      - centos-7
-      - centos-8
-      - fedora-latest
-      - freebsd-11
-      - freebsd-12
-      - opensuse-leap-15
-      - oracle-8
-      - windows-2016
-      - windows-2019
-    run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
-
-  - name: iptables
-    excludes:
-      - debian-9
-      - debian-10
-      - oracle-8
-      - ubuntu-18.04
-      - ubuntu-20.04
-      - windows-2016
-      - windows-2019
-    run_list:
-      - recipe[firewall::default]
       - recipe[firewall-test::default]
     attributes:
       firewall:
-        ubuntu_iptables: true
-        redhat7_iptables: true
+        solution: firewalld
+
+  - name: ufw
+    excludes:
+      - almalinux-10     # UFW not available in EPEL 10 (yet?)
+      - amazonlinux-2023 # No EPEL for AL2023
+      - centos-stream-10 # UFW not available in EPEL 10 (yet?)
+      - opensuse-leap-15 # openSUSE only supports firewalld
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        solution: ufw
+
+  - name: iptables
+    excludes:
+      - oracle-9         # iptables fails to install from Oracle repo
+      - opensuse-leap-15 # openSUSE only supports firewalld
+      - windows-2016
+      - windows-2019
+    run_list:
+      - recipe[firewall-test::default]
+    attributes:
+      firewall:
+        solution: iptables
 
   - name: nftables
     includes:
       - debian-11
+      - debian-12
       - oracle-8
+      - oracle-9
     run_list:
       - recipe[nftables-test]
 
-  - name: firewalld-dbus
-    includes:
-      - debian-11
-      - fedora-34
+  - name: firewalld-advanced
+    excludes:
+      - ubuntu-20.04 # firewalld version too old for advanced usage.
+      - windows-2016
+      - windows-2019
     run_list:
       - recipe[firewalld-test]
+    provisioner:
+      enforce_idempotency: true
+      multiple_converge: 2
 
   - name: windows
     includes:
