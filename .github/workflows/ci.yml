@@ -15,7 +15,7 @@ jobs:
       statuses: write
       issues: write
 
-  integration:
+  firewalld:
     needs: lint-unit
     runs-on: ubuntu-24.04
     strategy:
@@ -208,5 +208,81 @@ jobs:
           CHEF_LICENSE: accept-no-persist
           KITCHEN_LOCAL_YAML: kitchen.dokken.yml
         with:
-          suite: ${{ matrix.suite }}
+          suite: firewalld
           os: ${{ matrix.os }}
+
+  iptables:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - amazonlinux-2
+          - centos-7
+          - centos-stream-8
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/kitchen-test
+        with:
+          suite: iptables
+          os: ${{ matrix.os }}
+
+  ufw:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - ubuntu-2004
+          - ubuntu-2204
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/kitchen-test
+        with:
+          suite: ufw
+          os: ${{ matrix.os }}
+
+  nftables:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - debian-11
+          - debian-12
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/kitchen-test
+        with:
+          suite: nftables
+          os: ${{ matrix.os }}
+
+  firewalld-dbus:
+    needs: lint-unit
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        os:
+          - debian-11
+          - debian-12
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/kitchen-test
+        with:
+          suite: firewalld-dbus
+          os: ${{ matrix.os }}
+
+  verify:
+    needs: [firewalld, iptables, ufw, nftables, firewalld-dbus]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Success
+        run: echo "All test suites completed successfully!"

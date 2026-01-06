@@ -41,6 +41,9 @@ platforms:
   - name: windows-2019
     driver_config:
       box: tas50/windows_2019
+  - name: windows-2022
+    driver_config:
+      box: tas50/windows_2022
 
 suites:
   - name: default
