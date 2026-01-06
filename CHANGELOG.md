@@ -6,6 +6,13 @@ Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 
+## [7.0.4](https://github.com/sous-chefs/firewall/compare/v7.0.3...v7.0.4) (2025-10-16)
+
+
+### Bug Fixes
+
+* **ci:** Update workflows to use release pipeline ([#317](https://github.com/sous-chefs/firewall/issues/317)) ([03e661e](https://github.com/sous-chefs/firewall/commit/03e661ed6c10f1ba689325825e9a50dab678ea31))
+
 ## [7.0.3](https://github.com/sous-chefs/firewall/compare/7.0.2...v7.0.3) (2025-10-15)
 
 
