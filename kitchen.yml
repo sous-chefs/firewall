@@ -1,3 +1,4 @@
+---
 driver:
   name: vagrant
 
@@ -7,13 +8,8 @@ provisioner:
   product_version: <%= ENV['CHEF_VERSION'] %>
   deprecations_as_errors: true
   chef_license: accept-no-persist
-  attributes:
-    firewall:
-      allow_ssh: true
-      allow_winrm: true
-      allow_mosh: true
-      allow_loopback: true
-      allow_icmp: true
+  enforce_idempotency: true
+  multiple_converge: 2
 
 verifier:
   name: inspec
@@ -21,18 +17,18 @@ verifier:
 platforms:
   - name: almalinux-8
   - name: almalinux-9
-  - name: amazonlinux-2
+  - name: almalinux-10
   - name: amazonlinux-2023
   - name: centos-stream-9
-  - name: debian-11
+  - name: centos-stream-10
   - name: debian-12
+  - name: debian-13
   - name: fedora-latest
-  - name: opensuse-leap-15
-  - name: oracle-8
-  - name: oracle-9
+  - name: oraclelinux-8
+  - name: oraclelinux-9
   - name: rockylinux-8
   - name: rockylinux-9
-  - name: ubuntu-20.04
+  - name: rockylinux-10
   - name: ubuntu-22.04
   - name: ubuntu-24.04
   - name: windows-2016
@@ -45,16 +41,22 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[firewall-test::default]
+      - recipe[test::default]
+    verifier:
+      inspec_tests:
+        - path: test/integration/default
 
   - name: firewalld-simple
     excludes:
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall-test::default]
+      - recipe[test::default]
+    verifier:
+      inspec_tests:
+        - path: test/integration/firewalld
     attributes:
-      firewall:
+      firewall_test:
         solution: firewalld
 
   - name: ufw
@@ -62,43 +64,54 @@ suites:
       - almalinux-10     # UFW not available in EPEL 10 (yet?)
       - amazonlinux-2023 # No EPEL for AL2023
       - centos-stream-10 # UFW not available in EPEL 10 (yet?)
-      - opensuse-leap-15 # openSUSE only supports firewalld
+      - rockylinux-10    # UFW not available in EPEL 10 (yet?)
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall-test::default]
+      - recipe[test::default]
+    verifier:
+      inspec_tests:
+        - path: test/integration/ufw
     attributes:
-      firewall:
+      firewall_test:
         solution: ufw
 
   - name: iptables
     excludes:
-      - oracle-9         # iptables fails to install from Oracle repo
-      - opensuse-leap-15 # openSUSE only supports firewalld
+      - oraclelinux-9         # iptables fails to install from Oracle repo
+      - oraclelinux-9    # iptables fails to install from Oracle repo
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall-test::default]
+      - recipe[test::default]
+    verifier:
+      inspec_tests:
+        - path: test/integration/iptables
     attributes:
-      firewall:
+      firewall_test:
         solution: iptables
 
   - name: nftables
     includes:
-      - debian-11
       - debian-12
-      - oracle-8
-      - oracle-9
+      - debian-13
+      - oraclelinux-8
+      - oraclelinux-9
     run_list:
-      - recipe[nftables-test]
+      - recipe[nftables_test]
+    verifier:
+      inspec_tests:
+        - path: test/integration/nftables
 
   - name: firewalld-advanced
     excludes:
-      - ubuntu-20.04 # firewalld version too old for advanced usage.
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewalld-test]
+      - recipe[firewalld_test]
+    verifier:
+      inspec_tests:
+        - path: test/integration/firewalld-dbus
     provisioner:
       enforce_idempotency: true
       multiple_converge: 2
@@ -108,5 +121,10 @@ suites:
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewall::default]
-      - recipe[firewall-test::default]
+      - recipe[test::default]
+    attributes:
+      firewall_test:
+        solution: windows
+    verifier:
+      inspec_tests:
+        - path: test/integration/windows

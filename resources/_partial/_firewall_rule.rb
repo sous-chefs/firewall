@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'ipaddr'
 
@@ -22,3 +23,6 @@ property :destination, String, callbacks: { 'must be a valid ip address' => ->(i
 property :position, Integer, default: 50
 property :description, String, name_property: true
 property :redirect_port, Integer
+property :zone,
+         String,
+         description: 'Zone in which to apply the rule. Used by firewalld.'

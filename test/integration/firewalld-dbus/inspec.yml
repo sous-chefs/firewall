@@ -1,0 +1,7 @@
+---
+name: firewalld-dbus
+title: Firewalld DBus Tests
+maintainer: Sous Chefs
+license: Apache-2.0
+summary: Firewalld DBus resource tests
+version: 1.0.0

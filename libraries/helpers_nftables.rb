@@ -119,6 +119,8 @@ module FirewallCookbook
           firewall_rule << "#{rule_resource.protocol} dport #{port_to_s(rule_resource.dport)} " if rule_resource.dport
         when :esp, :ah
           firewall_rule << "#{ip} #{ip == 'ip6' ? 'nexthdr' : 'protocol'} #{rule_resource.protocol} "
+        when Integer
+          firewall_rule << "#{ip} #{ip == 'ip6' ? 'nexthdr' : 'protocol'} #{rule_resource.protocol} "
         when :ipv6, :none
           # nothing to do
         end

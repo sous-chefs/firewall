@@ -68,6 +68,8 @@ load_current_value do |new_resource|
     object = firewalld_service[policy_path]
     config_policy = object['org.fedoraproject.FirewallD1.config.policy']
     config_policy.getSettings.each do |k, v|
+      next unless new_resource.class.properties.key?(k.to_sym)
+
       # Load the current value of ports in the same format as the resource property to make it idempotent
       v = v.map { |port, protocol| "#{port}/#{protocol}" } if %w(ports source_ports).include?(k)
       send(k, v)
@@ -90,8 +92,9 @@ action :update do
   policy = policy_interface(dbus, policy_path)
   properties = new_resource.class.state_properties.map(&:name)
   properties.each do |property|
+    next unless property_is_set?(property)
+
     new_value = new_resource.send(property)
-    next if new_value.nil?
 
     if property == :rich_rules
       # quote the values in the rich rule just like firewalld does so it's idempotent
@@ -106,6 +109,8 @@ action :update do
       new_value = forward_ports_to_dbus(new_resource)
     elsif [:priority].include?(property)
       new_value = DBus.variant('i', new_value)
+    elsif [:masquerade].include?(property)
+      new_value = DBus.variant('b', new_value)
     end
     converge_if_changed property do
       policy.update({ property.to_s => new_value })

@@ -2,7 +2,7 @@
 
 ## Actions
 
-- `:create`
+* `:create`
 
 ## Properties
 
@@ -31,4 +31,4 @@
 
 ## Examples
 
-See the [recipe used for testing](../test/fixtures/cookbooks/nftables-test/recipes/default.rb).
+See the [recipe used for testing](../test/cookbooks/nftables_test/recipes/default.rb).

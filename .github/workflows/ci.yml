@@ -9,11 +9,9 @@ jobs:
   lint-unit:
     uses: sous-chefs/.github/.github/workflows/lint-unit.yml@6.0.0
     permissions:
-      actions: write
       checks: write
       pull-requests: write
       statuses: write
-      issues: write
 
   integration:
     needs: lint-unit
@@ -36,21 +34,21 @@ jobs:
           - suite: default
             os: centos-stream-10
           - suite: default
-            os: debian-11
-          - suite: default
             os: debian-12
+          - suite: default
+            os: debian-13
           - suite: default
             os: fedora-latest
           - suite: default
-            os: opensuse-leap-15
+            os: oraclelinux-8
           - suite: default
-            os: oracle-8
-          - suite: default
-            os: oracle-9
+            os: oraclelinux-9
           - suite: default
             os: rockylinux-8
           - suite: default
             os: rockylinux-9
+          - suite: default
+            os: rockylinux-10
           - suite: default
             os: ubuntu-2204
           - suite: default
@@ -70,23 +68,21 @@ jobs:
           - suite: firewalld-simple
             os: centos-stream-10
           - suite: firewalld-simple
-            os: debian-11
-          - suite: firewalld-simple
             os: debian-12
+          - suite: firewalld-simple
+            os: debian-13
           - suite: firewalld-simple
             os: fedora-latest
           - suite: firewalld-simple
-            os: opensuse-leap-15
+            os: oraclelinux-8
           - suite: firewalld-simple
-            os: oracle-8
-          - suite: firewalld-simple
-            os: oracle-9
+            os: oraclelinux-9
           - suite: firewalld-simple
             os: rockylinux-8
           - suite: firewalld-simple
             os: rockylinux-9
           - suite: firewalld-simple
-            os: ubuntu-2004
+            os: rockylinux-10
           - suite: firewalld-simple
             os: ubuntu-2204
           - suite: firewalld-simple
@@ -100,15 +96,15 @@ jobs:
           - suite: ufw
             os: centos-stream-9
           - suite: ufw
-            os: debian-11
-          - suite: ufw
             os: debian-12
+          - suite: ufw
+            os: debian-13
           # - suite: ufw # Fails on GitHub Actions with: Module ip6_tables not found in directory /lib/modules/6.8.0-1017-azure
           #   os: fedora-latest
           - suite: ufw
-            os: oracle-8
+            os: oraclelinux-8
           - suite: ufw
-            os: oracle-9
+            os: oraclelinux-9
           - suite: ufw
             os: rockylinux-8
           - suite: ufw
@@ -132,13 +128,13 @@ jobs:
           - suite: iptables
             os: centos-stream-10
           - suite: iptables
-            os: debian-11
-          - suite: iptables
             os: debian-12
+          - suite: iptables
+            os: debian-13
           # - suite: iptables # Fails on GitHub Actions with: ip6tables.service failed
           #   os: fedora-latest
           - suite: iptables
-            os: oracle-8
+            os: oraclelinux-8
           - suite: iptables
             os: rockylinux-8
           - suite: iptables
@@ -150,13 +146,13 @@ jobs:
 
           # NFTables suite
           - suite: nftables
-            os: debian-11
-          - suite: nftables
             os: debian-12
           - suite: nftables
-            os: oracle-8
+            os: debian-13
           - suite: nftables
-            os: oracle-9
+            os: oraclelinux-8
+          - suite: nftables
+            os: oraclelinux-9
 
           # Firewalld advanced suite
           - suite: firewalld-advanced
@@ -172,36 +168,31 @@ jobs:
           - suite: firewalld-advanced
             os: centos-stream-10
           - suite: firewalld-advanced
-            os: debian-11
-          - suite: firewalld-advanced
             os: debian-12
+          - suite: firewalld-advanced
+            os: debian-13
           - suite: firewalld-advanced
             os: fedora-latest
           - suite: firewalld-advanced
-            os: opensuse-leap-15
+            os: oraclelinux-8
           - suite: firewalld-advanced
-            os: oracle-8
-          - suite: firewalld-advanced
-            os: oracle-9
+            os: oraclelinux-9
           - suite: firewalld-advanced
             os: rockylinux-8
           - suite: firewalld-advanced
             os: rockylinux-9
           - suite: firewalld-advanced
+            os: rockylinux-10
+          - suite: firewalld-advanced
             os: ubuntu-2204
           - suite: firewalld-advanced
             os: ubuntu-2404
 
-          # TODO: Windows suite
-          # - suite: windows
-          #   os: windows-2016
-          # - suite: windows
-          #   os: windows-2019
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      - name: Install Chef
-        uses: actionshub/chef-install@6.0.0
+      - name: Install Cinc Workstation
+        uses: sous-chefs/.github/.github/actions/install-workstation@6.0.0
       - name: Dokken
         uses: actionshub/test-kitchen@3.0.0
         env:

@@ -2,10 +2,10 @@
 
 ## Actions
 
-- `:install`
-- `:rebuild`
-- `:restart`
-- `:disable`
+* `:install`
+* `:rebuild`
+* `:restart`
+* `:disable`
 
 ## Properties
 

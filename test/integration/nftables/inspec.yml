@@ -1,0 +1,7 @@
+---
+name: nftables
+title: Nftables Tests
+maintainer: Sous Chefs
+license: Apache-2.0
+summary: Nftables backend tests
+version: 1.0.0
