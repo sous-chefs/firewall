@@ -2,6 +2,8 @@ unified_mode true
 
 provides :firewalld_ipset,
          os: 'linux'
+provides :firewall_ipset,
+         os: 'linux'
 
 property :version,
          String,

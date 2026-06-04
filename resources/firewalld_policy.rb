@@ -2,6 +2,8 @@ unified_mode true
 
 provides :firewalld_policy,
          os: 'linux'
+provides :firewall_policy,
+         os: 'linux'
 
 property :description,
          String,

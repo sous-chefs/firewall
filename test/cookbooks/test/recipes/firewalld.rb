@@ -19,39 +19,44 @@ user 'polkitd' do
   only_if { platform?('debian', 'ubuntu') }
 end
 
-firewalld 'default'
+package 'firewalld'
 
-firewalld_config 'set some values' do
-  default_zone 'home'
-  log_denied 'all'
+execute 'use iptables firewalld backend in dokken' do
+  command "sed -i -e 's/^FirewallBackend=.*/FirewallBackend=iptables/' /etc/firewalld/firewalld.conf"
+  only_if { ::File.exist?('/.dockerenv') && ::File.exist?('/etc/firewalld/firewalld.conf') }
+  not_if "grep -q '^FirewallBackend=iptables$' /etc/firewalld/firewalld.conf"
 end
 
-firewalld_helper 'example-helper' do
+firewall 'default' do
+  backend :firewalld
+end
+
+firewall_helper 'example-helper' do
   version '1'
-  description 'Example of a firewalld_helper'
+  description 'Example of a firewall_helper'
   family 'ipv6'
   nf_module 'nf_conntrack_irc'
   ports ['6667/tcp', '5556/udp']
 end
 
-firewalld_helper 'minimal-helper' do
+firewall_helper 'minimal-helper' do
   nf_module 'nf_conntrack_netbios_ns'
   ports '7778/udp'
 end
 
-firewalld_icmptype 'change-rick-rolled' do
+firewall_icmptype 'change-rick-rolled' do
   short 'rick-rolled'
   description 'never gonna give you up'
   version '1'
   destinations 'ipv4'
 end
 
-firewalld_icmptype 'change-minimal-icmptype' do
+firewall_icmptype 'change-minimal-icmptype' do
   short 'minimal-icmptype'
   destinations %w(ipv4 ipv6)
 end
 
-firewalld_ipset 'change-example-ips' do
+firewall_ipset 'change-example-ips' do
   short 'example-ips'
   version '1'
   description 'some ips as an example ipset'
@@ -66,18 +71,24 @@ firewalld_ipset 'change-example-ips' do
   entries ['192.0.2.16', '192.0.2.32']
 end
 
-firewalld_ipset 'single-ip' do
+firewall_ipset 'single-ip' do
   entries '192.0.2.22'
 end
 
-firewalld_policy 'ptest' do
+firewall_zone 'zhome' do
+  icmp_block_inversion true
+  interfaces 'eth0'
+  forward false
+end
+
+firewall_policy 'ptest' do
   description 'Policy for testing'
   egress_zones 'dmz'
   forward_ports [
     'port=8081:proto=tcp:toport=81:toaddr=192.0.2.1',
     'port=8084-8085:proto=tcp:toport=84-85:toaddr=192.0.2.5',
   ]
-  ingress_zones 'home'
+  ingress_zones 'zhome'
   masquerade false
   ports '23/udp'
   priority 10
@@ -89,13 +100,13 @@ firewalld_policy 'ptest' do
   version '41'
 end
 
-firewalld_policy 'pminimal' do
+firewall_policy 'pminimal' do
   egress_zones 'external'
   ingress_zones 'internal'
   masquerade false
 end
 
-firewalld_service 'ssh2' do
+firewall_service 'ssh2' do
   version '1'
   description 'ssh on obscure port'
   ports '2222/tcp'
@@ -107,18 +118,17 @@ firewalld_service 'ssh2' do
   helpers 'tftp'
 end
 
-firewalld_service 'change-minimal-service' do
+firewall_service 'change-minimal-service' do
   short 'minimal-service'
   ports '1/udp'
 end
 
-firewalld_zone 'home' do
-  icmp_block_inversion true
-  interfaces 'eth0'
-  forward false
+firewall_config 'set some values' do
+  default_zone 'zhome'
+  log_denied 'all'
 end
 
-firewalld_zone 'ztest' do
+firewall_zone 'ztest' do
   description 'Test zone'
   forward true
   forward_ports 'port=8080:proto=tcp:toport=80:toaddr=192.0.2.1'
@@ -136,7 +146,7 @@ firewalld_zone 'ztest' do
   version '1'
 end
 
-firewalld_zone 'ztest2' do
+firewall_zone 'ztest2' do
   sources '192.0.2.0/24'
   version '1'
 end
@@ -145,15 +155,15 @@ test_zone_priority =
   (platform?('ubuntu') && node['platform_version'].to_f >= 24.04) ||
   (platform?('rocky') && node['platform_version'] >= 10)
 
-firewalld_zone 'zpriority1' do
+firewall_zone 'zpriority1' do
   priority(-10)
   only_if { test_zone_priority }
 end
 
-firewalld_zone 'zpriority2' do
+firewall_zone 'zpriority2' do
   ingress_priority 100
   egress_priority 200
   only_if { test_zone_priority }
 end
 
-include_recipe 'firewalld_test::rich_rules'
+include_recipe 'test::rich_rules'

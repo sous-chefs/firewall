@@ -53,6 +53,31 @@ describe 'firewall_rule' do
     it { is_expected.to create_nftables_rule('ssh') }
   end
 
+  context 'with nftables-specific rule options through the firewall_rule facade' do
+    platform 'debian', '12'
+
+    recipe do
+      firewall 'default' do
+        backend :nftables
+      end
+
+      firewall_rule 'logged ssh' do
+        command [:log, :counter, :accept]
+        log_prefix 'TEST_PREFIX:'
+        log_group 0
+        port 22
+      end
+    end
+
+    it do
+      expect(chef_run).to create_nftables_rule('logged ssh')
+        .with(command: [:log, :counter, :accept],
+              dport: 22,
+              log_prefix: 'TEST_PREFIX:',
+              log_group: 0)
+    end
+  end
+
   context 'with iptables backend' do
     platform 'ubuntu', '24.04'
 

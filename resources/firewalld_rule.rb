@@ -111,6 +111,8 @@ action_class do
       reject: :reject,
       allow: :accept,
       deny: :drop,
+      accept: :accept,
+      drop: :drop,
     }
   end
 

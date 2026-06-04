@@ -13,6 +13,8 @@ property :interface, String
 property :dest_interface, String
 property :stateful, [Symbol, Array]
 property :include_comment, [true, false], default: true
+property :log_prefix, String
+property :log_group, Integer
 
 # only used for Windows Firewalls
 property :program, String
@@ -110,6 +112,8 @@ action_class do
         redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
         description new_resource.description
         include_comment new_resource.include_comment
+        log_prefix new_resource.log_prefix if new_resource.property_is_set?(:log_prefix)
+        log_group new_resource.log_group if new_resource.property_is_set?(:log_group)
         raw new_resource.raw if new_resource.property_is_set?(:raw)
       end
     end

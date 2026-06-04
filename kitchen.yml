@@ -98,7 +98,7 @@ suites:
       - oraclelinux-8
       - oraclelinux-9
     run_list:
-      - recipe[nftables_test]
+      - recipe[test::nftables]
     verifier:
       inspec_tests:
         - path: test/integration/nftables
@@ -108,7 +108,7 @@ suites:
       - windows-2016
       - windows-2019
     run_list:
-      - recipe[firewalld_test]
+      - recipe[test::firewalld]
     verifier:
       inspec_tests:
         - path: test/integration/firewalld-dbus

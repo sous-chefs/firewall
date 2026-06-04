@@ -28,4 +28,4 @@ firewalld 'arbitrary-name'
 end
 ```
 
-See the [recipe used for testing](../../test/cookbooks/firewalld_test/recipes/default.rb).
+See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld.rb).

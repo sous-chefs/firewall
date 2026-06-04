@@ -2,6 +2,8 @@ unified_mode true
 
 provides :firewalld_helper,
          os: 'linux'
+provides :firewall_helper,
+         os: 'linux'
 
 property :version,
          String,

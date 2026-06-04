@@ -4,6 +4,7 @@ require 'ipaddr'
 unified_mode true
 
 provides :firewalld_rich_rule, os: 'linux'
+provides :firewall_rich_rule, os: 'linux'
 
 default_action :add
 

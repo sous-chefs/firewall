@@ -2,6 +2,8 @@ unified_mode true
 
 provides :firewalld_icmptype,
          os: 'linux'
+provides :firewall_icmptype,
+         os: 'linux'
 
 property :version,
          String,

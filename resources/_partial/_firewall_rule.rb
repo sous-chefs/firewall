@@ -7,7 +7,15 @@ unified_mode true
 default_action :create
 
 property :firewall_name, String, default: 'default'
-property :command, Symbol, equal_to: [:reject, :allow, :deny, :masquerade, :redirect, :log], default: :allow
+property :command,
+         [Array, Symbol],
+         default: :allow,
+         callbacks: {
+           'must be :reject, :allow, :deny, :masquerade, :redirect, :log, :drop, :accept, :counter, or an array of those values' => lambda do |command|
+             allowed_commands = [:reject, :allow, :deny, :masquerade, :redirect, :log, :drop, :accept, :counter]
+             Array(command).all? { |item| allowed_commands.include?(item) }
+           end,
+         }
 property :protocol, [Integer, Symbol], default: :tcp,
                                        callbacks: {
                                          'must be either :tcp, :udp, :icmp, :\'ipv6-icmp\', :icmpv6, :none, or a valid IP protocol number' =>

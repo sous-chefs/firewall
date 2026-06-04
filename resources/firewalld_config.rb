@@ -2,6 +2,8 @@ unified_mode true
 
 provides :firewalld_config,
          os: 'linux'
+provides :firewall_config,
+         os: 'linux'
 
 property :default_zone,
          String,

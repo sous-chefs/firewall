@@ -31,4 +31,4 @@
 
 ## Examples
 
-See the [recipe used for testing](../test/cookbooks/nftables_test/recipes/default.rb).
+See the [recipe used for testing](../test/cookbooks/test/recipes/nftables.rb).
