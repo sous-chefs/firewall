@@ -12,7 +12,6 @@ property :allow_mosh, [true, false], default: false
 
 action :install do
   chef_gem 'ruby-dbus'
-  require 'dbus'
 
   package 'firewalld' do
     options new_resource.package_options if new_resource.package_options

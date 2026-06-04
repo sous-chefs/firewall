@@ -68,42 +68,50 @@ action_class do
   end
 
   def create_iptables_rule
-    iptables_rule new_resource.description do
-      apply_common_rule_properties(self)
+    with_run_context :root do
+      iptables_rule new_resource.description do
+        apply_common_rule_properties(self)
+      end
     end
   end
 
   def create_ufw_rule
-    ufw_rule new_resource.description do
-      apply_common_rule_properties(self)
+    with_run_context :root do
+      ufw_rule new_resource.description do
+        apply_common_rule_properties(self)
+      end
     end
   end
 
   def create_windows_firewall_rule
-    windows_firewall_rule new_resource.description do
-      apply_common_rule_properties(self)
+    with_run_context :root do
+      windows_firewall_rule new_resource.description do
+        apply_common_rule_properties(self)
+      end
     end
   end
 
   def create_nftables_rule
-    nftables_rule new_resource.description do
-      firewall_name new_resource.firewall_name
-      command new_resource.command
-      protocol new_resource.protocol
-      direction new_resource.direction
-      family ipv6_rule?(new_resource) ? :ip6 : :ip
-      source new_resource.source if new_resource.property_is_set?(:source)
-      sport new_resource.source_port if new_resource.property_is_set?(:source_port)
-      interface new_resource.interface if new_resource.property_is_set?(:interface)
-      dport dport_calc(new_resource) if new_resource.property_is_set?(:port) || new_resource.property_is_set?(:dest_port)
-      destination new_resource.destination if new_resource.property_is_set?(:destination)
-      outerface new_resource.dest_interface if new_resource.property_is_set?(:dest_interface)
-      position new_resource.position
-      stateful new_resource.stateful if new_resource.property_is_set?(:stateful)
-      redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
-      description new_resource.description
-      include_comment new_resource.include_comment
-      raw new_resource.raw if new_resource.property_is_set?(:raw)
+    with_run_context :root do
+      nftables_rule new_resource.description do
+        firewall_name new_resource.firewall_name
+        command new_resource.command
+        protocol new_resource.protocol
+        direction new_resource.direction
+        family ipv6_rule?(new_resource) ? :ip6 : :ip
+        source new_resource.source if new_resource.property_is_set?(:source)
+        sport new_resource.source_port if new_resource.property_is_set?(:source_port)
+        interface new_resource.interface if new_resource.property_is_set?(:interface)
+        dport dport_calc(new_resource) if new_resource.property_is_set?(:port) || new_resource.property_is_set?(:dest_port)
+        destination new_resource.destination if new_resource.property_is_set?(:destination)
+        outerface new_resource.dest_interface if new_resource.property_is_set?(:dest_interface)
+        position new_resource.position
+        stateful new_resource.stateful if new_resource.property_is_set?(:stateful)
+        redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
+        description new_resource.description
+        include_comment new_resource.include_comment
+        raw new_resource.raw if new_resource.property_is_set?(:raw)
+      end
     end
   end
 
@@ -131,22 +139,24 @@ action_class do
   end
 
   def create_firewalld_rule
-    firewalld_rule new_resource.description do
-      firewall_name new_resource.firewall_name
-      command new_resource.command
-      protocol new_resource.protocol
-      source new_resource.source if new_resource.property_is_set?(:source)
-      source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
-      port new_resource.port if new_resource.property_is_set?(:port)
-      dest_port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
-      destination new_resource.destination if new_resource.property_is_set?(:destination)
-      position new_resource.position
-      description new_resource.description
-      redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
-      zone new_resource.zone if new_resource.property_is_set?(:zone)
-      include_comment new_resource.include_comment
-      raw new_resource.raw if new_resource.property_is_set?(:raw)
-      notify_firewall new_resource.notify_firewall
+    with_run_context :root do
+      firewalld_rule new_resource.description do
+        firewall_name new_resource.firewall_name
+        command new_resource.command
+        protocol new_resource.protocol
+        source new_resource.source if new_resource.property_is_set?(:source)
+        source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
+        port new_resource.port if new_resource.property_is_set?(:port)
+        dest_port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
+        destination new_resource.destination if new_resource.property_is_set?(:destination)
+        position new_resource.position
+        description new_resource.description
+        redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
+        zone new_resource.zone if new_resource.property_is_set?(:zone)
+        include_comment new_resource.include_comment
+        raw new_resource.raw if new_resource.property_is_set?(:raw)
+        notify_firewall new_resource.notify_firewall
+      end
     end
   end
 end

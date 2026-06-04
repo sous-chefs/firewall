@@ -1,6 +1,18 @@
 module FirewallCookbook
   module Helpers
     module FirewalldDBus
+      def dbus_system_bus
+        require 'dbus'
+
+        DBus.system_bus
+      end
+
+      def dbus_variant(signature, value)
+        require 'dbus'
+
+        DBus.variant(signature, value)
+      end
+
       def firewalld(system_bus)
         system_bus['org.fedoraproject.FirewallD1']
       end
@@ -77,7 +89,7 @@ module FirewallCookbook
           parse_forward_ports(e)
         end
         new_resource.forward_ports = fwp
-        DBus.variant('a(ssss)', new_resource.forward_ports)
+        dbus_variant('a(ssss)', new_resource.forward_ports)
       end
     end
   end

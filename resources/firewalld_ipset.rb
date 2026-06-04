@@ -27,8 +27,10 @@ property :entries,
          description: 'array of entries, see entry tag in firewalld.ipset(5).',
          coerce: proc { |o| Array(o) }
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |new_resource|
-  sysbus = DBus.system_bus
+  sysbus = dbus_system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -49,7 +51,7 @@ load_current_value do |new_resource|
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   reload = false

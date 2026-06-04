@@ -28,8 +28,10 @@ property :ports,
          description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.helper(5).',
          coerce: proc { |o| Array(o) }
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |new_resource|
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   firewalld_service = dbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -51,7 +53,7 @@ load_current_value do |new_resource|
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   helper_names = fw_config.getHelperNames

@@ -15,5 +15,4 @@ describe 'iptables_rule' do
   end
 
   it { is_expected.to create_iptables_rule('ssh') }
-  it { is_expected.to run_ruby_block('queue iptables rebuild default ssh') }
 end

@@ -10,9 +10,7 @@ provides :iptables,
 action :install do
   packages = platform_family?('debian') ? ['iptables-persistent'] : iptables_packages(new_resource)
   packages.each do |pkg|
-    package pkg do
-      options new_resource.package_options if property_is_set?(:package_options)
-    end
+    package pkg
   end
 
   iptables_service_names.each do |svc|

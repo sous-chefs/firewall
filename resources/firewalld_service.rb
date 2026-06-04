@@ -41,8 +41,10 @@ property :helpers,
          description: 'array of service helpers, see helper tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |new_resource|
-  sysbus = DBus.system_bus
+  sysbus = dbus_system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -61,7 +63,7 @@ load_current_value do |new_resource|
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   reload = false
@@ -77,7 +79,7 @@ action :update do
     new_value = new_resource.send(property)
 
     if [:ports, :source_ports].include?(property)
-      new_value = DBus.variant('a(ss)', new_value.map { |e| e.split('/') })
+      new_value = dbus_variant('a(ss)', new_value.map { |e| e.split('/') })
     elsif property == :description
       new_value = default_description(new_resource)
     end

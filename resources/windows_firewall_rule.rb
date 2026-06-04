@@ -21,11 +21,5 @@ property :notify_firewall, [true, false], default: true
 action :create do
   return unless new_resource.notify_firewall
 
-  Chef.run_context.resource_collection.find(windows_firewall: new_resource.firewall_name)
-
-  ruby_block "queue windows firewall rebuild #{new_resource.firewall_name} #{new_resource.name}" do
-    block {}
-    action :run
-    notifies :rebuild, "windows_firewall[#{new_resource.firewall_name}]", :delayed
-  end
+  Chef.run_context.resource_collection.find(windows_firewall: new_resource.firewall_name).delayed_action(:rebuild)
 end

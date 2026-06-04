@@ -58,8 +58,10 @@ property :version,
          String,
          description: 'see version attribute of policy tag in firewalld.policy(5).'
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |new_resource|
-  sysbus = DBus.system_bus
+  sysbus = dbus_system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -80,7 +82,7 @@ load_current_value do |new_resource|
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   reload = false
@@ -104,13 +106,13 @@ action :update do
     end
 
     if [:ports, :source_ports].include?(property)
-      new_value = DBus.variant('a(ss)', new_value.map { |e| e.split('/') })
+      new_value = dbus_variant('a(ss)', new_value.map { |e| e.split('/') })
     elsif [:forward_ports].include?(property)
       new_value = forward_ports_to_dbus(new_resource)
     elsif [:priority].include?(property)
-      new_value = DBus.variant('i', new_value)
+      new_value = dbus_variant('i', new_value)
     elsif [:masquerade].include?(property)
-      new_value = DBus.variant('b', new_value)
+      new_value = dbus_variant('b', new_value)
     end
     converge_if_changed property do
       policy.update({ property.to_s => new_value })

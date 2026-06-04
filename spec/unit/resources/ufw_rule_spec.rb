@@ -15,5 +15,4 @@ describe 'ufw_rule' do
   end
 
   it { is_expected.to create_ufw_rule('ssh') }
-  it { is_expected.to run_ruby_block('queue ufw rebuild default ssh') }
 end

@@ -101,12 +101,6 @@ property :notify_firewall,
 action :create do
   return if return_early?(new_resource)
 
-  Chef.run_context.resource_collection.find(nftables: new_resource.firewall_name)
+  Chef.run_context.resource_collection.find(nftables: new_resource.firewall_name).delayed_action(:rebuild)
   build_firewall_rule(new_resource)
-
-  ruby_block "queue nftables rebuild #{new_resource.firewall_name} #{new_resource.name}" do
-    block {}
-    action :run
-    notifies :rebuild, "nftables[#{new_resource.firewall_name}]", :delayed
-  end
 end

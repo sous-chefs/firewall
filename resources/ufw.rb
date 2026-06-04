@@ -8,9 +8,7 @@ provides :ufw,
          os: 'linux'
 
 action :install do
-  package 'ufw' do
-    options new_resource.package_options if property_is_set?(:package_options)
-  end
+  package 'ufw'
 
   template '/etc/default/ufw' do
     owner 'root'

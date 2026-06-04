@@ -57,44 +57,46 @@ action_class do
   end
 
   def declare_backend_resource(requested_action)
-    case firewall_backend
-    when :firewalld
-      firewalld new_resource.name do
-        package_options new_resource.package_options if property_is_set?(:package_options)
-        allow_ssh new_resource.allow_ssh
-        allow_mosh new_resource.allow_mosh
-        action requested_action
+    with_run_context :root do
+      case firewall_backend
+      when :firewalld
+        firewalld new_resource.name do
+          package_options new_resource.package_options if property_is_set?(:package_options)
+          allow_ssh new_resource.allow_ssh
+          allow_mosh new_resource.allow_mosh
+          action requested_action
+        end
+      when :iptables
+        iptables new_resource.name do
+          copy_common_firewall_properties(self)
+          iptables_ruleset new_resource.iptables_ruleset
+          action requested_action
+        end
+      when :nftables
+        nftables new_resource.name do
+          copy_common_firewall_properties(self)
+          input_policy 'drop'
+          output_policy 'accept'
+          forward_policy 'drop'
+          table_ip_nat true
+          table_ip6_nat new_resource.ipv6_enabled
+          action nftables_action(requested_action)
+        end
+      when :ufw
+        ufw new_resource.name do
+          copy_common_firewall_properties(self)
+          ufw_defaults new_resource.ufw_defaults
+          action requested_action
+        end
+      when :windows
+        windows_firewall new_resource.name do
+          copy_common_firewall_properties(self)
+          windows_policy new_resource.windows_policy
+          action requested_action
+        end
+      else
+        raise "Unsupported firewall backend #{firewall_backend}"
       end
-    when :iptables
-      iptables new_resource.name do
-        copy_common_firewall_properties(self)
-        iptables_ruleset new_resource.iptables_ruleset
-        action requested_action
-      end
-    when :nftables
-      nftables new_resource.name do
-        copy_common_firewall_properties(self)
-        input_policy 'drop'
-        output_policy 'accept'
-        forward_policy 'drop'
-        table_ip_nat true
-        table_ip6_nat new_resource.ipv6_enabled
-        action nftables_action(requested_action)
-      end
-    when :ufw
-      ufw new_resource.name do
-        copy_common_firewall_properties(self)
-        ufw_defaults new_resource.ufw_defaults
-        action requested_action
-      end
-    when :windows
-      windows_firewall new_resource.name do
-        copy_common_firewall_properties(self)
-        windows_policy new_resource.windows_policy
-        action requested_action
-      end
-    else
-      raise "Unsupported firewall backend #{firewall_backend}"
     end
   end
 

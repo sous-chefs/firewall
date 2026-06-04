@@ -14,13 +14,13 @@ property :log_denied,
 include FirewallCookbook::Helpers::FirewalldDBus
 
 load_current_value do |_new_resource|
-  sysbus = DBus.system_bus
+  sysbus = dbus_system_bus
   default_zone get_default_zone(sysbus)
   log_denied get_log_denied(sysbus)
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw = firewalld_interface(dbus)
 
   converge_if_changed :default_zone do

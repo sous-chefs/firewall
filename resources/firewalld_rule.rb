@@ -69,7 +69,7 @@ action_class do
       family new_resource.family if new_resource.property_is_set?(:family)
       source new_resource.source if new_resource.property_is_set?(:source)
       destination new_resource.destination if new_resource.property_is_set?(:destination)
-      priority new_resource.position if new_resource.property_is_set?(:position)
+      priority new_resource.position unless default_position?
 
       unless new_resource.property_is_set?(:raw)
         if array_property == :source_port
@@ -115,8 +115,12 @@ action_class do
   end
 
   def firewalld_protocol_required?
-    property_is_set?(:protocol) || property_is_set?(:port) ||
+    new_resource.protocol != :tcp || property_is_set?(:port) ||
       property_is_set?(:dest_port) || property_is_set?(:source_port)
+  end
+
+  def default_position?
+    new_resource.position == 50
   end
 
   def format_port(value)

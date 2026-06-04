@@ -160,7 +160,7 @@ action :add do
   rule = get_rich_rule_string
 
   begin
-    sysbus = DBus.system_bus
+    sysbus = dbus_system_bus
     zone_config = get_zone_config(sysbus)
     rule_exists = zone_config.queryRichRule(rule)
 
@@ -179,7 +179,7 @@ action :remove do
   rule = get_rich_rule_string
 
   begin
-    sysbus = DBus.system_bus
+    sysbus = dbus_system_bus
     zone_config = get_zone_config(sysbus)
     rule_exists = zone_config.queryRichRule(rule)
 
@@ -254,8 +254,8 @@ action_class do
 
     rule_parts = []
     rule_parts << 'rule'
+    rule_parts << "priority=\"#{r.priority}\"" if property_is_set?(:priority)
     rule_parts << "family=\"#{ip_family}\"" if ip_family
-    rule_parts << "priority=\"#{r.priority}\""                         if property_is_set?(:priority)
     rule_parts << "source address=\"#{r.source}\""                     if property_is_set?(:source)
     rule_parts << "source not address=\"#{r.source_not}\""             if property_is_set?(:source_not)
     rule_parts << "destination address=\"#{r.destination}\""           if property_is_set?(:destination)

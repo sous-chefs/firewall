@@ -15,5 +15,4 @@ describe 'nftables_rule' do
   end
 
   it { is_expected.to create_nftables_rule('ssh') }
-  it { is_expected.to run_ruby_block('queue nftables rebuild default ssh') }
 end

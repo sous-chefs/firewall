@@ -65,7 +65,6 @@ property :nftables_conf_path, String,
 
 action :install do
   package 'nftables' do
-    options new_resource.package_options if property_is_set?(:package_options)
     action :install
     notifies :rebuild, "nftables[#{new_resource.name}]"
   end

@@ -21,8 +21,10 @@ property :destinations,
          description: 'array, either empty or containing strings \'ipv4\' and/or \'ipv6\', see destination tag in firewalld.icmptype(5).',
          coerce: proc { |o| Array(o) }
 
+include FirewallCookbook::Helpers::FirewalldDBus
+
 load_current_value do |new_resource|
-  sysbus = DBus.system_bus
+  sysbus = dbus_system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -41,7 +43,7 @@ load_current_value do |new_resource|
 end
 
 action :update do
-  dbus = DBus.system_bus
+  dbus = dbus_system_bus
   fw_config = config_interface(dbus)
   fw = firewalld_interface(dbus)
   reload = false
