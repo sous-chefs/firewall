@@ -101,11 +101,12 @@ The most basic use involves two resources, `firewall` and `firewall_rule`. The
 typical usage scenario is as follows:
 
 * declare the `firewall` resource named `'default'`, which installs appropriate packages and configures services to start on boot and starts them.
-* run the `:create` action on every `firewall_rule` resource, which routes to the selected backend resource. How the rules are implemented depends on the firewall backend:
-  * **firewalld**: `firewall_rule` creates firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) in the system's default zone.
+* run the `:create` action on every `firewall_rule` resource, which routes to the selected backend rule resource. How the rules are implemented depends on the firewall backend:
+  * **firewalld**: `firewall_rule` routes to `firewalld_rule`, which creates firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) in the system's default zone.
   * **nftables**: `firewall_rule` routes to `nftables_rule`.
-  * **iptables, ufw, windows**: `firewall_rule` routes to the matching backend rule resource, which automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
-    * when the delayed `:restart` notification on the `firewall` resource fires, if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
+  * **iptables, ufw, windows**: `firewall_rule` routes to the matching backend rule resource.
+* backend rule resources notify their matching backend resource, such as `iptables['default']`, `ufw['default']`, `nftables['default']`, or `windows_firewall['default']`, to rebuild delayed.
+  * when the delayed backend rebuild fires, if any rules are different than the last run, the backend resource updates the current firewall rules to match the expected rules.
 
 There is a fundamental mismatch between the idea of a Chef action and the action that should be taken on a firewall
 rule. For this reason, the Chef action for a `firewall_rule` may be `:create` (the rule should be present in the
@@ -159,9 +160,10 @@ Please read the documentation for the
 ## firewalld
 
 For most rules it's sufficient to simply use the `firewall_rule` resource which is a platform-agnostic way to add
-firewall rules. On firewalld systems it adds rules to the default zone as firewalld [rich
-rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html). See the
-[`firewall_rule`](#firewall_rule) section for examples.
+firewall rules. On firewalld systems it routes to `firewalld_rule`, which adds rules to the default zone as firewalld
+[rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html). Use `firewalld_rule`
+directly when you want the portable firewalld rule interface, and use `firewalld_rich_rule` when you want to pass
+native rich-rule properties.
 
 See the [`firewalld` resources](documentation/README.md) documentation for advanced firewalld configuration.
 
@@ -178,7 +180,7 @@ recipe and attribute API.
 Declare this resource before adding your desired `firewall_rule` resources. See
 the [`firewall_rule`](#firewall_rule) section for examples.
 
-***NB***: The name 'default' of this resource is important as it is used for firewall_rule providers to locate the firewall resource. If you change it, you must also supply the same value to any firewall_rule resources using the `firewall_name` parameter.
+***NB***: The name 'default' of this resource is important as it is used for `firewall_rule` to locate the matching backend resource. If you change it, you must also supply the same value to any `firewall_rule` resources using the `firewall_name` parameter.
 
 #### Actions
 
@@ -220,7 +222,7 @@ end
 
 #### Actions
 
-* `:create`: Create the firewall rule and notify the firewall to reload after the rule has been saved. On firewalld systems, the rules are added to the default zone as firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html).
+* `:create`: Create the firewall rule through the selected backend rule resource. On firewalld systems, rules are routed through `firewalld_rule` and added to the default zone as firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html).
 
 #### Properties
 
@@ -247,7 +249,7 @@ firewall_rule 'name' do
   stateful        Symbol, Array     # Firewall: iptables, nftables, ufw
   raw             String            # Firewall: iptables, nftables, ufw
   direction       Symbol            # Firewall: iptables, nftables, ufw, windows. Default: :in
-  notify_firewall true, false       # Firewall: iptables, nftables, ufw, windows. Default: true
+  notify_firewall true, false       # Notify selected backend to apply rules. Default: true
   program         String            # Firewall: windows
   service         String            # Firewall: windows
 end
@@ -255,7 +257,7 @@ end
 
 Firewall-agnostic properties that can be used with `firewall_rule` on any firewall system:
 
-* `firewall_name`: the matching firewall resource that this rule applies to. Default value: `default`
+* `firewall_name`: the matching `firewall` facade and backend resource name that this rule applies to. Default value: `default`
 * `description` (*default: same as rule name*): Used to provide a comment that will be included when adding the firewall rule.
 * `command`: What action to take on a particular packet
    * `:allow` (*default action*): the rule should allow matching packets
@@ -287,8 +289,8 @@ Additional properties for advanced firewall rules that are tied to specific fire
 * `raw` (*iptables, nftables, ufw*): Used to pass an entire rule as a string, omitting all other parameters. This line will be directly loaded by `iptables-restore`, included in the nftables ruleset, or fed directly into `ufw` on the command line.
 * `direction` (*iptables, nftables, ufw, windows*): Direction of the rule. Valid values are: `:in` (*default*), `:out`, `:pre`,
 `:post`.
-* `notify_firewall` (*iptables, nftables, ufw, windows*): Notify the firewall to recalculate (and potentially reapply) the
-  `firewall_rule`(s) it finds. Default: `true`
+* `notify_firewall` (*iptables, nftables, ufw, windows*): Notify the selected backend resource to recalculate (and
+  potentially reapply) the `firewall_rule`(s) it finds. Default: `true`
 
 #### Examples
 

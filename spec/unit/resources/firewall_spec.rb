@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe 'firewall' do
-  step_into :firewall, :nftables
+  step_into :firewall, :iptables, :nftables, :ufw, :firewalld
 
   context 'on Ubuntu with UFW' do
     platform 'ubuntu', '24.04'
@@ -90,7 +90,7 @@ describe 'firewall' do
       end
     end
 
-    it { is_expected.to add_firewalld_rich_rule('allow world to ssh') }
-    it { is_expected.to add_firewalld_rich_rule('allow world to mosh') }
+    it { is_expected.to create_firewalld_rule('allow world to ssh') }
+    it { is_expected.to create_firewalld_rule('allow world to mosh') }
   end
 end

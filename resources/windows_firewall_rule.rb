@@ -16,14 +16,16 @@ property :include_comment, [true, false], default: true
 property :program, String
 property :service, String
 property :raw, String
+property :notify_firewall, [true, false], default: true
 
 action :create do
-  firewall_resource = Chef.run_context.resource_collection.find(firewall: new_resource.firewall_name)
-  raise 'could not find a firewall resource' unless firewall_resource
+  return unless new_resource.notify_firewall
 
-  with_run_context :root do
-    edit_resource!(:firewall, new_resource.firewall_name) do
-      delayed_action :restart
-    end
+  Chef.run_context.resource_collection.find(windows_firewall: new_resource.firewall_name)
+
+  ruby_block "queue windows firewall rebuild #{new_resource.firewall_name} #{new_resource.name}" do
+    block {}
+    action :run
+    notifies :rebuild, "windows_firewall[#{new_resource.firewall_name}]", :delayed
   end
 end

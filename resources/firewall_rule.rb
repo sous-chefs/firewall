@@ -21,7 +21,7 @@ property :service, String
 # for when you just want to pass a raw rule
 property :raw, String
 
-# do you want this rule to notify the firewall to recalculate
+# do you want this rule to notify the backend to recalculate
 # (and potentially reapply) the firewall_rule(s) it finds?
 property :notify_firewall, [true, false], default: true
 
@@ -88,7 +88,7 @@ action_class do
   def create_nftables_rule
     nftables_rule new_resource.description do
       firewall_name new_resource.firewall_name
-      command nftables_command(new_resource.command)
+      command new_resource.command
       protocol new_resource.protocol
       direction new_resource.direction
       family ipv6_rule?(new_resource) ? :ip6 : :ip
@@ -131,101 +131,22 @@ action_class do
   end
 
   def create_firewalld_rule
-    if property_is_set?(:port) && property_is_set?(:dest_port)
-      raise 'The "port" property is a shorthand for "dest_port" and cannot be set together with "dest_port". Please set only one of them.'
-    end
-
-    if new_resource.command == :masquerade
-      firewalld_rich_rule new_resource.description do
-        zone new_resource.zone if new_resource.property_is_set?(:zone)
-        masquerade true
-      end
-
-      return
-    end
-
-    if new_resource.command == :redirect
-      firewalld_rich_rule new_resource.description do
-        zone new_resource.zone if new_resource.property_is_set?(:zone)
-        forward_port new_resource.source_port
-        to_port new_resource.redirect_port
-        protocol new_resource.protocol.to_s
-      end
-
-      return
-    end
-
-    array_property = check_for_port_array_property
-    if array_property
-      new_resource.send(array_property).each do |array_item|
-        create_single_firewalld_rule(format_port(array_item), array_property)
-      end
-    else
-      create_single_firewalld_rule(nil, nil)
-    end
-  end
-
-  def create_single_firewalld_rule(array_item, array_property)
-    rule_name = array_item ? "#{new_resource.description} [#{array_item}/#{new_resource.protocol}]" : new_resource.description
-
-    firewalld_rich_rule rule_name do
-      zone new_resource.zone if new_resource.property_is_set?(:zone)
+    firewalld_rule new_resource.description do
+      firewall_name new_resource.firewall_name
+      command new_resource.command
+      protocol new_resource.protocol
       source new_resource.source if new_resource.property_is_set?(:source)
+      source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
+      port new_resource.port if new_resource.property_is_set?(:port)
+      dest_port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
       destination new_resource.destination if new_resource.property_is_set?(:destination)
-      priority new_resource.position if new_resource.property_is_set?(:position)
-
-      if array_property == :source_port
-        source_port array_item
-        port new_resource.port if new_resource.property_is_set?(:port)
-        port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
-      elsif [:port, :dest_port].include?(array_property)
-        port array_item
-        source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
-      else
-        source_port format_port(new_resource.source_port) if new_resource.property_is_set?(:source_port)
-        port format_port(new_resource.port) if new_resource.property_is_set?(:port)
-        port format_port(new_resource.dest_port) if new_resource.property_is_set?(:dest_port)
-      end
-
-      protocol new_resource.protocol.to_s if firewalld_protocol_required?
-      rule_action firewalld_action_map[new_resource.command] if firewalld_action_map.key?(new_resource.command)
-      log true if new_resource.command == :log
-      action :add
+      position new_resource.position
+      description new_resource.description
+      redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
+      zone new_resource.zone if new_resource.property_is_set?(:zone)
+      include_comment new_resource.include_comment
+      raw new_resource.raw if new_resource.property_is_set?(:raw)
+      notify_firewall new_resource.notify_firewall
     end
-  end
-
-  def check_for_port_array_property
-    array_properties = [:source_port, :port, :dest_port].select do |property|
-      new_resource.property_is_set?(property) && new_resource.send(property).is_a?(Array)
-    end
-
-    if array_properties.size > 1
-      raise 'Only one of source_port, port, or dest_port can be an Array at a time.'
-    end
-
-    array_properties.first
-  end
-
-  def firewalld_action_map
-    {
-      reject: :reject,
-      allow: :accept,
-      deny: :drop,
-    }
-  end
-
-  def nftables_command(command)
-    return :drop if command == :deny
-
-    command == :allow ? :accept : command
-  end
-
-  def firewalld_protocol_required?
-    property_is_set?(:protocol) || property_is_set?(:port) ||
-      property_is_set?(:dest_port) || property_is_set?(:source_port)
-  end
-
-  def format_port(value)
-    value.is_a?(Range) ? "#{value.min}-#{value.max}" : value
   end
 end

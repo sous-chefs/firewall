@@ -1,22 +1,22 @@
 # firewall
 
-The `firewall` resource installs, enables, disables, and rebuilds a platform
-firewall backend.
+The `firewall` resource is a compatibility facade that delegates install,
+reload, disable, flush, and rebuild actions to the selected backend resource.
 
 ## Actions
 
-| Action     | Description                                                       |
-| ---------- | ----------------------------------------------------------------- |
-| `:install` | Install and enable the selected firewall backend.                 |
-| `:restart` | Rebuild and apply rules collected from `firewall_rule` resources. |
-| `:reload`  | Reload firewalld, or rebuild non-firewalld backends.              |
-| `:disable` | Disable the selected firewall backend.                            |
-| `:flush`   | Flush runtime rules where the selected backend supports it.       |
+| Action     | Description                                                    |
+|------------|----------------------------------------------------------------|
+| `:install` | Install and enable the selected firewall backend.              |
+| `:restart` | Rebuild and apply rules through the selected backend resource. |
+| `:reload`  | Reload firewalld, or rebuild non-firewalld backends.           |
+| `:disable` | Disable the selected firewall backend.                         |
+| `:flush`   | Flush runtime rules where the selected backend supports it.    |
 
 ## Properties
 
 | Property            | Type        | Default          | Description                                                           |
-| ------------------- | ----------- | ---------------- | --------------------------------------------------------------------- |
+|---------------------|-------------|------------------|-----------------------------------------------------------------------|
 | `backend`           | Symbol      | platform default | One of `:firewalld`, `:iptables`, `:nftables`, `:ufw`, or `:windows`. |
 | `enabled`           | true, false | `true`           | Set to `false` to make the resource a no-op.                          |
 | `ipv6_enabled`      | true, false | `true`           | Manage IPv6 rules for backends that support them.                     |

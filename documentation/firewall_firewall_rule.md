@@ -1,19 +1,20 @@
 # firewall_rule
 
 The `firewall_rule` resource creates backend-agnostic firewall rules and
-notifies the named `firewall` resource to apply them.
+routes them to the backend rule resource selected by the named `firewall`
+resource.
 
 ## Actions
 
 | Action    | Description                          |
-| --------- | ------------------------------------ |
+|-----------|--------------------------------------|
 | `:create` | Create or collect the firewall rule. |
 
 ## Properties
 
 | Property          | Type                  | Default       | Description                                                                 |
-| ----------------- | --------------------- | ------------- | --------------------------------------------------------------------------- |
-| `firewall_name`   | String                | `default`     | Name of the `firewall` resource to notify.                                  |
+|-------------------|-----------------------|---------------|-----------------------------------------------------------------------------|
+| `firewall_name`   | String                | `default`     | Name shared by the `firewall` facade and selected backend resource.         |
 | `command`         | Symbol                | `:allow`      | One of `:reject`, `:allow`, `:deny`, `:masquerade`, `:redirect`, or `:log`. |
 | `protocol`        | Integer, Symbol       | `:tcp`        | Protocol for the rule.                                                      |
 | `source`          | String                |               | Source address.                                                             |
@@ -34,7 +35,7 @@ notifies the named `firewall` resource to apply them.
 | `program`         | String                |               | Windows program match.                                                      |
 | `service`         | String                |               | Windows service match.                                                      |
 | `raw`             | String                |               | Raw backend rule.                                                           |
-| `notify_firewall` | true, false           | `true`        | Notify the firewall resource to apply rules.                                |
+| `notify_firewall` | true, false           | `true`        | Notify the backend resource to apply rules.                                 |
 
 ## Examples
 

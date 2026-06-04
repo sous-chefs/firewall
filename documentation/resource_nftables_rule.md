@@ -7,7 +7,7 @@
 ## Properties
 
 | Name            | Type                                                      | Default   | Description                                                                 |
-| --------------- | --------------------------------------------------------- | --------- | --------------------------------------------------------------------------- |
+|-----------------|-----------------------------------------------------------|-----------|-----------------------------------------------------------------------------|
 | command         | :accept :counter :drop :log :masquerade :redirect :reject | :allow    |                                                                             |
 | description     | String                                                    |           | name_property, can be added as comment to the nftables ruleset              |
 | destination     | [String, Array]                                           |           | ip address, fqdn or a list thereof                                          |

@@ -34,7 +34,7 @@ describe 'firewall_rule' do
       end
     end
 
-    it { is_expected.to add_firewalld_rich_rule('ssh') }
+    it { is_expected.to create_firewalld_rule('ssh') }
   end
 
   context 'with nftables backend' do
