@@ -3,14 +3,14 @@
 require 'spec_helper'
 
 describe 'firewall' do
-  step_into :firewall
+  step_into :firewall, :nftables
 
   context 'on Ubuntu with UFW' do
     platform 'ubuntu', '24.04'
 
     recipe do
       firewall 'default' do
-        solution :ufw
+        backend :ufw
         allow_ssh true
         allow_mosh true
       end
@@ -31,21 +31,17 @@ describe 'firewall' do
     it { is_expected.to install_nftables('default') }
   end
 
-  context 'when rebuilding nftables rules from firewall_rule resources' do
+  context 'when rebuilding nftables default rules' do
     platform 'debian', '12'
 
     recipe do
       firewall 'default' do
-        solution :nftables
+        backend :nftables
         action :restart
         allow_loopback true
         allow_icmp true
         allow_ssh true
         allow_mosh true
-      end
-
-      firewall_rule 'https' do
-        port 443
       end
     end
 
@@ -53,7 +49,6 @@ describe 'firewall' do
     it { is_expected.to create_file('/etc/nftables.conf').with_content(/udp dport 60000-61000 accept comment "allow world to mosh"/) }
     it { is_expected.to create_file('/etc/nftables.conf').with_content(/iif lo accept comment "allow loopback"/) }
     it { is_expected.to create_file('/etc/nftables.conf').with_content(/icmp type echo-request accept comment "allow icmp"/) }
-    it { is_expected.to create_file('/etc/nftables.conf').with_content(/tcp dport 443 accept comment "https"/) }
     it { is_expected.to enable_service('nftables') }
   end
 
@@ -62,7 +57,7 @@ describe 'firewall' do
 
     recipe do
       firewall 'default' do
-        solution :iptables
+        backend :iptables
         allow_loopback true
         allow_icmp true
       end
@@ -77,7 +72,7 @@ describe 'firewall' do
 
     recipe do
       firewall 'default' do
-        solution :firewalld
+        backend :firewalld
       end
     end
 
@@ -89,7 +84,7 @@ describe 'firewall' do
 
     recipe do
       firewall 'default' do
-        solution :firewalld
+        backend :firewalld
         allow_ssh true
         allow_mosh true
       end

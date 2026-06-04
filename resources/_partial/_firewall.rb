@@ -4,7 +4,7 @@ unified_mode true
 
 default_action :install
 
-property :solution,
+property :backend,
          Symbol,
          equal_to: [:firewalld, :iptables, :nftables, :ufw, :windows],
          description: 'Firewall backend to manage. Defaults to the platform family default.'

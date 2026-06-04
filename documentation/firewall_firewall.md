@@ -17,7 +17,7 @@ firewall backend.
 
 | Property            | Type        | Default          | Description                                                           |
 | ------------------- | ----------- | ---------------- | --------------------------------------------------------------------- |
-| `solution`          | Symbol      | platform default | One of `:firewalld`, `:iptables`, `:nftables`, `:ufw`, or `:windows`. |
+| `backend`           | Symbol      | platform default | One of `:firewalld`, `:iptables`, `:nftables`, `:ufw`, or `:windows`. |
 | `enabled`           | true, false | `true`           | Set to `false` to make the resource a no-op.                          |
 | `ipv6_enabled`      | true, false | `true`           | Manage IPv6 rules for backends that support them.                     |
 | `log_level`         | Symbol      | `:low`           | UFW logging level.                                                    |
@@ -35,7 +35,7 @@ firewall backend.
 
 ```ruby
 firewall 'default' do
-  solution :iptables
+  backend :iptables
   allow_ssh true
   allow_loopback true
   allow_icmp true
@@ -44,7 +44,7 @@ end
 
 ```ruby
 firewall 'default' do
-  solution :firewalld
+  backend :firewalld
   action :install
 end
 ```

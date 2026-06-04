@@ -31,24 +31,33 @@ action :create do
 
   return unless new_resource.notify_firewall
 
-  if firewall_solution(firewall_resource) == :firewalld
+  case firewall_backend(firewall_resource)
+  when :firewalld
     create_firewalld_rule
+  when :nftables
+    create_nftables_rule
+  when :iptables
+    create_iptables_rule
+  when :ufw
+    create_ufw_rule
+  when :windows
+    create_windows_firewall_rule
   else
-    with_run_context :root do
-      edit_resource!(:firewall, new_resource.firewall_name) do
-        delayed_action :restart
-      end
-    end
+    raise "Unsupported firewall backend #{firewall_backend(firewall_resource)}"
   end
 end
 
 action_class do
-  def firewall_solution(firewall_resource)
-    return firewall_resource.solution if firewall_resource.solution
+  include FirewallCookbook::Helpers
 
+  def firewall_backend(firewall_resource)
+    firewall_resource.backend || default_firewall_backend
+  end
+
+  def default_firewall_backend
     case node['platform_family']
     when 'debian'
-      :ufw
+      platform?('debian') ? :nftables : :ufw
     when 'amazon', 'fedora', 'rhel', 'suse'
       :firewalld
     when 'windows'
@@ -56,6 +65,69 @@ action_class do
     else
       :iptables
     end
+  end
+
+  def create_iptables_rule
+    iptables_rule new_resource.description do
+      apply_common_rule_properties(self)
+    end
+  end
+
+  def create_ufw_rule
+    ufw_rule new_resource.description do
+      apply_common_rule_properties(self)
+    end
+  end
+
+  def create_windows_firewall_rule
+    windows_firewall_rule new_resource.description do
+      apply_common_rule_properties(self)
+    end
+  end
+
+  def create_nftables_rule
+    nftables_rule new_resource.description do
+      firewall_name new_resource.firewall_name
+      command nftables_command(new_resource.command)
+      protocol new_resource.protocol
+      direction new_resource.direction
+      family ipv6_rule?(new_resource) ? :ip6 : :ip
+      source new_resource.source if new_resource.property_is_set?(:source)
+      sport new_resource.source_port if new_resource.property_is_set?(:source_port)
+      interface new_resource.interface if new_resource.property_is_set?(:interface)
+      dport dport_calc(new_resource) if new_resource.property_is_set?(:port) || new_resource.property_is_set?(:dest_port)
+      destination new_resource.destination if new_resource.property_is_set?(:destination)
+      outerface new_resource.dest_interface if new_resource.property_is_set?(:dest_interface)
+      position new_resource.position
+      stateful new_resource.stateful if new_resource.property_is_set?(:stateful)
+      redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
+      description new_resource.description
+      include_comment new_resource.include_comment
+      raw new_resource.raw if new_resource.property_is_set?(:raw)
+    end
+  end
+
+  def apply_common_rule_properties(rule)
+    rule.firewall_name new_resource.firewall_name
+    rule.command new_resource.command
+    rule.protocol new_resource.protocol
+    rule.source new_resource.source if new_resource.property_is_set?(:source)
+    rule.source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
+    rule.port new_resource.port if new_resource.property_is_set?(:port)
+    rule.dest_port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
+    rule.destination new_resource.destination if new_resource.property_is_set?(:destination)
+    rule.position new_resource.position
+    rule.description new_resource.description
+    rule.redirect_port new_resource.redirect_port if new_resource.property_is_set?(:redirect_port)
+    rule.direction new_resource.direction
+    rule.logging new_resource.logging if new_resource.property_is_set?(:logging)
+    rule.interface new_resource.interface if new_resource.property_is_set?(:interface)
+    rule.dest_interface new_resource.dest_interface if new_resource.property_is_set?(:dest_interface)
+    rule.stateful new_resource.stateful if new_resource.property_is_set?(:stateful)
+    rule.include_comment new_resource.include_comment
+    rule.program new_resource.program if new_resource.property_is_set?(:program)
+    rule.service new_resource.service if new_resource.property_is_set?(:service)
+    rule.raw new_resource.raw if new_resource.property_is_set?(:raw)
   end
 
   def create_firewalld_rule
@@ -140,6 +212,12 @@ action_class do
       allow: :accept,
       deny: :drop,
     }
+  end
+
+  def nftables_command(command)
+    return :drop if command == :deny
+
+    command == :allow ? :accept : command
   end
 
   def firewalld_protocol_required?

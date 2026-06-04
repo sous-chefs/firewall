@@ -9,7 +9,7 @@ provides :firewall
 action :install do
   return if disabled?(new_resource)
 
-  case firewall_solution
+  case firewall_backend
   when :firewalld
     firewalld new_resource.name do
       package_options new_resource.package_options if property_is_set?(:package_options)
@@ -33,7 +33,7 @@ end
 action :restart do
   return if disabled?(new_resource)
 
-  case firewall_solution
+  case firewall_backend
   when :firewalld
     firewalld new_resource.name do
       action :restart
@@ -52,7 +52,7 @@ end
 action :reload do
   return if disabled?(new_resource)
 
-  case firewall_solution
+  case firewall_backend
   when :firewalld
     firewalld new_resource.name do
       action :reload
@@ -66,14 +66,14 @@ action :reload do
   when :windows
     rebuild_windows
   else
-    raise "Unsupported firewall solution #{firewall_solution}"
+    raise "Unsupported firewall backend #{firewall_backend}"
   end
 end
 
 action :disable do
   return if disabled?(new_resource)
 
-  case firewall_solution
+  case firewall_backend
   when :firewalld
     firewalld new_resource.name do
       action :disable
@@ -125,7 +125,7 @@ end
 action :flush do
   return if disabled?(new_resource)
 
-  case firewall_solution
+  case firewall_backend
   when :firewalld
     firewalld new_resource.name do
       action :reload
@@ -169,11 +169,11 @@ action_class do
   include FirewallCookbook::Helpers::Ufw
   include FirewallCookbook::Helpers::Windows
 
-  def firewall_solution
-    new_resource.solution || default_firewall_solution
+  def firewall_backend
+    new_resource.backend || default_firewall_backend
   end
 
-  def default_firewall_solution
+  def default_firewall_backend
     case node['platform_family']
     when 'debian'
       platform?('debian') ? :nftables : :ufw
@@ -188,6 +188,7 @@ action_class do
 
   def install_nftables
     nftables new_resource.name do
+      rules default_nftables_rules
       action :install
     end
   end
@@ -254,23 +255,9 @@ action_class do
   end
 
   def rebuild_nftables
-    new_resource.rules['nftables'] ||= {}
-    collect_nftables_rules
-
-    file nftables_rules_path do
-      content <<~NFT
-        #!/usr/sbin/nft -f
-        flush ruleset
-        #{build_rule_file(new_resource.rules['nftables'])}
-      NFT
-      mode '0750'
-      owner 'root'
-      group 'root'
-      notifies :restart, 'service[nftables]', :immediately
-    end
-
-    service 'nftables' do
-      action [:enable, :start]
+    nftables new_resource.name do
+      rules default_nftables_rules
+      action :rebuild
     end
   end
 
@@ -319,9 +306,9 @@ action_class do
     end
   end
 
-  def collect_matching_rules
+  def collect_matching_rules(resource_name)
     default_firewall_rules + Chef.run_context.resource_collection.select do |item|
-      item.resource_name == :firewall_rule &&
+      item.resource_name == resource_name &&
         item.firewall_name == new_resource.name &&
         item.action.include?(:create) &&
         !item.should_skip?(:create)
@@ -329,7 +316,7 @@ action_class do
   end
 
   def collect_iptables_rules
-    collect_matching_rules.each do |firewall_rule|
+    collect_matching_rules(:iptables_rule).each do |firewall_rule|
       types = if ipv6_rule?(firewall_rule)
                 %w(ip6tables)
               elsif ipv4_rule?(firewall_rule)
@@ -348,22 +335,14 @@ action_class do
   end
 
   def collect_ufw_rules
-    collect_matching_rules.each do |firewall_rule|
+    collect_matching_rules(:ufw_rule).each do |firewall_rule|
       rule = FirewallCookbook::Helpers::Ufw.instance_method(:build_rule).bind(self).call(firewall_rule)
       new_resource.rules['ufw'][rule] = firewall_rule.position
     end
   end
 
-  def collect_nftables_rules
-    ensure_nftables_default_rules_exist
-    collect_matching_rules.each do |firewall_rule|
-      rule = nftables_helper.build_firewall_rule(nftables_rule_from_firewall_rule(firewall_rule))
-      new_resource.rules['nftables'][rule] = firewall_rule.position
-    end
-  end
-
   def collect_windows_rules
-    collect_matching_rules.each do |firewall_rule|
+    collect_matching_rules(:windows_firewall_rule).each do |firewall_rule|
       rule = FirewallCookbook::Helpers::Windows.instance_method(:build_rule).bind(self).call(firewall_rule)
       new_resource.rules['windows'][rule] = firewall_rule.position
     end
@@ -402,17 +381,6 @@ action_class do
     end
   end
 
-  def nftables_rules_path
-    case node['platform_family']
-    when 'rhel'
-      '/etc/sysconfig/nftables.conf'
-    when 'debian'
-      '/etc/nftables.conf'
-    else
-      raise "nftables_rules_path: Unsupported platform_family #{node['platform_family']}."
-    end
-  end
-
   def nftables_helper
     @nftables_helper ||= Object.new.tap do |helper|
       helper.extend(FirewallCookbook::Helpers)
@@ -420,8 +388,8 @@ action_class do
     end
   end
 
-  def ensure_nftables_default_rules_exist
-    new_resource.rules['nftables'].merge!(
+  def default_nftables_rules
+    rules = {
       'add table inet filter' => 1,
       'add chain inet filter INPUT { type filter hook input priority 0 ; policy drop; }' => 2,
       'add chain inet filter OUTPUT { type filter hook output priority 0 ; policy accept; }' => 2,
@@ -431,8 +399,15 @@ action_class do
       'add chain ip nat PREROUTING { type nat hook prerouting priority -100 ;}' => 2,
       'add table ip6 nat' => 1,
       'add chain ip6 nat POSTROUTING { type nat hook postrouting priority 100 ;}' => 2,
-      'add chain ip6 nat PREROUTING { type nat hook prerouting priority -100 ;}' => 2
-    )
+      'add chain ip6 nat PREROUTING { type nat hook prerouting priority -100 ;}' => 2,
+    }
+
+    default_firewall_rules.each do |firewall_rule|
+      rule = nftables_helper.build_firewall_rule(nftables_rule_from_firewall_rule(firewall_rule))
+      rules[rule] = firewall_rule.position
+    end
+
+    rules
   end
 
   def declare_default_firewalld_rules
@@ -466,12 +441,12 @@ action_class do
     rules << default_firewall_rule('allow world to winrm', port: 5989) if windows? && new_resource.allow_winrm
     rules << default_firewall_rule('allow world to mosh', protocol: :udp, port: 60000..61000) if linux? && new_resource.allow_mosh
 
-    if firewall_solution == :iptables
+    if firewall_backend == :iptables
       rules << default_firewall_rule('allow loopback', interface: 'lo', protocol: :none) if new_resource.allow_loopback
       rules << default_firewall_rule('allow icmp', protocol: :icmp) if new_resource.allow_icmp
       rules << default_firewall_rule('established', stateful: [:related, :established], protocol: :none) if new_resource.allow_established
       rules << default_firewall_rule('ipv6_icmp', protocol: :'ipv6-icmp') if new_resource.ipv6_enabled && new_resource.allow_established
-    elsif firewall_solution == :nftables
+    elsif firewall_backend == :nftables
       rules << default_firewall_rule('allow loopback', interface: 'lo', protocol: :none) if new_resource.allow_loopback
       rules << default_firewall_rule('allow icmp', protocol: :icmp) if new_resource.allow_icmp
       rules << default_firewall_rule('established', stateful: [:related, :established], protocol: :none) if new_resource.allow_established

@@ -30,9 +30,9 @@ depends 'firewall'
 * [Windows Firewall](https://learn.microsoft.com/en-us/windows/security/operating-system-security/network-security/windows-firewall/)
 * [nftables](https://wiki.nftables.org/wiki-nftables/index.php/Main_Page)
 
-The default firewall solution used on Linux is based on the platform family:
+The default firewall backend used on Linux is based on the platform family:
 
-| Platform Family   | Default Firewall Solution   |
+| Platform Family   | Default Firewall Backend    |
 | ----------------- | --------------------------- |
 | `amazon`          | firewalld                   |
 | `debian`          | nftables                    |
@@ -43,28 +43,28 @@ The default firewall solution used on Linux is based on the platform family:
 | `windows`         | windows                     |
 | Other             | iptables                    |
 
-If you'd like to use a firewall solution other than the platform's default, set
-the `solution` property on the `firewall` resource:
+If you'd like to use a firewall backend other than the platform's default, set
+the `backend` property on the `firewall` resource:
 
 ```ruby
 # firewalld
 firewall 'default' do
-  solution :firewalld
+  backend :firewalld
 end
 
 # iptables
 firewall 'default' do
-  solution :iptables
+  backend :iptables
 end
 
 # nftables
 firewall 'default' do
-  solution :nftables
+  backend :nftables
 end
 
 # ufw
 firewall 'default' do
-  solution :ufw
+  backend :ufw
 end
 ```
 
@@ -101,9 +101,10 @@ The most basic use involves two resources, `firewall` and `firewall_rule`. The
 typical usage scenario is as follows:
 
 * declare the `firewall` resource named `'default'`, which installs appropriate packages and configures services to start on boot and starts them.
-* run the `:create` action on every `firewall_rule` resource, which adds to the list of rules that should be configured on the firewall. How the rules are implemented depends on the firewall platform:
-  * **firewalld**: `firewall_rule` implements the rules under the hood as firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) in the system's default zone.
-  * **iptables, nftables, ufw, windows**: `firewall_rule` automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
+* run the `:create` action on every `firewall_rule` resource, which routes to the selected backend resource. How the rules are implemented depends on the firewall backend:
+  * **firewalld**: `firewall_rule` creates firewalld [rich rules](https://firewalld.org/documentation/man-pages/firewalld.richlanguage.html) in the system's default zone.
+  * **nftables**: `firewall_rule` routes to `nftables_rule`.
+  * **iptables, ufw, windows**: `firewall_rule` routes to the matching backend rule resource, which automatically sends a delayed notification to the `firewall['default']` resource to run the `:restart` action.
     * when the delayed `:restart` notification on the `firewall` resource fires, if any rules are different than the last run, the provider will update the current state of the firewall rules to match the expected rules.
 
 There is a fundamental mismatch between the idea of a Chef action and the action that should be taken on a firewall
@@ -119,7 +120,7 @@ If you need to use a table other than `*filter`, the best way to do so is like s
 
 ```ruby
 firewall 'default' do
-  solution :iptables
+  backend :iptables
   iptables_ruleset(
     '*filter' => 1,
     ':INPUT DROP' => 2,
@@ -190,7 +191,7 @@ the [`firewall_rule`](#firewall_rule) section for examples.
 
 * `enabled` (default to `true`): If set to `false`, all actions will no-op on this resource. This is a way to prevent
   included cookbooks from configuring a firewall.
-* `solution`: One of `:firewalld`, `:iptables`, `:nftables`, `:ufw`, or `:windows`. Defaults to the platform family default.
+* `backend`: One of `:firewalld`, `:iptables`, `:nftables`, `:ufw`, or `:windows`. Defaults to the platform family default.
 * `ipv6_enabled` (default to `true`): *Iptables only*. If set to false, firewall will not perform any ipv6 related work.
 * `log_level`: UFW only. Level of verbosity the firewall should log at. valid values are: :low, :medium, :high, :full, :off. default is :low.
 * `package_options`: Pass additional options to the package manager when installing the firewall.
@@ -272,7 +273,7 @@ Firewall-agnostic properties that can be used with `firewall_rule` on any firewa
 * `destination`: ip address or subnet to filter on packet destination, must be a valid IP
 * `position` (*default: 50*): **relative** position to insert rule at. Position may be any integer between 0 < n < 100 (exclusive), and more than one rule may specify the same position.
 
-Additional properties for advanced firewall rules that tied to specific firewall solutions. **Note: These properties are *not* firewall-agnostic, so you must ensure they are used only on the appropriate firewall solutions**:
+Additional properties for advanced firewall rules that are tied to specific firewall backends. **Note: These properties are *not* firewall-agnostic, so you must ensure they are used only on the appropriate firewall backends**:
 
 * `zone`: (*firewalld*), a string, such as `public` that the rule will be applied. Defaults to the system's configured
   default zone.

@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-solution = (node.dig('firewall_test', 'solution') || case node['platform_family']
-                                                     when 'debian'
-                                                       platform?('debian') ? 'nftables' : 'ufw'
-                                                     when 'amazon', 'fedora', 'rhel', 'suse'
-                                                       'firewalld'
-                                                     when 'windows'
-                                                       'windows'
-                                                     else
-                                                       'iptables'
-                                                     end).to_sym
-firewalld = solution == :firewalld
-iptables = solution == :iptables
-nftables = solution == :nftables
-ufw = solution == :ufw
+backend = (node.dig('firewall_test', 'backend') || case node['platform_family']
+                                                   when 'debian'
+                                                     platform?('debian') ? 'nftables' : 'ufw'
+                                                   when 'amazon', 'fedora', 'rhel', 'suse'
+                                                     'firewalld'
+                                                   when 'windows'
+                                                     'windows'
+                                                   else
+                                                     'iptables'
+                                                   end).to_sym
+firewalld = backend == :firewalld
+iptables = backend == :iptables
+nftables = backend == :nftables
+ufw = backend == :ufw
 
 # UFW provided by opt-in EPEL repository on RHEL platforms
 package 'epel-release' do
@@ -48,7 +48,7 @@ execute 'use iptables firewalld backend in dokken' do
 end
 
 firewall 'default' do
-  solution solution
+  backend backend
   allow_ssh true
   allow_winrm true
   allow_mosh true

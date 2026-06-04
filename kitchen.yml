@@ -57,7 +57,7 @@ suites:
         - path: test/integration/firewalld
     attributes:
       firewall_test:
-        solution: firewalld
+        backend: firewalld
 
   - name: ufw
     excludes:
@@ -74,7 +74,7 @@ suites:
         - path: test/integration/ufw
     attributes:
       firewall_test:
-        solution: ufw
+        backend: ufw
 
   - name: iptables
     excludes:
@@ -89,7 +89,7 @@ suites:
         - path: test/integration/iptables
     attributes:
       firewall_test:
-        solution: iptables
+        backend: iptables
 
   - name: nftables
     includes:
@@ -124,7 +124,7 @@ suites:
       - recipe[test::default]
     attributes:
       firewall_test:
-        solution: windows
+        backend: windows
     verifier:
       inspec_tests:
         - path: test/integration/windows

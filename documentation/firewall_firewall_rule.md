@@ -40,7 +40,7 @@ notifies the named `firewall` resource to apply them.
 
 ```ruby
 firewall 'default' do
-  solution :ufw
+  backend :ufw
 end
 
 firewall_rule 'ssh' do

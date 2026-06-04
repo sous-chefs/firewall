@@ -12,7 +12,7 @@ configuration as resource properties.
 Before:
 
 ```ruby
-node.default['firewall']['solution'] = 'iptables'
+node.default['firewall']['backend'] = 'iptables'
 node.default['firewall']['allow_ssh'] = true
 node.default['firewall']['allow_mosh'] = true
 
@@ -23,7 +23,7 @@ After:
 
 ```ruby
 firewall 'default' do
-  solution :iptables
+  backend :iptables
   allow_ssh true
   allow_mosh true
 end
@@ -56,7 +56,7 @@ provided by attributes:
 * Windows: `:windows`
 * Other platforms: `:iptables`
 
-Set `solution` explicitly when you need a different backend.
+Set `backend` explicitly when you need a different backend.
 
 The `firewall` resource can select `:nftables` and maps `firewall_rule`
 resources to nftables rules when selected. The dedicated `nftables` and
