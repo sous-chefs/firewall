@@ -4,9 +4,13 @@ def firewalld?
 end
 
 def ufw?
-  os.debian?
+  os.name == 'ubuntu'
 end
 
 def iptables?
-  !firewalld? && !ufw?
+  !firewalld? && !ufw? && !nftables?
+end
+
+def nftables?
+  os.name == 'debian'
 end

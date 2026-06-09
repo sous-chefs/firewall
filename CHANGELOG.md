@@ -430,7 +430,7 @@ Minor bugfix release.
 ## v1.1.2 (2015-05-19)
 
 * 60 - Always add /32 or /128 to ipv4 or ipv6 addresses, respectively
-      - Make comment quoting optional; iptables on Ubuntu strips quotes on strings without any spaces
+      * Make comment quoting optional; iptables on Ubuntu strips quotes on strings without any spaces
 
 ## v1.1.1 (2015-05-11)
 

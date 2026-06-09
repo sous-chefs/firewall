@@ -1,0 +1,7 @@
+---
+name: windows
+title: Windows Firewall Tests
+maintainer: Sous Chefs
+license: Apache-2.0
+summary: Windows firewall backend tests
+version: 1.0.0

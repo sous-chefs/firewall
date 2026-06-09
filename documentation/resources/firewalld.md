@@ -8,14 +8,14 @@ later on.
 
 ## Provides
 
-- :firewalld
+* :firewalld
 
 ## Actions
 
-- `:install`
-- `:reload`
-- `:restart`
-- `:disable`
+* `:install`
+* `:reload`
+* `:restart`
+* `:disable`
 
 ## Properties
 
@@ -28,4 +28,4 @@ firewalld 'arbitrary-name'
 end
 ```
 
-See the [recipe used for testing](../../test/fixtures/cookbooks/firewalld-test/recipes/default.rb).
+See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld.rb).

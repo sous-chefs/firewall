@@ -2,15 +2,15 @@
 
 ## Actions
 
-- `:install`
-- `:rebuild`
-- `:restart`
-- `:disable`
+* `:install`
+* `:rebuild`
+* `:restart`
+* `:disable`
 
 ## Properties
 
 | Name           | Type               | Default  | Description                                                      |
-| -------------- | ------------------ | -------- | ---------------------------------------------------------------- |
+|----------------|--------------------|----------|------------------------------------------------------------------|
 | rules          | Hash               | {}       | Rules are accumulated in here. Key is a rule, value its priority |
 | input_policy   | ['drop', 'accept'] | 'accept' | Policy for the input chain                                       |
 | output_policy  | ['drop', 'accept'] | 'accept' | Policy for the output chain                                      |
