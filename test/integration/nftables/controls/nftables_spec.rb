@@ -20,6 +20,7 @@ expected_rules = [
   /\s+tcp dport 1000-1100 accept.*$/,
   /\s+tcp dport { 1234, 5000-5100, 5678 } accept.*$/,
   /\s+tcp dport 5000-5100 accept.*$/,
+  /\s+oif "eth0" tcp sport 1024 tcp dport 8443 accept.*$/,
   %r{\s+ip saddr 127.0.0.0/8 tcp dport 2433 accept.*$},
   /\s+ip protocol esp accept.*$/,
   /\s+ip protocol ah accept.*$/,

@@ -107,6 +107,13 @@ firewall_rule 'HTTP HTTPS' do
   direction :out
 end
 
+nftables_rule 'native nftables ports and outerface' do
+  direction :out
+  sport 1024
+  dport 8443
+  outerface 'eth0'
+end
+
 firewall_rule 'dport2433' do
   description 'This should not be included'
   include_comment false
