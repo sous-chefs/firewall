@@ -64,6 +64,19 @@ describe Chef::Provider::FirewallUfw do
     end
   end
 
+  it 'logs a recovery failure and re-raises the original replay exception' do
+    provider = build_provider
+    recovery_error = RuntimeError.new('injected recovery failure')
+    allow(provider).to receive(:ufw_enable!).and_raise(recovery_error)
+    allow(Chef::Log).to receive(:error)
+
+    expect { provider.run_action(:restart) }
+      .to raise_error(Mixlib::ShellOut::ShellCommandFailed, 'injected replay failure')
+
+    expect(Chef::Log).to have_received(:error)
+      .with('Unable to restore UFW after rules replay failed: injected recovery failure')
+  end
+
   it 'retries on the next converge, commits after success, and is then idempotent' do
     expect { build_provider.run_action(:restart) }
       .to raise_error(Mixlib::ShellOut::ShellCommandFailed, 'injected replay failure')
