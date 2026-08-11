@@ -27,20 +27,16 @@ jobs:
             os: almalinux-8
           - suite: default
             os: almalinux-9
-          - suite: default
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: default
             os: amazonlinux-2023
           - suite: default
             os: centos-stream-9
           - suite: default
-            os: centos-stream-10
-          - suite: default
             os: debian-12
           - suite: default
             os: debian-13
-          - suite: default
-            os: fedora-latest
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: default
             os: opensuse-leap-15
           - suite: default
@@ -61,20 +57,16 @@ jobs:
             os: almalinux-8
           - suite: firewalld-simple
             os: almalinux-9
-          - suite: firewalld-simple
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: firewalld-simple
             os: amazonlinux-2023
           - suite: firewalld-simple
             os: centos-stream-9
           - suite: firewalld-simple
-            os: centos-stream-10
-          - suite: firewalld-simple
             os: debian-12
           - suite: firewalld-simple
             os: debian-13
-          - suite: firewalld-simple
-            os: fedora-latest
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: firewalld-simple
             os: opensuse-leap-15
           - suite: firewalld-simple
@@ -163,20 +155,16 @@ jobs:
             os: almalinux-8
           - suite: firewalld-advanced
             os: almalinux-9
-          - suite: firewalld-advanced
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: firewalld-advanced
             os: amazonlinux-2023
           - suite: firewalld-advanced
             os: centos-stream-9
           - suite: firewalld-advanced
-            os: centos-stream-10
-          - suite: firewalld-advanced
             os: debian-12
           - suite: firewalld-advanced
             os: debian-13
-          - suite: firewalld-advanced
-            os: fedora-latest
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: firewalld-advanced
             os: opensuse-leap-15
           - suite: firewalld-advanced
