@@ -114,6 +114,8 @@ if ufw
   firewall_rule 'ufw raw test' do
     raw 'allow from 192.168.1.1 to 192.168.2.1 port 25 proto tcp'
   end
+
+  include_recipe 'firewall-test::ufw_replay_failure' if platform?('ubuntu')
 end
 
 if iptables
