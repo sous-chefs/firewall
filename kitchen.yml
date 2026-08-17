@@ -3,6 +3,7 @@ driver:
 
 provisioner:
   name: chef_infra
+  policyfile: Policyfile.rb
   product_name: chef
   product_version: <%= ENV['CHEF_VERSION'] %>
   deprecations_as_errors: true
@@ -24,12 +25,12 @@ platforms:
   - name: amazonlinux-2
   - name: amazonlinux-2023
   - name: centos-stream-9
-  - name: debian-11
   - name: debian-12
+  - name: debian-13
   - name: fedora-latest
   - name: opensuse-leap-15
-  - name: oracle-8
-  - name: oracle-9
+  - name: oraclelinux-8
+  - name: oraclelinux-9
   - name: rockylinux-8
   - name: rockylinux-9
   - name: ubuntu-20.04
@@ -44,10 +45,14 @@ platforms:
 
 suites:
   - name: default
+    provisioner:
+      named_run_list: default
     run_list:
       - recipe[firewall-test::default]
 
   - name: firewalld-simple
+    provisioner:
+      named_run_list: firewalld_simple
     excludes:
       - windows-2016
       - windows-2019
@@ -58,6 +63,8 @@ suites:
         solution: firewalld
 
   - name: ufw
+    provisioner:
+      named_run_list: ufw
     excludes:
       - almalinux-10     # UFW not available in EPEL 10 (yet?)
       - amazonlinux-2023 # No EPEL for AL2023
@@ -72,8 +79,10 @@ suites:
         solution: ufw
 
   - name: iptables
+    provisioner:
+      named_run_list: iptables
     excludes:
-      - oracle-9         # iptables fails to install from Oracle repo
+      - oraclelinux-9    # iptables fails to install from Oracle repo
       - opensuse-leap-15 # openSUSE only supports firewalld
       - windows-2016
       - windows-2019
@@ -84,11 +93,13 @@ suites:
         solution: iptables
 
   - name: nftables
+    provisioner:
+      named_run_list: nftables
     includes:
-      - debian-11
       - debian-12
-      - oracle-8
-      - oracle-9
+      - debian-13
+      - oraclelinux-8
+      - oraclelinux-9
     run_list:
       - recipe[nftables-test]
 
@@ -100,10 +111,13 @@ suites:
     run_list:
       - recipe[firewalld-test]
     provisioner:
+      named_run_list: firewalld_advanced
       enforce_idempotency: true
       multiple_converge: 2
 
   - name: windows
+    provisioner:
+      named_run_list: windows
     includes:
       - windows-2016
       - windows-2019
