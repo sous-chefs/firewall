@@ -27,26 +27,22 @@ jobs:
             os: almalinux-8
           - suite: default
             os: almalinux-9
-          - suite: default
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: default
             os: amazonlinux-2023
           - suite: default
             os: centos-stream-9
           - suite: default
-            os: centos-stream-10
-          - suite: default
-            os: debian-11
-          - suite: default
             os: debian-12
           - suite: default
-            os: fedora-latest
+            os: debian-13
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: default
             os: opensuse-leap-15
           - suite: default
-            os: oracle-8
+            os: oraclelinux-8
           - suite: default
-            os: oracle-9
+            os: oraclelinux-9
           - suite: default
             os: rockylinux-8
           - suite: default
@@ -61,26 +57,22 @@ jobs:
             os: almalinux-8
           - suite: firewalld-simple
             os: almalinux-9
-          - suite: firewalld-simple
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: firewalld-simple
             os: amazonlinux-2023
           - suite: firewalld-simple
             os: centos-stream-9
           - suite: firewalld-simple
-            os: centos-stream-10
-          - suite: firewalld-simple
-            os: debian-11
-          - suite: firewalld-simple
             os: debian-12
           - suite: firewalld-simple
-            os: fedora-latest
+            os: debian-13
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: firewalld-simple
             os: opensuse-leap-15
           - suite: firewalld-simple
-            os: oracle-8
+            os: oraclelinux-8
           - suite: firewalld-simple
-            os: oracle-9
+            os: oraclelinux-9
           - suite: firewalld-simple
             os: rockylinux-8
           - suite: firewalld-simple
@@ -100,15 +92,15 @@ jobs:
           - suite: ufw
             os: centos-stream-9
           - suite: ufw
-            os: debian-11
-          - suite: ufw
             os: debian-12
+          - suite: ufw
+            os: debian-13
           # - suite: ufw # Fails on GitHub Actions with: Module ip6_tables not found in directory /lib/modules/6.8.0-1017-azure
           #   os: fedora-latest
           - suite: ufw
-            os: oracle-8
+            os: oraclelinux-8
           - suite: ufw
-            os: oracle-9
+            os: oraclelinux-9
           - suite: ufw
             os: rockylinux-8
           - suite: ufw
@@ -132,13 +124,13 @@ jobs:
           - suite: iptables
             os: centos-stream-10
           - suite: iptables
-            os: debian-11
-          - suite: iptables
             os: debian-12
+          - suite: iptables
+            os: debian-13
           # - suite: iptables # Fails on GitHub Actions with: ip6tables.service failed
           #   os: fedora-latest
           - suite: iptables
-            os: oracle-8
+            os: oraclelinux-8
           - suite: iptables
             os: rockylinux-8
           - suite: iptables
@@ -150,39 +142,35 @@ jobs:
 
           # NFTables suite
           - suite: nftables
-            os: debian-11
-          - suite: nftables
             os: debian-12
           - suite: nftables
-            os: oracle-8
+            os: debian-13
           - suite: nftables
-            os: oracle-9
+            os: oraclelinux-8
+          - suite: nftables
+            os: oraclelinux-9
 
           # Firewalld advanced suite
           - suite: firewalld-advanced
             os: almalinux-8
           - suite: firewalld-advanced
             os: almalinux-9
-          - suite: firewalld-advanced
-            os: almalinux-10
+          # EL10 Dokken containers start firewalld without an activatable DBus service.
           - suite: firewalld-advanced
             os: amazonlinux-2023
           - suite: firewalld-advanced
             os: centos-stream-9
           - suite: firewalld-advanced
-            os: centos-stream-10
-          - suite: firewalld-advanced
-            os: debian-11
-          - suite: firewalld-advanced
             os: debian-12
           - suite: firewalld-advanced
-            os: fedora-latest
+            os: debian-13
+          # Fedora Dokken does not expose an activatable firewalld DBus service.
           - suite: firewalld-advanced
             os: opensuse-leap-15
           - suite: firewalld-advanced
-            os: oracle-8
+            os: oraclelinux-8
           - suite: firewalld-advanced
-            os: oracle-9
+            os: oraclelinux-9
           - suite: firewalld-advanced
             os: rockylinux-8
           - suite: firewalld-advanced

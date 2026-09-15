@@ -28,3 +28,18 @@ describe service('ufw') do
     its(:stdout) { should match(/Status: active/) }
   end
 end
+
+if os.name == 'ubuntu'
+  describe file('/opt/firewall-ufw-replay-test/replay-recovered') do
+    it { should exist }
+    its('content') { should match(/replay retried successfully/) }
+  end
+
+  describe file('/etc/default/ufw-chef.rules') do
+    its('content') { should match(%r{ufw allow 54321/tcp}) }
+  end
+
+  describe command('ufw status numbered') do
+    its('stdout') { should match(%r{54321/tcp +ALLOW IN}) }
+  end
+end
