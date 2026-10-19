@@ -84,22 +84,33 @@ class Chef
         end
       end
 
-      # ensure a file resource exists with the current ufw rules
-      ufw_file = lookup_or_create_rulesfile
-      ufw_file.content build_rule_file(new_resource.rules['ufw'])
-      ufw_file.run_action(:create)
+      desired_rules = build_rule_file(new_resource.rules['ufw'])
+      return if ::File.exist?(ufw_rules_filename) && ::File.read(ufw_rules_filename) == desired_rules
 
-      # if the file was changed, restart iptables
-      return unless ufw_file.updated_by_last_action?
-      ufw_reset!
-      ufw_logging!(new_resource.log_level) if new_resource.log_level
+      ufw_was_active = ufw_active?
+      begin
+        ufw_reset!
+        ufw_logging!(new_resource.log_level) if new_resource.log_level
 
-      new_resource.rules['ufw'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
-        ufw_rule!(cmd)
+        new_resource.rules['ufw'].sort_by { |_k, v| v }.map { |k, _v| k }.each do |cmd|
+          ufw_rule!(cmd)
+        end
+
+        # Ensure it's enabled after rules are inputted, to catch malformed rules.
+        ufw_enable! unless ufw_active?
+      rescue StandardError
+        begin
+          ufw_enable! if ufw_was_active && !ufw_active?
+        rescue StandardError => e
+          Chef::Log.error("Unable to restore UFW after rules replay failed: #{e}")
+        end
+        raise
       end
 
-      # ensure it's enabled _after_ rules are inputted, to catch malformed rules
-      ufw_enable! unless ufw_active?
+      # The rules file is the success marker, so commit it only after the replay.
+      ufw_file = lookup_or_create_rulesfile
+      ufw_file.content desired_rules
+      ufw_file.run_action(:create)
       new_resource.updated_by_last_action(true)
     end
 
