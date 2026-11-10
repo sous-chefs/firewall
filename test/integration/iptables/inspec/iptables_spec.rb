@@ -13,12 +13,8 @@ expected_rules = [
   %r{-A INPUT -s 192.168.99.99(/32)? -p tcp -m tcp .*-j REJECT --reject-with icmp-port-unreachable},
 ]
 
-vrrp_protocol = 'vrrp'
-if %w(redhat suse).include?(os.family) && os.release == '10'
-  # On RHEL 10 iptables-save doesn't show the friendly protocol name, just the
-  # /etc/protocols number
-  vrrp_protocol = '112'
-end
+# iptables-save may render the protocol using its canonical name or number.
+vrrp_protocol = '(?:vrrp|112)'
 
 expected_rules.push(/-A INPUT -p #{vrrp_protocol} .*-j ACCEPT/)
 
