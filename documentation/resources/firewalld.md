@@ -26,6 +26,9 @@ later on.
 Install and restart wait for the D-Bus API to become ready. An already-ready API
 does not report an update on repeated installation.
 
+Package removal may retain permanent XML configuration. Delete owned D-Bus
+objects explicitly before package removal when their state should also be removed.
+
 ## Examples
 
 ```ruby

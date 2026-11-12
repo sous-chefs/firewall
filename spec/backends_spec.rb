@@ -189,4 +189,68 @@ describe 'Windows firewall rendering' do
     content = chef_run.find_resources(:file).last.content
     expect(content).to include('localport=443', 'set currentprofile firewallpolicy blockinbound,allowoutbound')
   end
+
+  { 'single' => [443, '443'], 'range' => [50000..50002, '50000-50002'], 'array' => [[443, 8443], '443,8443'] }.each do |name, (ports, expected)|
+    context "outbound #{name} shorthand" do
+      recipe do
+        rule = firewall_rule 'outbound' do
+          direction :out
+          port ports
+          action :nothing
+        end
+        firewall_backend_windows 'default' do
+          rule_resources [rule]
+          action :restart
+        end
+      end
+      it 'keeps the destination port restriction instead of allowing every port' do
+        content = chef_run.find_resources(:file).last.content
+        expect(content).to include("remoteport=#{expected} action=allow")
+        expect(content).not_to include('remoteport=any')
+      end
+    end
+  end
+
+  { 112 => 112, 6 => 6, 17 => 17, icmp: :icmpv4, :'ipv6-icmp' => :icmpv6,
+    icmpv6: :icmpv6, none: :any, esp: 50, ah: 51, ipv6: 41 }.each do |input, expected|
+    context "protocol #{input}" do
+      recipe do
+        rule = firewall_rule 'protocol' do
+          protocol input
+          port 443 if [6, 17].include?(input)
+          action :nothing
+        end
+        firewall_backend_windows 'default' do
+          rule_resources [rule]
+          action :restart
+        end
+      end
+      it 'renders a valid protocol and only compatible port predicates' do
+        content = chef_run.find_resources(:file).last.content
+        expect(content).to include("protocol=#{expected} ")
+        if [6, 17].include?(input)
+          expect(content).to include('localport=443')
+        else
+          expect(content).not_to include('localport=', 'remoteport=')
+        end
+      end
+    end
+  end
+
+  context 'incompatible protocol and port' do
+    recipe do
+      rule = firewall_rule 'invalid' do
+        protocol 112
+        port 443
+        action :nothing
+      end
+      firewall_backend_windows 'default' do
+        rule_resources [rule]
+        action :restart
+      end
+    end
+    it 'rejects the desired rule before applying firewall changes' do
+      expect { chef_run }.to raise_error(ArgumentError, /Windows port constraints require TCP or UDP/)
+    end
+  end
 end

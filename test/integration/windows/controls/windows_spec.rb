@@ -27,6 +27,13 @@ describe windows_firewall('public') do
   it { should be_enabled }
 end
 
+{ 'outbound-https' => '443', 'outbound-range' => '50000-50002', 'outbound-array' => '443,8443' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^RemotePort:\s+#{Regexp.escape(ports)}\s*$/) }
+  end
+end
+
 describe windows_firewall('private') do
   it { should be_enabled }
 end
@@ -37,4 +44,16 @@ end
 
 describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
   its(:stdout) { should match('BlockInbound,AllowOutbound') }
+end
+
+{ 'numeric-tcp' => '4443', 'numeric-udp' => '5353' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^LocalPort:\s+#{ports}\s*$/) }
+  end
+end
+
+describe command('netsh advfirewall firewall show rule name="vrrp protocol by number" verbose') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should match(/^Protocol:\s+112\s*$/) }
 end

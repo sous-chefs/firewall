@@ -141,6 +141,9 @@ jobs:
         uses: sous-chefs/.github/.github/actions/install-workstation@9.0.1
       - name: Install Policyfile
         run: chef install Policyfile.rb
+      - name: Load Ubuntu20 ESM legacy firewall kernel modules
+        if: matrix.os == 'ubuntu-2004'
+        run: sudo modprobe -a ip_tables ip6_tables iptable_filter ip6table_filter iptable_nat ip6table_nat iptable_mangle ip6table_mangle
       - name: Test backend and lifecycle
         env:
           CHEF_LICENSE: accept-no-persist

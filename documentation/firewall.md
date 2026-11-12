@@ -22,6 +22,10 @@ UFW/iptables/Windows and `:reload` on firewalld. Linux installation creates
 backend packages and services. Deletion removes managed backend configuration
 and packages; shared dependencies remain. Windows keeps its built-in service.
 
+firewalld package removal may retain permanent XML configuration. Use the
+individual D-Bus object deletion actions before package removal to remove those
+objects explicitly.
+
 ```ruby
 firewall 'default' do
   backend :iptables

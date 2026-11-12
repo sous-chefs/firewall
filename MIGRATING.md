@@ -48,6 +48,10 @@ the built-in service. `:flush` is supported by UFW, iptables and Windows;
 `:reload` is firewalld-specific. The D-Bus object resources also support
 explicit `:delete` actions. Shared dependencies such as D-Bus are retained.
 
+Package removal may retain permanent firewalld XML configuration. Remove owned
+objects explicitly with their `:delete` actions or rich-rule `:remove` before
+removing the package when those objects should also be removed.
+
 iptables NAT rules use actual NAT restore sections. Removing their last rule
 clears that section; disable/delete clears all recorded managed tables and
 restores their built-in chain policies to ACCEPT. nftables validates generated

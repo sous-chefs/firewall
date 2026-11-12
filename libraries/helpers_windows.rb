@@ -60,14 +60,20 @@ module FirewallCookbook
 
         new_resource.program && parameters['program'] = new_resource.program
         new_resource.service && parameters['service'] = new_resource.service
-        parameters['protocol'] = new_resource.protocol
+        protocol = { icmp: :icmpv4, 'ipv6-icmp': :icmpv6, icmpv6: :icmpv6,
+                     none: :any, esp: 50, ah: 51, ipv6: 41 }.fetch(new_resource.protocol, new_resource.protocol)
+        supports_ports = [:tcp, :udp, 6, 17].include?(protocol)
+        if !supports_ports && [new_resource.port, new_resource.dest_port, new_resource.source_port].any?
+          raise ArgumentError, 'Windows port constraints require TCP or UDP'
+        end
+        parameters['protocol'] = protocol
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
           parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
           parameters['interfacetype'] = new_resource.interface || 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
+          parameters['remoteport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
         else
           parameters['localip'] = new_resource.destination || 'any'
           parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
@@ -76,6 +82,10 @@ module FirewallCookbook
           parameters['remoteport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
         end
 
+        unless supports_ports
+          parameters.delete('localport')
+          parameters.delete('remoteport')
+        end
         parameters['action'] = type.to_s
 
         partial_command = parameters.map { |k, v| "#{k}=#{v}" }.join(' ')

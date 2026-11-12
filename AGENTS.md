@@ -69,7 +69,7 @@ the actual OCI publisher job.
 
 ## Local acceptance evidence
 
-* All 59 ChefSpec examples pass, including every public resource and shared
+* All 73 ChefSpec examples pass, including every public resource and shared
   helper, numeric protocols, named rule registration, NAT and D-Bus flags.
 * Debian 13 generic firewalld: 19 assertions; advanced D-Bus: 48; iptables: 31;
   nftables: 30. Ubuntu 20 ESM UFW: 15. All second converges updated zero resources.
@@ -82,3 +82,23 @@ the actual OCI publisher job.
 * Current firewalld servers add a policy CLI `disable: no` field. Profiles detect
   its advertised presence and require the safe default while checking the same
   managed policy values; no runtime property is silently introduced.
+
+Independent review of the initial feature head found that the Windows outbound
+renderer ignored the `port` shorthand and emitted `remoteport=any`. Correct it
+with the existing destination-port helper; test single ports, ranges and arrays
+both in ChefSpec and against actual native Windows rule output. Review otherwise
+confirmed the D-Bus bridge/zone/lifecycle contract. Package removal may retain
+permanent XML; explicit object resources own removal of that state.
+
+Hosted Ubuntu20 ESM uses legacy ip6tables, whose container cannot load the host's
+ip6_tables module from its empty module directory. Initial CI job131186271128
+failed at ufw logging with that exact kernel error. Preload the legacy firewall
+modules on the ephemeral CI VM for Ubuntu20 jobs; keep production backend and
+IPv6 behaviour unchanged. This matches the independently diagnosed legacy
+Fedora container fixture requirement in the separate firewalld project.
+
+Native Windows job131186269688 rejected default port fields for protocol112.
+Only TCP/UDP (including numeric6/17) now emit port fields; incompatible explicit
+port restrictions fail before apply. Existing protocol aliases use netsh names
+or IP protocol numbers. ChefSpec covers aliases, numeric protocols and rejection;
+native fixtures check protocol112 plus numeric TCP/UDP ports.
