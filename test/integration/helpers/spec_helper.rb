@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 # helpers
 def firewalld?
-  %w(fedora redhat suse).include?(os.family)
+  %w(amazon fedora redhat suse).include?(os.family)
 end
 
 def ufw?

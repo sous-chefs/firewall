@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'ipaddr'
 
@@ -245,7 +246,7 @@ action_class do
       return ip.ipv4? ? :ipv4 : :ipv6
     end
 
-    nil
+    :ipv4 if property_is_set?(:forward_port)
   end
 
   # A helper method within action_class to construct the rich rule string
@@ -264,7 +265,7 @@ action_class do
     rule_parts << "port port=\"#{r.port}\" protocol=\"#{r.protocol}\"" if property_is_set?(:port)
     rule_parts << "tcp-mss-clamp value=\"#{r.tcp_mss_clamp}\""         if property_is_set?(:tcp_mss_clamp)
     rule_parts << "icmp-block name=\"#{r.icmp_block}\""                if property_is_set?(:icmp_block)
-    rule_parts << 'masquerade'                                         if property_is_set?(:masquerade)
+    rule_parts << 'masquerade'                                         if r.masquerade
     rule_parts << "icmp-type name=\"#{r.icmp_type}\""                  if property_is_set?(:icmp_type)
 
     if property_is_set?(:protocol) &&
@@ -280,14 +281,14 @@ action_class do
 
     rule_parts << "source-port port=\"#{r.source_port}\" protocol=\"#{r.protocol}\"" if property_is_set?(:source_port)
 
-    if property_is_set?(:log)
+    if r.log
       rule_parts << 'log'
       rule_parts << "prefix=\"#{r.log_prefix}\""     if property_is_set?(:log_prefix)
       rule_parts << "level=\"#{r.log_level}\""       if property_is_set?(:log_level)
       rule_parts << "limit value=\"#{r.log_limit}\"" if property_is_set?(:log_limit)
     end
 
-    if property_is_set?(:nflog)
+    if r.nflog
       rule_parts << 'nflog'
       rule_parts << "group=\"#{r.nflog_group}\""           if property_is_set?(:nflog_group)
       rule_parts << "prefix=\"#{r.nflog_prefix}\""         if property_is_set?(:nflog_prefix)
@@ -295,7 +296,7 @@ action_class do
       rule_parts << "limit value=\"#{r.nflog_limit}\""     if property_is_set?(:nflog_limit)
     end
 
-    if property_is_set?(:audit)
+    if r.audit
       rule_parts << 'audit'
       rule_parts << "limit value=\"#{r.audit_limit}\"" if property_is_set?(:audit_limit)
     end

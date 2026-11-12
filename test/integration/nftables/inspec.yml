@@ -1,0 +1,4 @@
+---
+name: firewall-nftables
+title: Firewall nftables tests
+version: 1.0.0

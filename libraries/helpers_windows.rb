@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FirewallCookbook
   module Helpers
     module Windows
@@ -5,7 +7,7 @@ module FirewallCookbook
       include Chef::Mixin::ShellOut
 
       def fixup_cidr(str)
-        newstr = str.clone
+        newstr = str.dup
         newstr.gsub!('0.0.0.0/0', 'any') if newstr.include?('0.0.0.0/0')
         newstr.gsub!('/0', '') if newstr.include?('/0')
         newstr
@@ -16,10 +18,8 @@ module FirewallCookbook
       end
 
       def active?
-        @active ||= begin
-          cmd = shell_out!('netsh advfirewall show currentprofile')
-          cmd.stdout =~ /^State\sON/
-        end
+        cmd = shell_out!('netsh advfirewall show currentprofile')
+        cmd.stdout.match?(/^State\s+ON\b/)
       end
 
       def enable!

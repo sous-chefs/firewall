@@ -1,115 +1,49 @@
+# frozen_string_literal: true
 
+provides :firewall_rule_firewalld
 unified_mode true
-
-# Common properties defined in a resource partial
 use '_partial/_firewall_rule'
+property :zone, String
 
-# firewalld platforms only
-provides :firewall_rule, os: 'linux' do |node|
-  node['firewall']['solution'] == 'firewalld'
-end
-
-# Additional firewalld-only properties
-property :zone,
-         String,
-         description: "Zone in which to apply the rule. If not specified, the rule will be applied to the systems's default zone."
-
-action :create do
-  if property_is_set?(:port) && property_is_set?(:dest_port)
-    raise 'The "port" property is a shorthand for "dest_port" and cannot be set together with "dest_port". Please set only one of them.'
-  end
-
-  if new_resource.command == :masquerade
-    firewalld_rich_rule new_resource.description do
-      masquerade true
+%i(create delete).each do |operation|
+  action operation do
+    if property_is_set?(:port) && property_is_set?(:dest_port)
+      raise ArgumentError, 'Set either port or dest_port, not both'
     end
-
-    return
-  end
-
-  if new_resource.command == :redirect
-    # An iptables REDIRECT is just a DNAT shorthand to the IP of the incoming
-    # interface, i.e. the destination address is implied
-    firewalld_rich_rule new_resource.description do
-      forward_port new_resource.source_port
-      to_port new_resource.redirect_port
-      protocol new_resource.protocol.to_s
+    arrays = %i(source_port port dest_port).select do |property|
+      new_resource.property_is_set?(property) && new_resource.public_send(property).is_a?(Array)
     end
+    raise ArgumentError, 'Only one of source_port, port, or dest_port can be an Array' if arrays.length > 1
 
-    return
-  end
-
-  rule_action_map = {
-    reject: :reject,
-    allow: :accept,
-    deny: :drop,
-  }
-
-  protocol_required = property_is_set?(:protocol) || property_is_set?(:port) | property_is_set?(:dest_port) | property_is_set?(:source_port)
-  array_property = check_for_port_array_property(new_resource)
-
-  if array_property
-    # firewalld doesn't support port arrays, so we must loop over the array
-    # items in order to create distinct rules for each port in the array.
-
-    new_resource.send(array_property).each do |array_item|
-      array_item = format_port(array_item)
-
-      firewalld_rich_rule "#{new_resource.description} [#{array_item}/#{new_resource.protocol}]" do
-        if [:source_port].include?(array_property)
-          source_port array_item
-          port new_resource.port if new_resource.property_is_set?(:port) # Shorthand, same as :dest_port
-          port new_resource.dest_port if new_resource.property_is_set?(:dest_port)
-        elsif [:port, :dest_port].include?(array_property)
-          port array_item
-          source_port new_resource.source_port if new_resource.property_is_set?(:source_port)
-        end
-
-        # The rest of the properties as usual
-        zone new_resource.zone                            if new_resource.property_is_set?(:zone)
-        source new_resource.source                        if new_resource.property_is_set?(:source)
-        protocol new_resource.protocol.to_s               if protocol_required
-        destination new_resource.destination              if new_resource.property_is_set?(:destination)
-        priority new_resource.position                    if new_resource.property_is_set?(:position)
-        rule_action rule_action_map[new_resource.command] if rule_action_map.keys.include?(new_resource.command)
-        log true                                          if new_resource.command == :log
-        action :add
+    parent = new_resource
+    variants = arrays.empty? ? [nil] : parent.public_send(arrays.first)
+    variants.each do |item|
+      properties = {}
+      %i(zone source destination).each do |property|
+        properties[property] = parent.public_send(property) if parent.property_is_set?(property)
+      end
+      properties[:priority] = parent.position if parent.property_is_set?(:position)
+      %i(source_port port dest_port).each do |property|
+        next unless parent.property_is_set?(property)
+        value = property == arrays.first ? item : parent.public_send(property)
+        properties[property == :dest_port ? :port : property] = value.is_a?(Range) ? "#{value.min}-#{value.max}" : value
+      end
+      if parent.command == :masquerade
+        properties[:masquerade] = true
+      elsif parent.command == :redirect
+        properties[:forward_port] = properties.delete(:port) || properties.delete(:source_port)
+        properties[:to_port] = parent.redirect_port
+        properties[:protocol] = parent.protocol.to_s
+      else
+        properties[:protocol] = parent.protocol.to_s if parent.protocol != :none && (parent.property_is_set?(:protocol) || %i(port dest_port source_port).any? { |property| parent.property_is_set?(property) })
+        properties[:rule_action] = { allow: :accept, deny: :drop, reject: :reject }[parent.command] unless parent.command == :log
+        properties[:log] = true if parent.command == :log
+      end
+      name = item.nil? ? parent.description : "#{parent.description} [#{item}/#{parent.protocol}]"
+      firewalld_rich_rule name do
+        properties.each { |property, value| public_send(property, value) }
+        action(operation == :create ? :add : :remove)
       end
     end
-
-    return
-  end
-
-  firewalld_rich_rule new_resource.description do
-    zone new_resource.zone                            if new_resource.property_is_set?(:zone)
-    source new_resource.source                        if new_resource.property_is_set?(:source)
-    source_port format_port(new_resource.source_port) if new_resource.property_is_set?(:source_port)
-    port format_port(new_resource.port)               if new_resource.property_is_set?(:port) # Shorthand, same as :dest_port
-    port format_port(new_resource.dest_port)          if new_resource.property_is_set?(:dest_port)
-    protocol new_resource.protocol.to_s               if protocol_required
-    destination new_resource.destination              if new_resource.property_is_set?(:destination)
-    priority new_resource.position                    if new_resource.property_is_set?(:position)
-    rule_action rule_action_map[new_resource.command] if rule_action_map.keys.include?(new_resource.command)
-    log true                                          if new_resource.command == :log
-    action :add
-  end
-end
-
-action_class do
-  def check_for_port_array_property(new_resource)
-    array_properties = [:source_port, :port, :dest_port].select do |property|
-      new_resource.property_is_set?(property) && new_resource.send(property).is_a?(Array)
-    end
-
-    if array_properties.size > 1
-      raise 'Only one of source_port, port, or dest_port can be an Array at a time.'
-    end
-
-    array_properties.first # Return the property that is an Array
-  end
-
-  def format_port(value)
-    # Convert the Ruby range to a firewalld port range, e.g. "1-100"
-    value.is_a?(Range) ? "#{value.min}-#{value.max}" : value
   end
 end

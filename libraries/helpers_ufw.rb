@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require 'shellwords'
+
 module FirewallCookbook
   module Helpers
     module Ufw
@@ -30,7 +34,7 @@ module FirewallCookbook
       end
 
       def ufw_rule!(cmd)
-        shell_out!(cmd, input: 'yes')
+        shell_out!(*Shellwords.split(cmd), input: 'yes')
       end
 
       def build_rule(new_resource)
@@ -38,7 +42,7 @@ module FirewallCookbook
 
         # if we don't do this, we may see some bugs where traffic is opened on all ports to all hosts when only RELATED,ESTABLISHED was intended
         if new_resource.stateful
-          msg = ''
+          msg = +''
           msg << "firewall_rule[#{new_resource.name}] was asked to "
           msg << "#{new_resource.command} a stateful rule using #{new_resource.stateful} "
           msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
@@ -47,7 +51,7 @@ module FirewallCookbook
 
         # if we don't do this, ufw will fail as it does not support protocol numbers, so we'll only allow it to run if specifying icmp/tcp/udp protocol types
         if new_resource.protocol && !new_resource.protocol.to_s.downcase.match('^(tcp|udp|esp|ah|ipv6|none)$')
-          msg = ''
+          msg = +''
           msg << "firewall_rule[#{new_resource.name}] was asked to "
           msg << "#{new_resource.command} a rule using protocol #{new_resource.protocol} "
           msg << 'but ufw does not support this kind of rule. Consider guarding by platform_family.'
@@ -67,7 +71,7 @@ module FirewallCookbook
       end
 
       def rule(new_resource)
-        rule = ''
+        rule = +''
         rule << "#{new_resource.command} "
         rule << rule_interface(new_resource)
         rule << rule_logging(new_resource)
@@ -85,7 +89,7 @@ module FirewallCookbook
       end
 
       def rule_interface(new_resource)
-        rule = ''
+        rule = +''
         rule << "#{new_resource.direction} " if new_resource.direction
         rule << "on #{new_resource.interface} " if new_resource.interface && new_resource.direction
         rule << "in on #{new_resource.interface} " if new_resource.interface && !new_resource.direction
@@ -93,13 +97,13 @@ module FirewallCookbook
       end
 
       def rule_proto(new_resource)
-        rule = ''
+        rule = +''
         rule << "proto #{new_resource.protocol} " if new_resource.protocol && new_resource.protocol.to_s.to_sym != :none
         rule
       end
 
       def rule_description(new_resource)
-        rule = ''
+        rule = +''
         rule << "comment \"#{new_resource.description}\" " if new_resource.description && new_resource.include_comment
         rule
       end
@@ -108,7 +112,7 @@ module FirewallCookbook
         rule = if new_resource.destination
                  "to #{new_resource.destination} "
                else
-                 'to any '
+                 +'to any '
                end
         rule << "port #{port_to_s(dport_calc(new_resource))} " if dport_calc(new_resource)
         rule
@@ -118,7 +122,7 @@ module FirewallCookbook
         rule = if new_resource.source
                  "from #{new_resource.source} "
                else
-                 'from any '
+                 +'from any '
                end
 
         if new_resource.source_port

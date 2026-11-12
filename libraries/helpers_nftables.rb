@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FirewallCookbook
   module Helpers
     module Nftables
@@ -40,7 +42,7 @@ module FirewallCookbook
       end
 
       def nftables_command_log(rule_resource)
-        log_prefix = 'prefix '
+        log_prefix = +'prefix '
         log_prefix << if rule_resource.log_prefix.nil?
                         "\"#{CHAIN[rule_resource.direction]}:\""
                       else
@@ -63,7 +65,7 @@ module FirewallCookbook
       end
 
       def nftables_commands(rule_resource)
-        firewall_rule = ''
+        firewall_rule = +''
         Array(rule_resource.command).each do |command|
           begin
             target = TARGET.fetch(command)
@@ -85,7 +87,10 @@ module FirewallCookbook
       def build_firewall_rule(rule_resource)
         return rule_resource.raw.strip if rule_resource.raw
 
-        ip = ipv6_rule?(rule_resource) ? 'ip6' : 'ip'
+        addresses = Array(rule_resource.source) + Array(rule_resource.destination)
+        families = addresses.map { |address| IPAddr.new(address).ipv6? }.uniq
+        raise ArgumentError, 'A rule cannot mix IPv4 and IPv6 addresses' if families.length > 1
+        ip = families.first || rule_resource.family == :ip6 || rule_resource.protocol.to_s.match?(/ipv6|icmpv6/) ? 'ip6' : 'ip'
         table = if [:pre, :post].include?(rule_resource.direction)
                   'nat'
                 else
@@ -102,14 +107,16 @@ module FirewallCookbook
         firewall_rule << "oif #{rule_resource.outerface} " if rule_resource.outerface
 
         if rule_resource.source
-          source_with_mask = ip_with_mask(rule_resource, rule_resource.source)
+          source_with_mask = nft_addresses(rule_resource.source)
           if source_with_mask != '0.0.0.0/0' && source_with_mask != '::/128'
             firewall_rule << "#{ip} saddr #{source_with_mask} "
           end
         end
-        firewall_rule << "#{ip} daddr #{rule_resource.destination} " if rule_resource.destination
+        firewall_rule << "#{ip} daddr #{nft_addresses(rule_resource.destination)} " if rule_resource.destination
 
         case rule_resource.protocol
+        when Integer
+          firewall_rule << "meta l4proto #{rule_resource.protocol} "
         when :icmp
           firewall_rule << 'icmp type echo-request '
         when :'ipv6-icmp', :icmpv6
@@ -128,6 +135,17 @@ module FirewallCookbook
         firewall_rule << "comment \"#{rule_resource.description}\" " if rule_resource.include_comment
         firewall_rule.strip!
         firewall_rule
+      end
+
+      def nft_addresses(addresses)
+        values = Array(addresses).map do |address|
+          if address.include?('/')
+            address
+          else
+            "#{address}/#{IPAddr.new(address).ipv6? ? 128 : 32}"
+          end
+        end
+        values.length == 1 ? values.first : "{ #{values.join(', ')} }"
       end
 
       def default_ruleset(new_resource)

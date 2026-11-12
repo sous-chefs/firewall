@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 provides :firewalld_icmptype,
@@ -13,6 +15,7 @@ property :short,
          description: 'see short tag in firewalld.icmptype(5).'
 property :description,
          String,
+         default: lazy { name },
          description: 'see description tag in firewalld.icmptype(5).'
 property :destinations,
          Array,
@@ -37,6 +40,7 @@ load_current_value do |new_resource|
     destinations settings[3]
   else
     Chef::Log.info "IcmpType #{new_resource.short} does not exist. Will be created."
+    current_value_does_not_exist!
   end
 end
 
@@ -80,6 +84,10 @@ action :update do
       fw.reload
     end
   end
+end
+
+action :delete do
+  delete_dbus_object('IcmpType', 'icmptype')
 end
 
 action_class do
