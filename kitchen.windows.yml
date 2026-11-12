@@ -1,18 +1,14 @@
 ---
 driver:
   name: exec
-  gui: false
-  customize:
-    memory: 4096
-
 transport:
   name: exec
-
 provisioner:
-  name: chef_zero
-  enforce_idempotency: true
+  name: chef_infra
+  product_name: cinc
+  product_version: latest
   multiple_converge: 2
+  enforce_idempotency: true
   deprecations_as_errors: true
-
 platforms:
   - name: windows-latest

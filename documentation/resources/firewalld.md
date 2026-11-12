@@ -16,16 +16,23 @@ later on.
 - `:reload`
 - `:restart`
 - `:disable`
+- `:delete` stops the service and removes the firewalld package; shared dependencies remain.
 
 ## Properties
 
-There are no properties.
+- `package_options`: optional package-manager install options.
+- `dbus_gem_version`: ruby-dbus version, default `'0.25.0'`.
+
+Install and restart wait for the D-Bus API to become ready. An already-ready API
+does not report an update on repeated installation.
+
+Package removal may retain permanent XML configuration. Delete owned D-Bus
+objects explicitly before package removal when their state should also be removed.
 
 ## Examples
 
 ```ruby
 firewalld 'arbitrary-name'
-end
 ```
 
-See the [recipe used for testing](../../test/fixtures/cookbooks/firewalld-test/recipes/default.rb).
+See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld_dbus.rb).

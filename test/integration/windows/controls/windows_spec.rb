@@ -1,0 +1,59 @@
+# these tests only for windows
+expected_rules = [
+  /firewall add rule name="prepend" description="prepend" dir=in protocol=tcp localip=any localport=7788 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="block-192.168.99.99" description="block-192.168.99.99" dir=in protocol=tcp localip=any localport=any interfacetype=any remoteip=192.168.99.99 remoteport=any action=block/,
+  /firewall add rule name="default winrm" description="allow world to winrm" dir=in protocol=tcp localip=any localport=5989 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="ssh22" description="ssh22" dir=in protocol=tcp localip=any localport=22 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="ssh2222" description="ssh2222" dir=in protocol=tcp localip=any localport=2200,2222 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="temp1" description="temp1" dir=in protocol=tcp localip=any localport=1234 interfacetype=any remoteip=any remoteport=any action=block/,
+  /firewall add rule name="temp2" description="temp2" dir=in protocol=tcp localip=any localport=1235 interfacetype=any remoteip=any remoteport=any action=block/,
+  /firewall add rule name="addremove2" description="addremove2" dir=in protocol=tcp localip=any localport=1236 interfacetype=any remoteip=any remoteport=any action=block/,
+  /firewall add rule name="duplicate0" description="same comment" dir=in protocol=tcp localip=any localport=1111 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="duplicate0" description="same comment" dir=in protocol=tcp localip=any localport=5431,5432 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="duplicate1" description="same comment" dir=in protocol=tcp localip=any localport=1111 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="duplicate1" description="same comment" dir=in protocol=tcp localip=any localport=5431,5432 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="ipv6-source" description="ipv6-source" dir=in protocol=tcp localip=any localport=80 interfacetype=any remoteip=2001:db8::ff00:42:8329 remoteport=any action=allow/,
+  /firewall add rule name="range" description="range" dir=in protocol=tcp localip=any localport=1000-1100 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="array" description="array" dir=in protocol=tcp localip=any localport=1234,5000-5100,5678 interfacetype=any remoteip=any remoteport=any action=allow/,
+]
+
+describe file("#{ENV['HOME']}/windows-chef.rules") do
+  expected_rules.each do |r|
+    its(:content) { should match(r) }
+  end
+end
+
+describe windows_firewall('public') do
+  it { should be_enabled }
+end
+
+{ 'outbound-https' => '443', 'outbound-range' => '50000-50002', 'outbound-array' => '443,8443' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^RemotePort:\s+#{Regexp.escape(ports)}\s*$/) }
+  end
+end
+
+describe windows_firewall('private') do
+  it { should be_enabled }
+end
+
+describe windows_firewall('Domain') do
+  it { should be_enabled }
+end
+
+describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
+  its(:stdout) { should match('BlockInbound,AllowOutbound') }
+end
+
+{ 'numeric-tcp' => '4443', 'numeric-udp' => '5353' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^LocalPort:\s+#{ports}\s*$/) }
+  end
+end
+
+describe command('netsh advfirewall firewall show rule name="vrrp protocol by number" verbose') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should match(/^Protocol:\s+112\s*$/) }
+end

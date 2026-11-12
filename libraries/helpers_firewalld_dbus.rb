@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require 'shellwords'
+
 module FirewallCookbook
   module Helpers
     module FirewalldDBus
@@ -13,14 +17,6 @@ module FirewallCookbook
         firewalld_object(system_bus)['org.fedoraproject.FirewallD1']
       end
 
-      def config_object(system_bus)
-        firewalld(system_bus)['/org/fedoraproject/FirewallD1/config']
-      end
-
-      def config_interface(system_bus)
-        config_object(system_bus)['org.fedoraproject.FirewallD1.config']
-      end
-
       def get_default_zone(system_bus)
         firewalld_interface(system_bus).getDefaultZone
       end
@@ -31,6 +27,14 @@ module FirewallCookbook
 
       def get_log_denied(system_bus)
         firewalld_interface(system_bus).getLogDenied
+      end
+
+      def config_object(system_bus)
+        firewalld(system_bus)['/org/fedoraproject/FirewallD1/config']
+      end
+
+      def config_interface(system_bus)
+        config_object(system_bus)['org.fedoraproject.FirewallD1.config']
       end
 
       def icmptype_interface(dbus, icmptype_path)
@@ -63,21 +67,52 @@ module FirewallCookbook
         zone_object['org.fedoraproject.FirewallD1.config.zone']
       end
 
+      def delete_dbus_object(type, interface_type)
+        dbus = DBus.system_bus
+        config = config_interface(dbus)
+        return unless config.public_send("get#{type}Names").include?(new_resource.short)
+
+        path = config.public_send("get#{type}ByName", new_resource.short)
+        object = firewalld(dbus)[path]["org.fedoraproject.FirewallD1.config.#{interface_type}"]
+        converge_by("Delete #{type} #{new_resource.short}") do
+          object.remove
+          firewalld_interface(dbus).reload
+        end
+      end
+
+      def normalise_dbus_value(key, value)
+        case key.to_s
+        when 'ports', 'source_ports'
+          value.map { |port| port.join('/') }
+        when 'forward_ports'
+          value.map do |port, protocol, target_port, address|
+            result = "port=#{port}:proto=#{protocol}"
+            result << ":toport=#{target_port}" unless target_port.empty?
+            result << ":toaddr=#{address}" unless address.empty?
+            result
+          end
+        else
+          value
+        end
+      end
+
+      def same_rich_rules?(current, desired)
+        desired && current.map { |rule| Shellwords.split(rule) }.sort == desired.map { |rule| Shellwords.split(rule) }.sort
+      end
+
       # port=portid[-portid]:proto=protocol[:toport=portid[-portid]][:toaddr=address[/mask]]
       def parse_forward_ports(forward_ports)
-        port_regex = %r{port=([\w-]+):proto=([\w]+)(:toport=([\w-]+)|)(:toaddr=([\d\./]+)|)}
-        captures = forward_ports.match(port_regex).captures
-        captures.delete_at(4)
-        captures.delete_at(2)
-        captures.map { |e| e || '' }
+        match = forward_ports.match(/\Aport=([^:]+):proto=([^:]+)(?::toport=([^:]*))?(?::toaddr=(.+))?\z/)
+        raise ArgumentError, "Invalid forward port: #{forward_ports}" unless match
+
+        match.captures.map { |value| value || '' }
       end
 
       def forward_ports_to_dbus(new_resource)
         fwp = new_resource.forward_ports.map do |e|
           parse_forward_ports(e)
         end
-        new_resource.forward_ports = fwp
-        DBus.variant('a(ssss)', new_resource.forward_ports)
+        DBus.variant('a(ssss)', fwp)
       end
     end
   end

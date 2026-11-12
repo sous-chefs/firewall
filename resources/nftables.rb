@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 include FirewallCookbook::Helpers
@@ -34,15 +36,15 @@ property :nftables_conf_path, String,
 action :install do
   package 'nftables' do
     action :install
-    notifies :rebuild, "nftables[#{new_resource.name}]"
   end
+  new_resource.delayed_action :rebuild
 end
 
 action :rebuild do
   ensure_default_rules_exist(new_resource)
 
   file new_resource.nftables_conf_path do
-    content  <<~NFT
+    content <<~NFT
       #!/usr/sbin/nft -f
       flush ruleset
       #{build_rule_file(new_resource.rules)}
@@ -50,22 +52,35 @@ action :rebuild do
     mode '0750'
     owner 'root'
     group 'root'
-    notifies :restart, 'service[nftables]'
+    verify 'nft --check --file %{path}'
+    notifies :restart, 'systemd_unit[nftables.service]'
   end
 
-  service 'nftables' do
+  systemd_unit 'nftables.service' do
     action [:enable, :start]
   end
 end
 
 action :restart do
-  service 'nftables' do
+  systemd_unit 'nftables.service' do
     action :restart
   end
 end
 
 action :disable do
-  service 'nftables' do
+  systemd_unit 'nftables.service' do
     action [:disable, :stop]
+  end
+end
+
+action :delete do
+  systemd_unit 'nftables.service' do
+    action [:disable, :stop]
+  end
+  file new_resource.nftables_conf_path do
+    action :delete
+  end
+  package 'nftables' do
+    action :remove
   end
 end
