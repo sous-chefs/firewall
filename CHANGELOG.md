@@ -6,6 +6,22 @@ Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 
+## [8.0.0](https://github.com/sous-chefs/firewall/compare/v7.0.4...v8.0.0) (2026-11-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* Replace root recipes, attributes and legacy providers with unified resources on Chef/Cinc18+. Configure backend and policy properties in wrapper cookbooks; see MIGRATING.md. Preserve UFW, iptables, native Windows, nftables and firewalld D-Bus APIs.
+
+### Features
+
+* migrate firewall to custom resources ([#338](https://github.com/sous-chefs/firewall/issues/338)) ([68d1fac](https://github.com/sous-chefs/firewall/commit/68d1fac07bc5918f6640ef93a2d532e86d68de0a))
+
+
+### Bug Fixes
+
+* **ci:** Update workflows to use release pipeline ([#317](https://github.com/sous-chefs/firewall/issues/317)) ([03e661e](https://github.com/sous-chefs/firewall/commit/03e661ed6c10f1ba689325825e9a50dab678ea31))
+
 ## [7.0.4](https://github.com/sous-chefs/firewall/compare/v7.0.3...v7.0.4) (2025-10-16)
 
 
