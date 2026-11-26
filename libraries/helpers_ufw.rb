@@ -108,6 +108,12 @@ module FirewallCookbook
         rule
       end
 
+      def port_to_s(ports)
+        return super unless ports.is_a?(Array)
+
+        ports.map { |port| port_to_s(port) }.sort_by { |port| [port.to_i, port] }.join(',')
+      end
+
       def rule_dest_port(new_resource)
         rule = if new_resource.destination
                  "to #{new_resource.destination} "
