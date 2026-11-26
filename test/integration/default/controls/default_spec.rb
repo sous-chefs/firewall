@@ -12,12 +12,6 @@ describe service('iptables') do
   it { should be_running }
 end if iptables?
 
-describe service('nftables') do
-  it { should be_installed }
-  it { should be_enabled }
-  it { should be_running }
-end if nftables?
-
 describe service('ufw') do
   it { should be_installed }
   it { should be_enabled }

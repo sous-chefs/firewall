@@ -1,0 +1,4 @@
+---
+name: nftables-facade
+title: Explicit nftables firewall backend
+version: 1.0.0

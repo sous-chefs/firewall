@@ -2,7 +2,7 @@
 expected_rules = [
   /firewall add rule name="prepend" description="prepend" dir=in protocol=tcp localip=any localport=7788 interfacetype=any remoteip=any remoteport=any action=allow/,
   /firewall add rule name="block-192.168.99.99" description="block-192.168.99.99" dir=in protocol=tcp localip=any localport=any interfacetype=any remoteip=192.168.99.99 remoteport=any action=block/,
-  /firewall add rule name="allow world to winrm" description="allow world to winrm" dir=in protocol=tcp localip=any localport=5989 interfacetype=any remoteip=any remoteport=any action=allow/,
+  /firewall add rule name="default winrm" description="allow world to winrm" dir=in protocol=tcp localip=any localport=5989 interfacetype=any remoteip=any remoteport=any action=allow/,
   /firewall add rule name="ssh22" description="ssh22" dir=in protocol=tcp localip=any localport=22 interfacetype=any remoteip=any remoteport=any action=allow/,
   /firewall add rule name="ssh2222" description="ssh2222" dir=in protocol=tcp localip=any localport=2200,2222 interfacetype=any remoteip=any remoteport=any action=allow/,
   /firewall add rule name="temp1" description="temp1" dir=in protocol=tcp localip=any localport=1234 interfacetype=any remoteip=any remoteport=any action=block/,
@@ -27,6 +27,13 @@ describe windows_firewall('public') do
   it { should be_enabled }
 end
 
+{ 'outbound-https' => '443', 'outbound-range' => '50000-50002', 'outbound-array' => '443,8443' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^RemotePort:\s+#{Regexp.escape(ports)}\s*$/) }
+  end
+end
+
 describe windows_firewall('private') do
   it { should be_enabled }
 end
@@ -37,4 +44,43 @@ end
 
 describe command('netsh advfirewall show currentprofile firewallpolicy | findstr "Firewall Policy"') do
   its(:stdout) { should match('BlockInbound,AllowOutbound') }
+end
+
+{ 'numeric-tcp' => '4443', 'numeric-udp' => '5353' }.each do |name, ports|
+  describe command("netsh advfirewall firewall show rule name=\"#{name}\" verbose") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^LocalPort:\s+#{ports}\s*$/) }
+  end
+end
+
+describe command('netsh advfirewall firewall show rule name="vrrp protocol by number" verbose') do
+  its('exit_status') { should eq 0 }
+  its('stdout') { should match(/^Protocol:\s+112\s*$/) }
+end
+
+control 'windows-firewall-profile-logging' do
+  title 'Windows firewall logging by profile'
+  desc 'Checks managed logging flags and verifies that a rule rebuild preserves omitted logging settings.'
+
+  { 'Domain' => 'True,True', 'Private' => 'True,False', 'Public' => 'False,True' }.each do |profile, flags|
+    describe powershell(<<~POWERSHELL) do
+      $ErrorActionPreference = 'Stop'
+      $profile = Get-NetFirewallProfile -PolicyStore PersistentStore -Name #{profile}
+      '{0},{1}' -f $profile.LogAllowed, $profile.LogBlocked
+    POWERSHELL
+      its('exit_status') { should eq 0 }
+      its('stdout') { should match(/^#{flags}\s*$/) }
+    end
+  end
+
+  describe powershell(<<~'POWERSHELL') do
+    $ErrorActionPreference = 'Stop'
+    $profile = Get-NetFirewallProfile -PolicyStore PersistentStore -Name Public
+    $actual = [Environment]::ExpandEnvironmentVariables($profile.LogFileName)
+    $expected = Join-Path $env:SystemRoot 'System32\LogFiles\Firewall\kitchen-public.log'
+    '{0},{1}' -f $profile.LogMaxSizeKilobytes, ($actual -eq $expected)
+  POWERSHELL
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^8192,True\s*$/) }
+  end
 end

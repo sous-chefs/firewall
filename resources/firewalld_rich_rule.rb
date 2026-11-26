@@ -1,10 +1,10 @@
+# frozen_string_literal: true
 
 require 'ipaddr'
 
 unified_mode true
 
 provides :firewalld_rich_rule, os: 'linux'
-provides :firewall_rich_rule, os: 'linux'
 
 default_action :add
 
@@ -161,7 +161,7 @@ action :add do
   rule = get_rich_rule_string
 
   begin
-    sysbus = dbus_system_bus
+    sysbus = DBus.system_bus
     zone_config = get_zone_config(sysbus)
     rule_exists = zone_config.queryRichRule(rule)
 
@@ -180,7 +180,7 @@ action :remove do
   rule = get_rich_rule_string
 
   begin
-    sysbus = dbus_system_bus
+    sysbus = DBus.system_bus
     zone_config = get_zone_config(sysbus)
     rule_exists = zone_config.queryRichRule(rule)
 
@@ -246,7 +246,7 @@ action_class do
       return ip.ipv4? ? :ipv4 : :ipv6
     end
 
-    nil
+    :ipv4 if property_is_set?(:forward_port)
   end
 
   # A helper method within action_class to construct the rich rule string
@@ -255,8 +255,8 @@ action_class do
 
     rule_parts = []
     rule_parts << 'rule'
-    rule_parts << "priority=\"#{r.priority}\"" if property_is_set?(:priority)
     rule_parts << "family=\"#{ip_family}\"" if ip_family
+    rule_parts << "priority=\"#{r.priority}\""                         if property_is_set?(:priority)
     rule_parts << "source address=\"#{r.source}\""                     if property_is_set?(:source)
     rule_parts << "source not address=\"#{r.source_not}\""             if property_is_set?(:source_not)
     rule_parts << "destination address=\"#{r.destination}\""           if property_is_set?(:destination)
@@ -265,7 +265,7 @@ action_class do
     rule_parts << "port port=\"#{r.port}\" protocol=\"#{r.protocol}\"" if property_is_set?(:port)
     rule_parts << "tcp-mss-clamp value=\"#{r.tcp_mss_clamp}\""         if property_is_set?(:tcp_mss_clamp)
     rule_parts << "icmp-block name=\"#{r.icmp_block}\""                if property_is_set?(:icmp_block)
-    rule_parts << 'masquerade'                                         if property_is_set?(:masquerade)
+    rule_parts << 'masquerade'                                         if r.masquerade
     rule_parts << "icmp-type name=\"#{r.icmp_type}\""                  if property_is_set?(:icmp_type)
 
     if property_is_set?(:protocol) &&
@@ -281,14 +281,14 @@ action_class do
 
     rule_parts << "source-port port=\"#{r.source_port}\" protocol=\"#{r.protocol}\"" if property_is_set?(:source_port)
 
-    if property_is_set?(:log)
+    if r.log
       rule_parts << 'log'
       rule_parts << "prefix=\"#{r.log_prefix}\""     if property_is_set?(:log_prefix)
       rule_parts << "level=\"#{r.log_level}\""       if property_is_set?(:log_level)
       rule_parts << "limit value=\"#{r.log_limit}\"" if property_is_set?(:log_limit)
     end
 
-    if property_is_set?(:nflog)
+    if r.nflog
       rule_parts << 'nflog'
       rule_parts << "group=\"#{r.nflog_group}\""           if property_is_set?(:nflog_group)
       rule_parts << "prefix=\"#{r.nflog_prefix}\""         if property_is_set?(:nflog_prefix)
@@ -296,7 +296,7 @@ action_class do
       rule_parts << "limit value=\"#{r.nflog_limit}\""     if property_is_set?(:nflog_limit)
     end
 
-    if property_is_set?(:audit)
+    if r.audit
       rule_parts << 'audit'
       rule_parts << "limit value=\"#{r.audit_limit}\"" if property_is_set?(:audit_limit)
     end

@@ -1,120 +1,67 @@
 # frozen_string_literal: true
 
-unified_mode true
-
-use '_partial/_firewall'
-
 provides :firewall
+unified_mode true
+use '_partial/_firewall'
+use '_partial/_windows_logging'
 
-action :install do
-  return if disabled?(new_resource)
-
-  declare_backend_resource(:install)
-end
-
-action :restart do
-  return if disabled?(new_resource)
-
-  declare_backend_resource(:restart)
-end
-
-action :reload do
-  return if disabled?(new_resource)
-
-  declare_backend_resource(:reload)
-end
-
-action :disable do
-  return if disabled?(new_resource)
-
-  declare_backend_resource(:disable)
-end
-
-action :flush do
-  return if disabled?(new_resource)
-
-  declare_backend_resource(:flush)
-end
-
-action_class do
-  include FirewallCookbook::Helpers
-
-  def firewall_backend
-    new_resource.backend || default_firewall_backend
+property :backend, Symbol, equal_to: %i(ufw iptables nftables firewalld windows), default: lazy {
+  case node['platform_family']
+  when 'windows' then :windows
+  when 'debian' then :ufw
+  when 'amazon', 'fedora', 'rhel', 'suse' then :firewalld
+  else :iptables
   end
+}
 
-  def default_firewall_backend
-    case node['platform_family']
-    when 'debian'
-      platform?('debian') ? :nftables : :ufw
-    when 'amazon', 'fedora', 'rhel', 'suse'
-      :firewalld
-    when 'windows'
-      :windows
-    else
-      :iptables
-    end
-  end
+default_action :install
 
-  def declare_backend_resource(requested_action)
-    with_run_context :root do
-      case firewall_backend
-      when :firewalld
-        firewalld new_resource.name do
-          package_options new_resource.package_options if property_is_set?(:package_options)
-          allow_ssh new_resource.allow_ssh
-          allow_mosh new_resource.allow_mosh
-          action requested_action
-        end
-      when :iptables
-        iptables new_resource.name do
-          copy_common_firewall_properties(self)
-          iptables_ruleset new_resource.iptables_ruleset
-          action requested_action
-        end
-      when :nftables
-        nftables new_resource.name do
-          copy_common_firewall_properties(self)
-          input_policy 'drop'
-          output_policy 'accept'
-          forward_policy 'drop'
-          table_ip_nat true
-          table_ip6_nat new_resource.ipv6_enabled
-          action nftables_action(requested_action)
-        end
-      when :ufw
-        ufw new_resource.name do
-          copy_common_firewall_properties(self)
-          ufw_defaults new_resource.ufw_defaults
-          action requested_action
-        end
-      when :windows
-        windows_firewall new_resource.name do
-          copy_common_firewall_properties(self)
-          windows_policy new_resource.windows_policy
-          action requested_action
-        end
-      else
-        raise "Unsupported firewall backend #{firewall_backend}"
+%i(allow_ssh allow_winrm allow_mosh allow_loopback allow_icmp).each do |flag|
+  property flag, [true, false], default: false
+end
+property :allow_established, [true, false], default: true
+
+%i(install restart reload disable flush delete).each do |operation|
+  action operation do
+    next unless new_resource.enabled
+
+    parent = new_resource
+    public_send("firewall_backend_#{parent.backend}", parent.name) do
+      %i(enabled log_level rules rule_resources ipv6_enabled
+         package_options input_policy forward_policy output_policy ruleset ufw_defaults
+         windows_input_policy windows_output_policy).each do |property|
+        public_send(property, parent.public_send(property)) unless parent.public_send(property).nil?
       end
+      windows_logging parent.windows_logging if parent.backend == :windows
+      action operation
     end
-  end
 
-  def nftables_action(requested_action)
-    requested_action == :restart ? :rebuild : requested_action
-  end
-
-  def copy_common_firewall_properties(resource)
-    resource.enabled new_resource.enabled
-    resource.log_level new_resource.log_level
-    resource.rules new_resource.rules
-    resource.ipv6_enabled new_resource.ipv6_enabled
-    resource.package_options new_resource.package_options if property_is_set?(:package_options)
-    resource.allow_ssh new_resource.allow_ssh
-    resource.allow_winrm new_resource.allow_winrm
-    resource.allow_mosh new_resource.allow_mosh
-    resource.allow_loopback new_resource.allow_loopback
-    resource.allow_icmp new_resource.allow_icmp
-    resource.allow_established new_resource.allow_established
+    if operation == :install
+      defaults = []
+      filter_backend = %i(iptables nftables).include?(parent.backend)
+      any_source = parent.backend == :nftables ? {} : { source: '0.0.0.0/0' }
+      defaults << ['loopback', { interface: 'lo', protocol: :none }] if parent.allow_loopback && filter_backend
+      defaults << ['ssh', { port: 22, **any_source }] if parent.allow_ssh && parent.backend != :windows
+      defaults << ['winrm', { port: 5989, source: '0.0.0.0/0' }] if parent.allow_winrm && parent.backend == :windows
+      defaults << ['mosh', { port: 60000..61000, protocol: :udp, **any_source }] if parent.allow_mosh && parent.backend != :windows
+      if filter_backend
+        defaults << ['icmp', { protocol: :icmp }] if parent.allow_icmp
+        if parent.allow_established
+          defaults << ['established', { protocol: :none, stateful: %i(related established) }]
+          defaults << ['ipv6_icmp', { protocol: :'ipv6-icmp' }] if parent.ipv6_enabled
+        end
+      end
+      defaults.each do |suffix, properties|
+        firewall_rule "#{parent.name} #{suffix}" do
+          firewall_name parent.name
+          description({ 'loopback' => 'allow loopback', 'icmp' => 'allow icmp',
+                        'ssh' => 'allow world to ssh', 'winrm' => 'allow world to winrm',
+                        'mosh' => 'allow world to mosh' }.fetch(suffix, suffix))
+          properties.each { |key, value| public_send(key, value) }
+        end
+      end
+      # Rebuild even after the last declared rule has been removed.
+      parent.delayed_action :restart unless parent.backend == :firewalld
+    end
   end
 end

@@ -13,13 +13,8 @@ expected_rules = [
   %r{-A INPUT -s 192.168.99.99(/32)? -p tcp -m tcp .*-j REJECT --reject-with icmp-port-unreachable},
 ]
 
-vrrp_protocol = 'vrrp'
-if (%w(redhat suse).include?(os.family) && os.release.to_i == 10) ||
-   (os.name == 'debian' && os.release.to_i >= 13)
-  # Current RHEL-compatible 10 and Debian 13 iptables-save output the
-  # /etc/protocols number rather than the friendly protocol name.
-  vrrp_protocol = '112'
-end
+# Minimal images may omit the protocol-name database. Both forms mean IP112.
+vrrp_protocol = '(?:vrrp|112)'
 
 expected_rules.push(/-A INPUT -p #{vrrp_protocol} .*-j ACCEPT/)
 
@@ -37,6 +32,13 @@ expected_ipv6_rules = [
 ]
 
 expected_ipv6_rules.push(%r{-A INPUT( -s ::/0 -d ::/0)? -p #{vrrp_protocol} .*-j ACCEPT})
+
+%w(iptables ip6tables).each do |family|
+  describe command("#{family}-save -t nat") do
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/-A PREROUTING .*--dports 5555 .*-j REDIRECT --to-ports 6666/) }
+  end
+end
 
 describe command('iptables-save') do
   its(:stdout) { should match(/COMMIT/) }

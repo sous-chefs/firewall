@@ -1,7 +1,4 @@
 ---
-name: firewalld
-title: Firewalld Tests
-maintainer: Sous Chefs
-license: Apache-2.0
-summary: Firewalld backend tests
+name: firewall-firewalld
+title: Firewall firewalld tests
 version: 1.0.0

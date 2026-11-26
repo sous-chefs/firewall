@@ -1,3 +1,8 @@
+# frozen_string_literal: true
+
+require 'base64'
+require 'json'
+
 module FirewallCookbook
   module Helpers
     module Windows
@@ -5,7 +10,7 @@ module FirewallCookbook
       include Chef::Mixin::ShellOut
 
       def fixup_cidr(str)
-        newstr = str.clone
+        newstr = str.dup
         newstr.gsub!('0.0.0.0/0', 'any') if newstr.include?('0.0.0.0/0')
         newstr.gsub!('/0', '') if newstr.include?('/0')
         newstr
@@ -16,10 +21,8 @@ module FirewallCookbook
       end
 
       def active?
-        @active ||= begin
-          cmd = shell_out!('netsh advfirewall show currentprofile')
-          cmd.stdout =~ /^State\sON/
-        end
+        cmd = shell_out!('netsh advfirewall show currentprofile')
+        cmd.stdout.match?(/^State\s+ON\b/)
       end
 
       def enable!
@@ -32,6 +35,54 @@ module FirewallCookbook
 
       def reset!
         shell_out!('netsh advfirewall reset')
+      end
+
+      def desired_windows_logging(profiles)
+        profiles.reject { |_profile, flags| flags.empty? }.to_h do |profile, flags|
+          [profile.to_s.capitalize, flags.to_h { |flag, value| ["Log#{flag.to_s.capitalize}", value ? 'True' : 'False'] }]
+        end
+      end
+
+      def read_windows_logging
+        output = windows_logging_powershell!(<<~POWERSHELL)
+          Get-NetFirewallProfile -PolicyStore PersistentStore |
+            Select-Object Name, LogFileName, LogMaxSizeKilobytes,
+              @{Name='LogAllowed';Expression={[string]$_.LogAllowed}},
+              @{Name='LogBlocked';Expression={[string]$_.LogBlocked}},
+              @{Name='LogIgnored';Expression={[string]$_.LogIgnored}} |
+            ConvertTo-Json -Compress
+        POWERSHELL
+        JSON.parse(output).to_h { |profile| [profile.fetch('Name'), profile.reject { |key, _value| key == 'Name' }] }
+      end
+
+      def windows_logging_changes(desired, current)
+        desired.each_with_object({}) do |(name, settings), changes|
+          profile = current.fetch(name)
+          delta = settings.reject { |key, value| value == profile.fetch(key) }
+          changes[name] = delta unless delta.empty?
+        end
+      end
+
+      def set_windows_logging!(changes)
+        return if changes.empty?
+
+        payload = Base64.strict_encode64(JSON.generate(changes))
+        windows_logging_powershell!(<<~POWERSHELL)
+          $profiles = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('#{payload}')) | ConvertFrom-Json
+          foreach ($profile in $profiles.PSObject.Properties) {
+            $settings = @{}
+            foreach ($setting in $profile.Value.PSObject.Properties) {
+              $settings[$setting.Name] = $setting.Value
+            }
+            Set-NetFirewallProfile -PolicyStore PersistentStore -Name $profile.Name @settings
+          }
+        POWERSHELL
+      end
+
+      def windows_logging_powershell!(script)
+        script = "$ErrorActionPreference = 'Stop'\n[Console]::OutputEncoding = [Text.Encoding]::UTF8\n#{script}"
+        encoded = Base64.strict_encode64(script.encode(Encoding::UTF_16LE))
+        shell_out!("powershell.exe -NoProfile -NonInteractive -EncodedCommand #{encoded}").stdout
       end
 
       def add_rule!(params)
@@ -60,14 +111,20 @@ module FirewallCookbook
 
         new_resource.program && parameters['program'] = new_resource.program
         new_resource.service && parameters['service'] = new_resource.service
-        parameters['protocol'] = new_resource.protocol
+        protocol = { icmp: :icmpv4, 'ipv6-icmp': :icmpv6, icmpv6: :icmpv6,
+                     none: :any, esp: 50, ah: 51, ipv6: 41 }.fetch(new_resource.protocol, new_resource.protocol)
+        supports_ports = [:tcp, :udp, 6, 17].include?(protocol)
+        if !supports_ports && [new_resource.port, new_resource.dest_port, new_resource.source_port].any?
+          raise ArgumentError, 'Windows port constraints require TCP or UDP'
+        end
+        parameters['protocol'] = protocol
 
         if new_resource.direction.to_sym == :out
           parameters['localip'] = new_resource.source ? fixup_cidr(new_resource.source) : 'any'
           parameters['localport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
           parameters['interfacetype'] = new_resource.interface || 'any'
           parameters['remoteip'] = new_resource.destination ? fixup_cidr(new_resource.destination) : 'any'
-          parameters['remoteport'] = new_resource.dest_port ? port_to_s(new_resource.dest_port) : 'any'
+          parameters['remoteport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
         else
           parameters['localip'] = new_resource.destination || 'any'
           parameters['localport'] = dport_calc(new_resource) ? port_to_s(dport_calc(new_resource)) : 'any'
@@ -76,6 +133,10 @@ module FirewallCookbook
           parameters['remoteport'] = new_resource.source_port ? port_to_s(new_resource.source_port) : 'any'
         end
 
+        unless supports_ports
+          parameters.delete('localport')
+          parameters.delete('remoteport')
+        end
         parameters['action'] = type.to_s
 
         partial_command = parameters.map { |k, v| "#{k}=#{v}" }.join(' ')

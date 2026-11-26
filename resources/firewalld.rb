@@ -5,70 +5,63 @@ unified_mode true
 provides :firewalld,
          os: 'linux'
 
-# Custom options to pass to the package manager during install of firewalld package
+property :dbus_gem_version, String, default: '0.25.0'
 property :package_options, String
-property :allow_ssh, [true, false], default: false
-property :allow_mosh, [true, false], default: false
 
 action :install do
-  chef_gem 'ruby-dbus'
-
+  chef_gem 'ruby-dbus' do
+    version new_resource.dbus_gem_version
+    compile_time false
+  end
+  require 'dbus'
+  service 'dbus' do
+    action :nothing
+  end
   package 'firewalld' do
     options new_resource.package_options if new_resource.package_options
-    action :install
+    notifies :reload, 'service[dbus]', :immediately
   end
-
-  service 'firewalld' do
+  systemd_unit 'firewalld.service' do
     action [:enable, :start]
   end
-
-  declare_default_rules
+  execute 'wait for firewalld D-Bus API' do
+    command %w(firewall-cmd --state)
+    retries 30
+    retry_delay 1
+    not_if 'firewall-cmd --state'
+  end
 end
 
 action :reload do
-  service 'firewalld' do
+  systemd_unit 'firewalld.service' do
     action :reload
   end
 end
 
 action :restart do
-  service 'firewalld' do
+  systemd_unit 'firewalld.service' do
     action :restart
+  end
+  execute 'wait for restarted firewalld D-Bus API' do
+    command %w(firewall-cmd --state)
+    retries 30
+    retry_delay 1
+    not_if 'firewall-cmd --state'
   end
 end
 
 action :disable do
-  service 'firewalld' do
+  systemd_unit 'firewalld.service' do
     action [:disable, :stop]
   end
 end
 
-action :flush do
-  service 'firewalld' do
-    action :reload
+action :delete do
+  systemd_unit 'firewalld.service' do
+    action [:disable, :stop]
   end
-end
-
-action_class do
-  def declare_default_rules
-    if linux? && new_resource.allow_ssh
-      firewalld_rule 'allow world to ssh' do
-        family :ipv4
-        source '0.0.0.0/0'
-        port 22
-        protocol :tcp
-        command :allow
-      end
-    end
-
-    if linux? && new_resource.allow_mosh
-      firewalld_rule 'allow world to mosh' do
-        family :ipv4
-        source '0.0.0.0/0'
-        port 60000..61000
-        protocol :udp
-        command :allow
-      end
-    end
+  package 'firewalld' do
+    options '--setopt=clean_requirements_on_remove=False' if platform_family?('rhel', 'fedora', 'amazon')
+    action :remove
   end
 end

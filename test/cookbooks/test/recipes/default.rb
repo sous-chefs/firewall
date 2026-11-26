@@ -1,23 +1,19 @@
 # frozen_string_literal: true
 
-backend = (node.dig('firewall_test', 'backend') || case node['platform_family']
-                                                   when 'debian'
-                                                     platform?('debian') ? 'nftables' : 'ufw'
-                                                   when 'amazon', 'fedora', 'rhel', 'suse'
-                                                     'firewalld'
-                                                   when 'windows'
-                                                     'windows'
-                                                   else
-                                                     'iptables'
-                                                   end).to_sym
+backend = node.dig('firewall_test', 'backend')&.to_sym ||
+          case node['platform_family']
+          when 'debian' then :ufw
+          when 'amazon', 'fedora', 'rhel', 'suse' then :firewalld
+          when 'windows' then :windows
+          else :iptables
+          end
 firewalld = backend == :firewalld
 iptables = backend == :iptables
-nftables = backend == :nftables
 ufw = backend == :ufw
 
 # UFW provided by opt-in EPEL repository on RHEL platforms
 package 'epel-release' do
-  only_if { ufw && platform_family?('rhel') }
+  only_if { platform_family?('rhel') }
 end
 
 # The package resource on Fedora is broken until this is installed.
@@ -37,14 +33,17 @@ user 'polkitd' do
   only_if { firewalld && platform?('debian', 'ubuntu') }
 end
 
-package 'firewalld' do
-  only_if { firewalld }
-end
-
-execute 'use iptables firewalld backend in dokken' do
-  command "sed -i -e 's/^FirewallBackend=.*/FirewallBackend=iptables/' /etc/firewalld/firewalld.conf"
-  only_if { firewalld && ::File.exist?('/.dockerenv') && ::File.exist?('/etc/firewalld/firewalld.conf') }
-  not_if "grep -q '^FirewallBackend=iptables$' /etc/firewalld/firewalld.conf"
+if backend == :windows
+  # Seed local settings before the first rule rebuild so preservation is observable.
+  powershell_script 'seed Windows firewall profile logging' do
+    code <<~'POWERSHELL'
+      $ErrorActionPreference = 'Stop'
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Domain -LogAllowed False -LogBlocked True
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Private -LogAllowed True -LogBlocked True
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Public -LogAllowed False -LogBlocked True -LogMaxSizeKilobytes 8192 -LogFileName '%SystemRoot%\System32\LogFiles\Firewall\kitchen-public.log'
+    POWERSHELL
+    not_if { ::File.exist?("#{ENV['HOME']}/windows-chef.rules") }
+  end
 end
 
 firewall 'default' do
@@ -54,10 +53,7 @@ firewall 'default' do
   allow_mosh true
   allow_loopback true
   allow_icmp true
-  windows_policy(
-    input: 'blockinbound',
-    output: 'blockoutbound'
-  )
+  windows_logging(domain: { allowed: true }, private: { blocked: false }) if backend == :windows
 end
 
 firewall_rule 'ssh22' do
@@ -150,6 +146,13 @@ if ufw
 end
 
 if iptables
+  firewall_rule 'redirect test' do
+    direction :pre
+    port 5555
+    redirect_port 6666
+    command :redirect
+  end
+
   firewall_rule 'RPC Port Range In' do
     port 5000..5100
     protocol :tcp
@@ -174,11 +177,4 @@ if iptables
   end
 end
 
-if nftables
-  firewall_rule 'redirect' do
-    direction :pre
-    port 5555
-    redirect_port 6666
-    command :redirect
-  end
-end
+include_recipe 'test::windows' if windows?

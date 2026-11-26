@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 unified_mode true
+include FirewallCookbook::Helpers::FirewalldDBus
 
 provides :firewalld_service,
-         os: 'linux'
-provides :firewall_service,
          os: 'linux'
 
 property :version,
@@ -14,10 +15,11 @@ property :short,
          description: 'see short tag in firewalld.service(5).'
 property :description,
          String,
+         default: lazy { name },
          description: 'see description tag in firewalld.service(5).'
 property :ports,
          [Array, String],
-         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.service(5).',
+         description: 'array of port and protocol pairs. See port tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 property :module_names,
          [Array, String],
@@ -32,7 +34,7 @@ property :protocols,
          coerce: proc { |o| Array(o) }
 property :source_ports,
          [Array, String],
-         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See source-port tag in firewalld.service(5).',
+         description: 'array of port and protocol pairs. See source-port tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 property :includes,
          [Array, String],
@@ -43,10 +45,8 @@ property :helpers,
          description: 'array of service helpers, see helper tag in firewalld.service(5).',
          coerce: proc { |o| Array(o) }
 
-include FirewallCookbook::Helpers::FirewalldDBus
-
 load_current_value do |new_resource|
-  sysbus = dbus_system_bus
+  sysbus = DBus.system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -55,38 +55,42 @@ load_current_value do |new_resource|
     object = firewalld_service[service_path]
     config_service = object['org.fedoraproject.FirewallD1.config.service']
     config_service.getSettings2.each do |k, v|
-      # Load the current value of ports in the same format as the resource property to make it idempotent
-      v = v.map { |port, protocol| "#{port}/#{protocol}" } if %w(ports source_ports).include?(k)
-      send(k, v)
+      k = 'module_names' if k == 'modules'
+      next unless new_resource.class.properties.key?(k.to_sym)
+      send(k, normalise_dbus_value(k, v))
     end
   else
     Chef::Log.info "Service #{new_resource.short} does not exist. Will be created."
+    current_value_does_not_exist!
   end
 end
 
 action :update do
-  dbus = dbus_system_bus
+  dbus = DBus.system_bus
   fw = firewalld_interface(dbus)
   fw_config = config_interface(dbus)
   reload = false
   unless fw_config.getServiceNames.include?(new_resource.short)
-    fw_config.addService2(new_resource.short, {})
+    converge_by "Add Service #{new_resource.short}" do
+      fw_config.addService2(new_resource.short, {})
+    end
+    return if whyrun_mode?
+    reload = true
   end
 
   service_path = fw_config.getServiceByName(new_resource.short)
   service = service_interface(dbus, service_path)
   properties = new_resource.class.state_properties.map(&:name)
   properties.each do |property|
-    next unless property_is_set?(property)
     new_value = new_resource.send(property)
-
+    next if new_value.nil?
     if [:ports, :source_ports].include?(property)
-      new_value = dbus_variant('a(ss)', new_value.map { |e| e.split('/') })
+      new_value = DBus.variant('a(ss)', new_value.map { |e| e.split('/') })
     elsif property == :description
       new_value = default_description(new_resource)
     end
     converge_if_changed property do
-      key = property == :short ? 'name' : property.to_s
+      key = property == :module_names ? 'modules' : property.to_s
       service.update2({ key => new_value })
       reload = true
     end
@@ -97,6 +101,10 @@ action :update do
       fw.reload
     end
   end
+end
+
+action :delete do
+  delete_dbus_object('Service', 'service')
 end
 
 action_class do

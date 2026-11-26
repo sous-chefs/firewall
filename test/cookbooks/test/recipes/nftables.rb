@@ -1,148 +1,143 @@
-firewall 'default' do
-  backend :nftables
+# frozen_string_literal: true
+
+nftables 'default' do
+  input_policy 'drop'
+  table_ip_nat true
+  table_ip6_nat true
 end
 
-firewall_rule 'allow loopback' do
+nftables_rule 'allow loopback' do
   interface 'lo'
   protocol :none
 end
 
-firewall_rule 'allow icmp' do
+nftables_rule 'allow icmp' do
   protocol :icmp
 end
 
-firewall_rule 'allow world to ssh' do
-  port 22
-  source '0.0.0.0/0'
+nftables_rule 'allow world to ssh' do
+  dport 22
   command [:log, :accept]
   log_group 0
 end
 
-firewall_rule 'allow world to mosh' do
+nftables_rule 'allow world to mosh' do
   protocol :udp
-  port 60000..61000
-  source '0.0.0.0/0'
+  dport 60000..61000
 end
 
 # allow established connections
-firewall_rule 'established' do
+nftables_rule 'established' do
   stateful [:related, :established]
   protocol :none # explicitly don't specify protocol
 end
 
 # ipv6 needs ICMP to reliably work, so ensure it's enabled if ipv6
-firewall_rule 'ipv6_icmp' do
+nftables_rule 'ipv6_icmp' do
   protocol :'ipv6-icmp'
 end
 
-firewall_rule 'ssh22' do
-  port 22
+nftables_rule 'ssh22' do
+  dport 22
   command [:log, :accept]
   log_prefix 'TEST_PREFIX:'
 end
 
-firewall_rule 'ssh2222' do
-  port [2222, 2200]
+nftables_rule 'ssh2222' do
+  dport [2222, 2200]
   command [:log, :counter, :accept]
 end
 
 # other rules
-firewall_rule 'temp1' do
-  port 1234
+nftables_rule 'temp1' do
+  dport 1234
   command :drop
 end
 
-firewall_rule 'temp2' do
-  port 1235
+nftables_rule 'temp2' do
+  dport 1235
   command :reject
 end
 
-firewall_rule 'addremove' do
-  port 1236
+nftables_rule 'addremove' do
+  dport 1236
 end
 
-firewall_rule 'addremove2' do
-  port 1236
+nftables_rule 'addremove2' do
+  dport 1236
   command :drop
 end
 
-firewall_rule 'protocolnum' do
+nftables_rule 'protocolnum' do
   protocol 112
 end
 
-firewall_rule 'prepend' do
-  port 7788
+nftables_rule 'prepend' do
+  dport 7788
   position 5
 end
 
 bad_ip = '192.168.99.99'
-firewall_rule "block-#{bad_ip}" do
+nftables_rule "block-#{bad_ip}" do
   source bad_ip
   position 49
   command :reject
 end
 
-firewall_rule 'ipv6-source' do
-  port 80
+nftables_rule 'ipv6-source' do
+  dport 80
   source '2001:db8::ff00:42:8329'
 end
 
-firewall_rule 'range' do
-  port 1000..1100
+nftables_rule 'range' do
+  dport 1000..1100
 end
 
-firewall_rule 'array' do
-  port [1234, 5000..5100, '5678']
+nftables_rule 'array' do
+  dport [1234, 5000..5100, '5678']
 end
 
-firewall_rule 'RPC Port Range In' do
-  port 5000..5100
+nftables_rule 'RPC Port Range In' do
+  dport 5000..5100
   protocol :tcp
   direction :in
 end
 
-firewall_rule 'HTTP HTTPS' do
-  port [80, 443]
+nftables_rule 'HTTP HTTPS' do
+  dport [80, 443]
   protocol :tcp
   direction :out
 end
 
-nftables_rule 'native nftables ports and outerface' do
-  direction :out
-  sport 1024
-  dport 8443
-  outerface 'eth0'
-end
-
-firewall_rule 'dport2433' do
+nftables_rule 'dport2433' do
   description 'This should not be included'
   include_comment false
   source '127.0.0.0/8'
-  port 2433
+  dport 2433
   direction :in
 end
 
-firewall_rule 'esp' do
+nftables_rule 'esp' do
   protocol :esp
 end
 
-firewall_rule 'ah' do
+nftables_rule 'ah' do
   protocol :ah
 end
 
-firewall_rule 'esp-ipv6' do
-  source '::'
+nftables_rule 'esp-ipv6' do
+  family :ip6
   protocol :esp
 end
 
-firewall_rule 'ah-ipv6' do
-  source '::'
+nftables_rule 'ah-ipv6' do
+  family :ip6
   protocol :ah
 end
 
-firewall_rule 'redirect' do
+nftables_rule 'redirect' do
   direction :pre
-  port 5555
+  dport 5555
   redirect_port 6666
   command :redirect
 end

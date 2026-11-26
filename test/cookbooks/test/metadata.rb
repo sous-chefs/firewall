@@ -1,4 +1,4 @@
+# frozen_string_literal: true
 name 'test'
-version '1.0.0'
-
+version '0.1.0'
 depends 'firewall'

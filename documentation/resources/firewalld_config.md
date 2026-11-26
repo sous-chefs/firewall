@@ -4,12 +4,11 @@
 
 ## Provides
 
-* :firewalld_config
-* :firewall_config
+- :firewalld_config
 
 ## Actions
 
-* `:update`
+- `:update`
 
 ## Properties
 
@@ -21,10 +20,10 @@
 ## Examples
 
 ```ruby
-firewall_config 'some values' do
+firewalld_config 'some values' do
   default_zone 'DROP'
   log_denied 'all'
 end
 ```
 
-See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld.rb).
+See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld_dbus.rb).

@@ -71,8 +71,6 @@ test/*
 # SCM #
 #######
 .git
-.git/
-.git/**
 .gitattributes
 .gitconfig
 .github/*

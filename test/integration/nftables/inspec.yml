@@ -1,7 +1,4 @@
 ---
-name: nftables
-title: Nftables Tests
-maintainer: Sous Chefs
-license: Apache-2.0
-summary: Nftables backend tests
+name: firewall-nftables
+title: Firewall nftables tests
 version: 1.0.0

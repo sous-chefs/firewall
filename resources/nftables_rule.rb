@@ -92,15 +92,34 @@ property :log_group,
 property :raw,
          String
 
-# do you want this rule to notify nftables to recalculate
-# (and potentially reapply) the nftables_rule(s) it finds?
+# do you want this rule to notify the firewall to recalculate
+# (and potentially reapply) the firewall_rule(s) it finds?
 property :notify_firewall,
          [true, false],
          default: true
 
 action :create do
   return if return_early?(new_resource)
+  fwr = build_firewall_rule(new_resource)
+  position = new_resource.position
 
-  Chef.run_context.resource_collection.find(nftables: new_resource.firewall_name).delayed_action(:rebuild)
-  build_firewall_rule(new_resource)
+  with_run_context :root do
+    edit_resource!('nftables', new_resource.firewall_name) do
+      r = rules.dup || {}
+      r.merge!({
+                 fwr => position,
+               })
+      rules(r)
+      delayed_action :rebuild
+    end
+  end
+end
+
+action :delete do
+  next unless new_resource.notify_firewall
+  with_run_context :root do
+    edit_resource!(:nftables, new_resource.firewall_name) do
+      delayed_action :rebuild
+    end
+  end
 end

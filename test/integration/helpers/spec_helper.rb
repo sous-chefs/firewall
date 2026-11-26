@@ -1,16 +1,14 @@
+# frozen_string_literal: true
+
 # helpers
 def firewalld?
-  %w(fedora redhat suse).include?(os.family)
+  %w(amazon fedora redhat suse).include?(os.family)
 end
 
 def ufw?
-  os.name == 'ubuntu'
+  os.debian?
 end
 
 def iptables?
-  !firewalld? && !ufw? && !nftables?
-end
-
-def nftables?
-  os.name == 'debian'
+  !firewalld? && !ufw?
 end

@@ -4,20 +4,21 @@
 
 ## Provides
 
-* :firewalld_service
-* :firewall_service
+- :firewalld_service
 
 ## Actions
 
-* `:update`
+- `:update`
+
+- `:delete` removes this explicitly named permanent object and reloads firewalld.
 
 ## Properties
 
 | Name                   | Name? | Type                   | Default                          | Description                                                                                                                                                                                                 | Allowed Values       |
 | ---------------------- | ----- | ---------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
 | `version`              |       | String                 |                                  | see version attribute of service tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                                       |                      |
-| `short`                | yes   | String                 |                                  | see short tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                                                              |                      |
-| `description`          |       | String                 |                                  | see description tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                                                        |                      |
+| `short`                | ✓     | String                 |                                  | see short tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                                                              |                      |
+| `description`          |       | String                 | `resource name`                  | see description tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                                                        |                      |
 | `ports`                |       | Array, String          |                                  | array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                              |                      |
 | `module_names`         |       | Array, String          |                                  | array of kernel netfilter helpers, see module tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html).                                                          |                      |
 | `destination`          |       | Hash                   |                                  | hash of {IP family : IP address} where 'IP family' key can be either 'ipv4' or 'ipv6'. See destination tag in [firewalld.service(5)](https://firewalld.org/documentation/man-pages/firewalld.service.html). |                      |
@@ -28,4 +29,4 @@
 
 ## Examples
 
-See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld.rb).
+See the [recipe used for testing](../../test/cookbooks/test/recipes/firewalld_dbus.rb).

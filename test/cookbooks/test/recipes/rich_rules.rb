@@ -1,21 +1,23 @@
-firewall_zone 'rich-rules'
+# frozen_string_literal: true
+
+firewalld_zone 'rich-rules'
 
 # Leave this rule in the default zone, i.e. don't use "zone" property, so that
 # we test the default zone handling.
-firewall_rich_rule '443/tcp' do
-  family :ipv4
+firewalld_rich_rule '443/tcp' do
   port 443
   protocol 'tcp'
+  audit true
   rule_action :accept
 end
 
-firewall_rich_rule 'Allow SSH service' do
+firewalld_rich_rule 'Allow SSH service' do
   zone 'rich-rules'
   service 'ssh'
   rule_action :accept
 end
 
-firewall_rich_rule 'Log and accept from 192.168.1.1' do
+firewalld_rich_rule 'Log and accept from 192.168.1.1' do
   zone 'rich-rules'
   source '192.168.1.1'
   log true
@@ -23,7 +25,7 @@ firewall_rich_rule 'Log and accept from 192.168.1.1' do
   rule_action :accept
 end
 
-firewall_rich_rule 'Reject traffic from 172.16.0.0/12 with priority' do
+firewalld_rich_rule 'Reject traffic from 172.16.0.0/12 with priority' do
   zone 'rich-rules'
   family :ipv4
   source '172.16.0.0/12'
@@ -31,63 +33,63 @@ firewall_rich_rule 'Reject traffic from 172.16.0.0/12 with priority' do
   rule_action :reject
 end
 
-firewall_rich_rule 'Accept traffic not from 172.16.2.1' do
+firewalld_rich_rule 'Accept traffic not from 172.16.2.1' do
   zone 'rich-rules'
   source_not '172.16.2.1'
   rule_action :accept
 end
 
-firewall_rich_rule 'Accept traffic to 10.0.0.0/8' do
+firewalld_rich_rule 'Accept traffic to 10.0.0.0/8' do
   zone 'rich-rules'
   family :ipv4
   destination '10.0.0.0/8'
   rule_action :accept
 end
 
-firewall_rich_rule 'Accept traffic not to 172.16.2.1' do
+firewalld_rich_rule 'Accept traffic not to 172.16.2.1' do
   zone 'rich-rules'
   destination_not '172.16.2.1'
   rule_action :accept
 end
 
-firewall_rich_rule 'Drop UDP traffic on ports 1000-2000' do
+firewalld_rich_rule 'Drop UDP traffic on ports 1000-2000' do
   zone 'rich-rules'
   port '1000-2000'
   protocol 'udp'
   rule_action :drop
 end
 
-firewall_rich_rule 'Audit and accept HTTPS traffic' do
+firewalld_rich_rule 'Audit and accept HTTPS traffic' do
   zone 'rich-rules'
-  family :ipv4
   port 443
   protocol 'tcp'
+  audit true
   rule_action :accept
 end
 
-firewall_rich_rule 'Accept ICMP protocol traffic' do
+firewalld_rich_rule 'Accept ICMP protocol traffic' do
   zone 'rich-rules'
   protocol 'icmp'
   rule_action :accept
 end
 
-firewall_rich_rule 'Block neighbor solicitation ICMP' do
+firewalld_rich_rule 'Block neighbor solicitation ICMP' do
   zone 'rich-rules'
   icmp_block 'neighbour-solicitation'
 end
 
-firewall_rich_rule 'Drop router-advertisement ICMP type' do
+firewalld_rich_rule 'Drop router-advertisement ICMP type' do
   zone 'rich-rules'
   icmp_type 'router-advertisement'
   rule_action :drop
 end
 
-firewall_rich_rule 'Enable masquerading' do
+firewalld_rich_rule 'Enable masquerading' do
   zone 'rich-rules'
   masquerade true
 end
 
-firewall_rich_rule 'Forward port 8080 to 80' do
+firewalld_rich_rule 'Forward port 8080 to 80' do
   zone 'rich-rules'
   family :ipv4
   forward_port 8080
@@ -95,7 +97,7 @@ firewall_rich_rule 'Forward port 8080 to 80' do
   to_port 80
 end
 
-firewall_rich_rule 'Forward port 5353 to 53 at 10.10.10.10' do
+firewalld_rich_rule 'Forward port 5353 to 53 at 10.10.10.10' do
   zone 'rich-rules'
   forward_port 5353
   protocol 'udp'
@@ -103,14 +105,14 @@ firewall_rich_rule 'Forward port 5353 to 53 at 10.10.10.10' do
   to_address '10.10.10.10'
 end
 
-firewall_rich_rule 'Accept TCP traffic from source port 25' do
+firewalld_rich_rule 'Accept TCP traffic from source port 25' do
   zone 'rich-rules'
   source_port 25
   protocol 'tcp'
   rule_action :accept
 end
 
-firewall_rich_rule 'Log and accept TCP traffic on ports 12000-12999' do
+firewalld_rich_rule 'Log and accept TCP traffic on ports 12000-12999' do
   zone 'rich-rules'
   source_port '12000-12999'
   protocol 'tcp'
@@ -120,14 +122,14 @@ firewall_rich_rule 'Log and accept TCP traffic on ports 12000-12999' do
   rule_action :accept
 end
 
-firewall_rich_rule 'Mark FTP traffic with 0x1' do
+firewalld_rich_rule 'Mark FTP traffic with 0x1' do
   zone 'rich-rules'
   service 'ftp'
   rule_action :mark
   mark_set '0x1'
 end
 
-firewall_rich_rule 'Log and accept TFTP traffic from 192.168.0.0/24' do
+firewalld_rich_rule 'Log and accept TFTP traffic from 192.168.0.0/24' do
   zone 'rich-rules'
   source '192.168.0.0/24'
   service 'tftp'
@@ -138,7 +140,7 @@ firewall_rich_rule 'Log and accept TFTP traffic from 192.168.0.0/24' do
   rule_action :accept
 end
 
-firewall_rich_rule 'Accept RADIUS traffic on IPV6' do
+firewalld_rich_rule 'Accept RADIUS traffic on IPV6' do
   zone 'rich-rules'
   family :ipv6
   service 'radius'
@@ -146,7 +148,7 @@ firewall_rich_rule 'Accept RADIUS traffic on IPV6' do
   action_limit '100/m'
 end
 
-firewall_rich_rule 'Forward RADIUS port on IPv6' do
+firewalld_rich_rule 'Forward RADIUS port on IPv6' do
   zone 'rich-rules'
   family :ipv6
   source '1:2:3:4:6::'
@@ -156,7 +158,7 @@ firewall_rich_rule 'Forward RADIUS port on IPv6' do
   to_address '1::2:3:4:7'
 end
 
-firewall_rich_rule 'Reject traffic from 192.168.2.3 with ICMP admin prohibited' do
+firewalld_rich_rule 'Reject traffic from 192.168.2.3 with ICMP admin prohibited' do
   zone 'rich-rules'
   family :ipv4
   source '192.168.2.3'
@@ -164,7 +166,7 @@ firewall_rich_rule 'Reject traffic from 192.168.2.3 with ICMP admin prohibited' 
   reject_type 'icmp-admin-prohibited'
 end
 
-firewall_rich_rule 'Raw rule' do
+firewalld_rich_rule 'Raw rule' do
   zone 'rich-rules'
   raw 'rule family="ipv6" source address="::1" log prefix="RAW_RULE" accept'
 end

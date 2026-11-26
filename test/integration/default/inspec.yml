@@ -1,7 +1,4 @@
 ---
-name: default
-title: Default Firewall Tests
-maintainer: Sous Chefs
-license: Apache-2.0
-summary: Default firewall backend tests
+name: firewall-default
+title: Firewall default tests
 version: 1.0.0

@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 provides :firewalld_icmptype,
-         os: 'linux'
-provides :firewall_icmptype,
          os: 'linux'
 
 property :version,
@@ -15,6 +15,7 @@ property :short,
          description: 'see short tag in firewalld.icmptype(5).'
 property :description,
          String,
+         default: lazy { name },
          description: 'see description tag in firewalld.icmptype(5).'
 property :destinations,
          Array,
@@ -23,10 +24,8 @@ property :destinations,
          description: 'array, either empty or containing strings \'ipv4\' and/or \'ipv6\', see destination tag in firewalld.icmptype(5).',
          coerce: proc { |o| Array(o) }
 
-include FirewallCookbook::Helpers::FirewalldDBus
-
 load_current_value do |new_resource|
-  sysbus = dbus_system_bus
+  sysbus = DBus.system_bus
   firewalld_service = sysbus['org.fedoraproject.FirewallD1']
   firewalld_object = firewalld_service['/org/fedoraproject/FirewallD1/config']
   fw_config = firewalld_object['org.fedoraproject.FirewallD1.config']
@@ -41,11 +40,12 @@ load_current_value do |new_resource|
     destinations settings[3]
   else
     Chef::Log.info "IcmpType #{new_resource.short} does not exist. Will be created."
+    current_value_does_not_exist!
   end
 end
 
 action :update do
-  dbus = dbus_system_bus
+  dbus = DBus.system_bus
   fw_config = config_interface(dbus)
   fw = firewalld_interface(dbus)
   reload = false
@@ -84,6 +84,10 @@ action :update do
       fw.reload
     end
   end
+end
+
+action :delete do
+  delete_dbus_object('IcmpType', 'icmptype')
 end
 
 action_class do
