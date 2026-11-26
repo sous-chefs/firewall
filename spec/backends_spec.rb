@@ -12,12 +12,18 @@ describe 'firewall backend rendering' do
         port 443
         action :nothing
       end
+      mixed_ports = firewall_rule 'mixed ports' do
+        port ['636', 80, 5000..5100, '389', '88', '443', '464']
+        source '192.0.2.10'
+        action :nothing
+      end
       firewall_backend_ufw 'default' do
-        rule_resources [rule]
+        rule_resources [rule, mixed_ports]
         action :restart
       end
     end
     it { is_expected.to render_file('/etc/default/ufw-chef.rules').with_content('ufw allow in proto tcp to any port 443 from any comment "https"') }
+    it { is_expected.to render_file('/etc/default/ufw-chef.rules').with_content('ufw allow in proto tcp to any port 80,88,389,443,464,636,5000:5100 from 192.0.2.10 comment "mixed ports"') }
   end
 
   context 'iptables IPv4 and IPv6 rules' do
