@@ -1,9 +1,5 @@
 
-require 'ipaddr'
-
-unified_mode true
-
-default_action :create
+# frozen_string_literal: true
 
 property :firewall_name, String, default: 'default'
 property :command, Symbol, equal_to: [:reject, :allow, :deny, :masquerade, :redirect, :log], default: :allow

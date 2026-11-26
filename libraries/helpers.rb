@@ -1,3 +1,7 @@
+# frozen_string_literal: true
+
+require 'ipaddr'
+
 module FirewallCookbook
   module Helpers
     def dport_calc(new_resource)
@@ -26,7 +30,8 @@ module FirewallCookbook
     end
 
     def disabled?(new_resource)
-      disable_flag = !new_resource.enabled
+      # if either flag is found in the non-default boolean state
+      disable_flag = !(new_resource.enabled && !new_resource.disabled)
 
       Chef::Log.warn("#{new_resource} has been disabled, not proceeding") if disable_flag
       disable_flag
@@ -58,8 +63,8 @@ module FirewallCookbook
     def ipv6_rule?(new_resource)
       if (new_resource.source && IPAddr.new(new_resource.source).ipv6?) ||
          (new_resource.destination && IPAddr.new(new_resource.destination).ipv6?) ||
-         new_resource.protocol =~ /ipv6/ ||
-         new_resource.protocol =~ /icmpv6/
+         new_resource.protocol.to_s.match?(/ipv6/) ||
+         new_resource.protocol.to_s.match?(/icmpv6/)
         true
       else
         false

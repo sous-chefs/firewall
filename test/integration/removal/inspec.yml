@@ -1,0 +1,11 @@
+---
+name: removal
+title: Firewall removal lifecycle
+maintainer: Sous Chefs
+license: Apache-2.0
+version: 1.0.0
+inputs:
+  - name: removal_type
+    value: delete
+  - name: removal_backend
+    value: auto

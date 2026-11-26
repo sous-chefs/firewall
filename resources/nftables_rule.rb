@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 require 'ipaddr'
@@ -99,14 +101,24 @@ property :notify_firewall,
 action :create do
   return if return_early?(new_resource)
   fwr = build_firewall_rule(new_resource)
+  position = new_resource.position
 
   with_run_context :root do
-    edit_resource!('nftables', new_resource.firewall_name) do |fw_rule|
+    edit_resource!('nftables', new_resource.firewall_name) do
       r = rules.dup || {}
       r.merge!({
-                 fwr => fw_rule.position,
+                 fwr => position,
                })
       rules(r)
+      delayed_action :rebuild
+    end
+  end
+end
+
+action :delete do
+  next unless new_resource.notify_firewall
+  with_run_context :root do
+    edit_resource!(:nftables, new_resource.firewall_name) do
       delayed_action :rebuild
     end
   end

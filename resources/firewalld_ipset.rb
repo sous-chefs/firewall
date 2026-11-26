@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 provides :firewalld_ipset,
@@ -12,6 +14,7 @@ property :short,
          description: 'see short tag in firewalld.ipset(5).'
 property :description,
          String,
+         default: lazy { name },
          description: 'see description tag in firewalld.ipset(5).'
 property :type,
          String,
@@ -45,6 +48,7 @@ load_current_value do |new_resource|
     entries settings[5]
   else
     Chef::Log.info "Ipset #{new_resource.short} does not exist. Will be created."
+    current_value_does_not_exist!
   end
 end
 
@@ -60,7 +64,7 @@ action :update do
       default_description(new_resource),
       new_resource.type,
       new_resource.options || {},
-      new_resource.entries,
+      new_resource.entries || [],
     ]
     converge_by "Add ipset #{new_resource.short}" do
       fw_config.addIPSet(new_resource.short, values)
@@ -70,11 +74,11 @@ action :update do
     ipset_path = fw_config.getIPSetByName(new_resource.short)
     ipset = ipset_interface(dbus, ipset_path)
     converge_if_changed :version do
-      ipset.setVersion new_resource.version
+      ipset.setVersion new_resource.version if new_resource.version
       reload = true
     end
     converge_if_changed :description do
-      ipset.setDescriptions default_description(new_resource)
+      ipset.setDescription default_description(new_resource)
       reload = true
     end
     converge_if_changed :type do
@@ -86,7 +90,7 @@ action :update do
       reload = true
     end
     converge_if_changed :entries do
-      ipset.setEntries new_resource.entries
+      ipset.setEntries new_resource.entries if new_resource.entries
       reload = true
     end
   end
@@ -96,6 +100,10 @@ action :update do
       fw.reload
     end
   end
+end
+
+action :delete do
+  delete_dbus_object('IPSet', 'ipset')
 end
 
 action_class do

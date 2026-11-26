@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require 'chefspec'
+require 'chefspec/policyfile'
 
 RSpec.configure do |config|
   config.color = true               # Use color in STDOUT

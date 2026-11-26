@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 unified_mode true
 
 provides :firewalld_helper,
@@ -13,6 +15,7 @@ property :short,
          description: 'see short tag in firewalld.helper(5).'
 property :description,
          String,
+         default: lazy { name },
          description: 'see description tag in firewalld.helper(5).'
 property :family,
          String,
@@ -25,7 +28,7 @@ property :nf_module,
 property :ports,
          [Array, String],
          default: [],
-         description: 'array of port and protocol pairs, in `["PORT/PROTOCOL"]` format. See port tag in firewalld.helper(5).',
+         description: 'array of port and protocol pairs. See port tag in firewalld.helper(5).',
          coerce: proc { |o| Array(o) }
 
 load_current_value do |new_resource|
@@ -43,10 +46,10 @@ load_current_value do |new_resource|
     description settings[2]
     family settings[3]
     nf_module settings[4]
-    # Load the current value of ports in the same format as the resource property to make it idempotent
-    ports settings[5].map { |port, protocol| "#{port}/#{protocol}" }
+    ports settings[5].map { |port| port.join('/') }
   else
     Chef::Log.info "Helper #{new_resource.short} does not exist. Will be created."
+    current_value_does_not_exist!
   end
 end
 
@@ -85,7 +88,7 @@ action :update do
       reload = true
     end
     converge_if_changed :nf_module do
-      helper.setModule new_resource.nf_module
+      helper.setModule new_resource.nf_module if new_resource.nf_module
       reload = true
     end
     converge_if_changed :ports do
@@ -99,6 +102,10 @@ action :update do
       fw.reload
     end
   end
+end
+
+action :delete do
+  delete_dbus_object('Helper', 'helper')
 end
 
 action_class do
