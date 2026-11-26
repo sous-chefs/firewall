@@ -3,6 +3,7 @@
 provides :firewall_backend_windows
 unified_mode true
 use '_partial/_firewall'
+use '_partial/_windows_logging'
 
 action :install do
   service 'MpsSvc' do
@@ -17,14 +18,29 @@ action :restart do
   contents = build_rule_file(desired)
   ruby_block "apply #{new_resource.name} Windows firewall rules" do
     block do
+      previous_logging = read_windows_logging
       disable! if active?
       delete_all_rules!
       reset!
       desired.sort_by { |_rule, position| position }.each { |rule, _position| add_rule!(rule) }
       enable!
+      set_windows_logging!(windows_logging_changes(previous_logging, read_windows_logging))
     end
     only_if { !::File.exist?(windows_rules_filename) || ::File.read(windows_rules_filename) != contents || !active? }
   end
+
+  logging = desired_windows_logging(new_resource.windows_logging)
+  unless logging.empty?
+    changes = {}
+    ruby_block "configure #{new_resource.name} Windows firewall profile logging" do
+      block { set_windows_logging!(changes) }
+      only_if do
+        changes = windows_logging_changes(logging, read_windows_logging)
+        !changes.empty?
+      end
+    end
+  end
+
   file windows_rules_filename do
     content contents
   end

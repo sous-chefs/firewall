@@ -30,6 +30,31 @@ describe 'firewall helper regressions' do
   end
 end
 
+describe 'Windows firewall logging changes' do
+  before { require_relative '../libraries/helpers_windows' }
+  let(:helper) { Class.new { include FirewallCookbook::Helpers::Windows }.new }
+
+  it 'repairs managed drift without changing omitted profiles or settings' do
+    desired = helper.desired_windows_logging(domain: { allowed: true }, private: { blocked: false }, public: {})
+    current = {
+      'Domain' => { 'LogAllowed' => 'True', 'LogBlocked' => 'True' },
+      'Private' => { 'LogAllowed' => 'True', 'LogBlocked' => 'True' },
+      'Public' => { 'LogAllowed' => 'False', 'LogBlocked' => 'True' },
+    }
+    expect(helper.windows_logging_changes(desired, current)).to eq('Private' => { 'LogBlocked' => 'False' })
+    current['Private']['LogBlocked'] = 'False'
+    expect(helper.windows_logging_changes(desired, current)).to be_empty
+  end
+
+  it 'restores the previous flags, log path and size changed by a reset' do
+    previous = { 'Public' => { 'LogAllowed' => 'False', 'LogBlocked' => 'True', 'LogFileName' => 'custom.log', 'LogMaxSizeKilobytes' => 8192 } }
+    defaults = { 'Public' => { 'LogAllowed' => 'False', 'LogBlocked' => 'False', 'LogFileName' => 'pfirewall.log', 'LogMaxSizeKilobytes' => 4096 } }
+    expect(helper.windows_logging_changes(previous, defaults)).to eq(
+      'Public' => { 'LogBlocked' => 'True', 'LogFileName' => 'custom.log', 'LogMaxSizeKilobytes' => 8192 }
+    )
+  end
+end
+
 describe 'Windows firewall status' do
   before { require_relative '../libraries/helpers_windows' }
   let(:helper) { Class.new { include FirewallCookbook::Helpers::Windows }.new }
