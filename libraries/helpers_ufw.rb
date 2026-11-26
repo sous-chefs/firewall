@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require 'chef/mixin/template'
+require 'fileutils'
 require 'shellwords'
+require 'tmpdir'
 
 module FirewallCookbook
   module Helpers
@@ -35,6 +38,65 @@ module FirewallCookbook
 
       def ufw_rule!(cmd)
         shell_out!(*Shellwords.split(cmd), input: 'yes')
+      end
+
+      def ufw_transaction
+        # UFW reset replaces all six rule files. Logging and startup state are in ufw.conf.
+        files = %w(
+          /etc/ufw/before.rules /etc/ufw/before6.rules
+          /etc/ufw/after.rules /etc/ufw/after6.rules
+          /etc/ufw/user.rules /etc/ufw/user6.rules
+          /etc/ufw/ufw.conf /etc/default/ufw
+        )
+        was_active = ufw_active?
+
+        snapshots = {}
+        keep_snapshots = false
+        begin
+          files.each do |path|
+            parent = ::File.dirname(path)
+            snapshots[parent] ||= Dir.mktmpdir('.chef-ufw-', parent)
+            backup = ::File.join(snapshots.fetch(parent), ::File.basename(path))
+            ::FileUtils.copy_entry(path, backup, true) if ::File.exist?(path) || ::File.symlink?(path)
+          end
+
+          begin
+            yield
+          rescue StandardError
+            begin
+              files.each do |path|
+                snapshot = snapshots.fetch(::File.dirname(path))
+                backup = ::File.join(snapshot, ::File.basename(path))
+                if ::File.exist?(backup) || ::File.symlink?(backup)
+                  # Stage on the destination filesystem and retain the original backup until rollback completes.
+                  replacement = "#{backup}.restore"
+                  ::FileUtils.copy_entry(backup, replacement, true)
+                  ::File.rename(replacement, path)
+                else
+                  ::FileUtils.rm_f(path)
+                end
+              end
+              if was_active
+                shell_out!('ufw', 'reload')
+              else
+                ufw_disable!
+              end
+            rescue StandardError => error
+              keep_snapshots = true
+              Chef::Log.error("Could not restore the previous UFW rules: #{error}. Backups: #{snapshots.values.join(', ')}")
+            end
+            raise
+          end
+        ensure
+          snapshots.each_value { |snapshot| ::FileUtils.remove_entry(snapshot) } unless keep_snapshots
+        end
+      end
+
+      def ufw_replay!(desired, log_level)
+        ufw_reset!
+        ufw_logging!(log_level)
+        desired.sort_by { |_rule, position| position }.each { |rule, _position| ufw_rule!(rule) }
+        ufw_enable! unless ufw_active?
       end
 
       def build_rule(new_resource)

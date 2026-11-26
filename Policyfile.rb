@@ -5,9 +5,10 @@ run_list 'test::default'
 cookbook 'firewall', path: '.'
 cookbook 'test', path: './test/cookbooks/test'
 
-%w(default firewalld ufw iptables windows).each do |suite|
+%w(default firewalld iptables windows).each do |suite|
   named_run_list suite.to_sym, 'test::default'
 end
+named_run_list :ufw, 'test::default', 'test::ufw_replay_failure'
 named_run_list :nftables, 'test::nftables'
 named_run_list :firewalld_dbus, 'test::firewalld_dbus'
 

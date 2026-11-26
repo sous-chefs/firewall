@@ -24,6 +24,7 @@ describe 'firewall backend rendering' do
     end
     it { is_expected.to render_file('/etc/default/ufw-chef.rules').with_content('ufw allow in proto tcp to any port 443 from any comment "https"') }
     it { is_expected.to render_file('/etc/default/ufw-chef.rules').with_content('ufw allow in proto tcp to any port 80,88,389,443,464,636,5000:5100 from 192.0.2.10 comment "mixed ports"') }
+    it { expect(chef_run.file('desired UFW defaults').content).to include('DEFAULT_INPUT_POLICY="DROP"') }
   end
 
   context 'iptables IPv4 and IPv6 rules' do
@@ -126,7 +127,6 @@ describe 'firewall dispatch and rule registration' do
       end
     end
     it { is_expected.to install_package('ufw') }
-    it { is_expected.to render_file('/etc/default/ufw').with_content('DEFAULT_INPUT_POLICY="DROP"') }
     it { expect(chef_run.firewall('default').rule_resources).to be_empty }
   end
 

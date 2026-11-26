@@ -28,3 +28,7 @@ describe service('ufw') do
     its(:stdout) { should match(/Status: active/) }
   end
 end
+
+describe file('/opt/firewall-ufw-replay-test/replay-recovered') do
+  its('content') { should eq "replay retried successfully\n" }
+end

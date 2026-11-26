@@ -96,7 +96,7 @@ suites:
       - ubuntu-22.04
       - ubuntu-24.04
     provisioner:
-      named_run_list: <%= ENV['FIREWALL_TEST_RUN_LIST'] || 'default' %>
+      named_run_list: <%= ENV['FIREWALL_TEST_RUN_LIST'] || 'ufw' %>
     attributes:
       firewall_test:
         backend: ufw
