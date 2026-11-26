@@ -6,6 +6,18 @@ Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 
+## [8.2.0](https://github.com/sous-chefs/firewall/compare/v8.1.0...v8.2.0) (2026-11-26)
+
+
+### Features
+
+* add an opt-in nftables firewall backend ([46b7a5a](https://github.com/sous-chefs/firewall/commit/46b7a5a10c7f0b345fde32832c36f6900ffa2d71))
+
+
+### Bug Fixes
+
+* retry failed UFW rule updates ([c2dd613](https://github.com/sous-chefs/firewall/commit/c2dd613c7f3a51600e0844d088e2bdde4d0d0dd1))
+
 ## [8.1.0](https://github.com/sous-chefs/firewall/compare/v8.0.0...v8.1.0) (2026-11-26)
 
 
