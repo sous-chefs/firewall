@@ -32,3 +32,9 @@
 ## Examples
 
 See the [recipe used for testing](../test/cookbooks/test/recipes/nftables.rb).
+
+`protocol :ipv6` matches IPv6 only. Explicit `source` CIDRs retain their
+address range and family. For example, `0.0.0.0/0` means any IPv4 source and
+`::/128` matches only the unspecified IPv6 address. Omit `source` to match any
+source. Comments and log prefixes accept literal backslashes and reject double
+quotes and control characters, which the supported text parser cannot escape.

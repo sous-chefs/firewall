@@ -8,6 +8,7 @@ use '_partial/_firewall_rule'
 provides :firewall_rule
 default_action :create
 
+property :command, [Symbol, Array], default: :allow
 property :zone, String
 
 property :direction, Symbol, equal_to: [:in, :out, :pre, :post], default: :in
@@ -16,6 +17,8 @@ property :interface, String
 property :dest_interface, String
 property :stateful, [Symbol, Array]
 property :include_comment, [true, false], default: true
+property :log_prefix, String
+property :log_group, Integer
 
 # only used for Windows Firewalls
 property :program, String
@@ -32,6 +35,14 @@ property :notify_firewall, [true, false], default: true
   action operation do
     rule = new_resource
     parent = Chef.run_context.resource_collection.find(firewall: rule.firewall_name)
+    if parent.backend != :nftables
+      unless %i(reject allow deny masquerade redirect log).include?(rule.command)
+        raise ArgumentError, "Rule command #{rule.command.inspect} is unsupported on #{parent.backend}"
+      end
+      if %i(log_prefix log_group).any? { |property| rule.property_is_set?(property) }
+        raise ArgumentError, 'log_prefix and log_group require the nftables backend'
+      end
+    end
     if parent.backend == :firewalld
       unsupported = %i(direction logging interface dest_interface stateful include_comment program service raw).select do |property|
         rule.property_is_set?(property)

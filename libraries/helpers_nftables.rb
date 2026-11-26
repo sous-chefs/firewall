@@ -42,18 +42,13 @@ module FirewallCookbook
       end
 
       def nftables_command_log(rule_resource)
-        log_prefix = +'prefix '
-        log_prefix << if rule_resource.log_prefix.nil?
-                        "\"#{CHAIN[rule_resource.direction]}:\""
-                      else
-                        "\"#{rule_resource.log_prefix}\""
-                      end
+        log_prefix = nft_quoted_text(rule_resource.log_prefix || "#{CHAIN[rule_resource.direction]}:")
         log_group = if rule_resource.log_group.nil?
                       nil
                     else
                       "group #{rule_resource.log_group} "
                     end
-        "log #{log_prefix} #{log_group}"
+        "log prefix #{log_prefix} #{log_group}"
       end
 
       def nftables_command_redirect(rule_resource)
@@ -84,13 +79,19 @@ module FirewallCookbook
         firewall_rule
       end
 
-      def build_firewall_rule(rule_resource)
+      def build_firewall_rule(rule_resource, filter_family: :inet)
         return rule_resource.raw.strip if rule_resource.raw
 
         addresses = Array(rule_resource.source) + Array(rule_resource.destination)
         families = addresses.map { |address| IPAddr.new(address).ipv6? }.uniq
         raise ArgumentError, 'A rule cannot mix IPv4 and IPv6 addresses' if families.length > 1
+        if rule_resource.protocol == :ipv6 && families.include?(false)
+          raise ArgumentError, 'protocol :ipv6 cannot match an IPv4 address'
+        end
         ip = families.first || rule_resource.family == :ip6 || rule_resource.protocol.to_s.match?(/ipv6|icmpv6/) ? 'ip6' : 'ip'
+        if filter_family == :ip && ip == 'ip6'
+          raise ArgumentError, 'IPv6 rules require ipv6_enabled on the nftables backend'
+        end
         table = if [:pre, :post].include?(rule_resource.direction)
                   'nat'
                 else
@@ -99,19 +100,14 @@ module FirewallCookbook
         firewall_rule = if table == 'nat'
                           "add rule #{ip} #{table} "
                         else
-                          "add rule inet #{table} "
+                          "add rule #{filter_family} #{table} "
                         end
         firewall_rule << "#{CHAIN.fetch(rule_resource.direction.to_sym, 'FORWARD')} "
 
         firewall_rule << "iif #{rule_resource.interface} " if rule_resource.interface
         firewall_rule << "oif #{rule_resource.outerface} " if rule_resource.outerface
 
-        if rule_resource.source
-          source_with_mask = nft_addresses(rule_resource.source)
-          if source_with_mask != '0.0.0.0/0' && source_with_mask != '::/128'
-            firewall_rule << "#{ip} saddr #{source_with_mask} "
-          end
-        end
+        firewall_rule << "#{ip} saddr #{nft_addresses(rule_resource.source)} " if rule_resource.source
         firewall_rule << "#{ip} daddr #{nft_addresses(rule_resource.destination)} " if rule_resource.destination
 
         case rule_resource.protocol
@@ -126,15 +122,26 @@ module FirewallCookbook
           firewall_rule << "#{rule_resource.protocol} dport #{port_to_s(rule_resource.dport)} " if rule_resource.dport
         when :esp, :ah
           firewall_rule << "#{ip} #{ip == 'ip6' ? 'nexthdr' : 'protocol'} #{rule_resource.protocol} "
-        when :ipv6, :none
+        when :ipv6
+          firewall_rule << 'meta nfproto ipv6 ' if table == 'filter'
+        when :none
           # nothing to do
         end
 
         firewall_rule << "ct state #{Array(rule_resource.stateful).join(',').downcase} " if rule_resource.stateful
         firewall_rule << nftables_commands(rule_resource)
-        firewall_rule << "comment \"#{rule_resource.description}\" " if rule_resource.include_comment
+        firewall_rule << "comment #{nft_quoted_text(rule_resource.description)} " if rule_resource.include_comment
         firewall_rule.strip!
         firewall_rule
+      end
+
+      def nft_quoted_text(text)
+        # The supported text lexer copies backslashes verbatim and has no quote escape.
+        if text.match?(/["[:cntrl:]]/)
+          raise ArgumentError, 'nftables comments and log prefixes cannot contain double quotes or control characters'
+        end
+
+        "\"#{text}\""
       end
 
       def nft_addresses(addresses)
@@ -149,11 +156,12 @@ module FirewallCookbook
       end
 
       def default_ruleset(new_resource)
+        family = new_resource.filter_family
         rules = {
-          'add table inet filter' => 1,
-          "add chain inet filter INPUT { type filter hook input priority 0 ; policy #{new_resource.input_policy}; }" => 2,
-          "add chain inet filter OUTPUT { type filter hook output priority 0 ; policy #{new_resource.output_policy}; }" => 2,
-          "add chain inet filter FORWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2,
+          "add table #{family} filter" => 1,
+          "add chain #{family} filter INPUT { type filter hook input priority 0 ; policy #{new_resource.input_policy}; }" => 2,
+          "add chain #{family} filter OUTPUT { type filter hook output priority 0 ; policy #{new_resource.output_policy}; }" => 2,
+          "add chain #{family} filter FORWARD { type filter hook forward priority 0 ; policy #{new_resource.forward_policy}; }" => 2,
         }
         if new_resource.table_ip_nat
           rules['add table ip nat'] = 1

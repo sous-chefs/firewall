@@ -5,7 +5,7 @@ unified_mode true
 use '_partial/_firewall'
 use '_partial/_windows_logging'
 
-property :backend, Symbol, equal_to: %i(ufw iptables firewalld windows), default: lazy {
+property :backend, Symbol, equal_to: %i(ufw iptables nftables firewalld windows), default: lazy {
   case node['platform_family']
   when 'windows' then :windows
   when 'debian' then :ufw
@@ -38,11 +38,13 @@ property :allow_established, [true, false], default: true
 
     if operation == :install
       defaults = []
-      defaults << ['loopback', { interface: 'lo', protocol: :none }] if parent.allow_loopback && parent.backend == :iptables
-      defaults << ['ssh', { port: 22, source: '0.0.0.0/0' }] if parent.allow_ssh && parent.backend != :windows
+      filter_backend = %i(iptables nftables).include?(parent.backend)
+      any_source = parent.backend == :nftables ? {} : { source: '0.0.0.0/0' }
+      defaults << ['loopback', { interface: 'lo', protocol: :none }] if parent.allow_loopback && filter_backend
+      defaults << ['ssh', { port: 22, **any_source }] if parent.allow_ssh && parent.backend != :windows
       defaults << ['winrm', { port: 5989, source: '0.0.0.0/0' }] if parent.allow_winrm && parent.backend == :windows
-      defaults << ['mosh', { port: 60000..61000, protocol: :udp, source: '0.0.0.0/0' }] if parent.allow_mosh && parent.backend != :windows
-      if parent.backend == :iptables
+      defaults << ['mosh', { port: 60000..61000, protocol: :udp, **any_source }] if parent.allow_mosh && parent.backend != :windows
+      if filter_backend
         defaults << ['icmp', { protocol: :icmp }] if parent.allow_icmp
         if parent.allow_established
           defaults << ['established', { protocol: :none, stateful: %i(related established) }]

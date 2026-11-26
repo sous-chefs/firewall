@@ -27,3 +27,14 @@ a parent-scheduled reconciliation still includes declared rules.
 The firewalld backend retains `zone`, port arrays and ranges through D-Bus rich
 rules. Omitted firewalld rules remain unchanged until explicitly removed;
 collection-based backends remove omitted rules on reconciliation.
+
+With the explicit `:nftables` backend, use `source_port` and `dest_port` for
+TCP or UDP port matches, and `interface` and `dest_interface` for input and
+output interfaces. `dest_port` takes precedence over `port`. Commands can be
+ordered, such as `[:log, :counter, :accept]`. Set `log_prefix` and `log_group`
+with `:log`. Use `raw` on its own for a complete native rule. Backend-specific
+fields for UFW, firewalld and Windows are rejected on nftables.
+`protocol :ipv6` matches IPv6 only. Omit `source` for all sources, or supply a
+CIDR to constrain the address family and range. Comments and log prefixes
+accept literal backslashes. Double quotes and control characters are rejected
+because the supported nftables text parser has no escape for them.

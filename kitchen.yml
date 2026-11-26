@@ -129,6 +129,12 @@ suites:
       - oraclelinux-9
     provisioner:
       named_run_list: <%= ENV['FIREWALL_TEST_RUN_LIST'] || 'nftables' %>
+  - name: nftables-facade
+    includes:
+      - almalinux-9
+      - debian-12
+    provisioner:
+      named_run_list: <%= ENV['FIREWALL_TEST_RUN_LIST'] || 'nftables_facade' %>
   - name: firewalld-advanced
     includes:
       - almalinux-8

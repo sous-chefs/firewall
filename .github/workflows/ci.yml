@@ -135,6 +135,10 @@ jobs:
             os: oraclelinux-8
           - suite: nftables
             os: oraclelinux-9
+          - suite: nftables-facade
+            os: almalinux-9
+          - suite: nftables-facade
+            os: debian-12
     steps:
       - uses: actions/checkout@v7
       - name: Install Cinc Workstation
@@ -165,6 +169,7 @@ jobs:
           case "$TEST_SUITE" in
             firewalld-advanced) export FIREWALL_TEST_RUN_LIST=dbus_delete ;;
             nftables) export FIREWALL_TEST_RUN_LIST=nftables_delete ;;
+            nftables-facade) export FIREWALL_TEST_RUN_LIST=nftables_facade_delete ;;
             *) export FIREWALL_TEST_RUN_LIST=delete ;;
           esac
           export FIREWALL_TEST_BACKEND="$TEST_SUITE"

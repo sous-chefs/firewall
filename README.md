@@ -32,8 +32,9 @@ end
 
 The default backend remains UFW on Debian/Ubuntu; firewalld on Amazon Linux,
 RHEL-family, Fedora and SUSE; Windows Firewall on Windows; iptables elsewhere.
-Override it explicitly with `backend :iptables`, `:ufw`, `:firewalld` or
-`:windows` on the `firewall` resource. nftables has separate resources.
+Override it explicitly with `backend :iptables`, `:ufw`, `:firewalld`,
+`:nftables` or `:windows` on the `firewall` resource. The standalone
+`nftables` and `nftables_rule` resources are also available.
 
 Declare the named firewall before its rules. Select one host-wide backend:
 multiple named resources do not create independent operating-system firewalls.

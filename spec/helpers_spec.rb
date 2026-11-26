@@ -18,6 +18,13 @@ describe 'firewall helper regressions' do
     expect(helper.nftables_command_log(rule)).to include('prefix "audit:"', 'group 0')
   end
 
+  it 'keeps a literal nftables backslash and rejects text that would break quoting' do
+    helper = Class.new { include FirewallCookbook::Helpers::Nftables }.new
+    expect(helper.nft_quoted_text('literal \ path')).to eq('"literal \ path"')
+    expect { helper.nft_quoted_text('literal " quote') }.to raise_error(ArgumentError, /cannot contain double quotes/)
+    expect { helper.nft_quoted_text("new\nline") }.to raise_error(ArgumentError, /control characters/)
+  end
+
   it 'preserves an IPv6 forward-port destination' do
     helper = Class.new { include FirewallCookbook::Helpers::FirewalldDBus }.new
     expect(helper.parse_forward_ports('port=443:proto=tcp:toport=8443:toaddr=2001:db8::1')).to eq(['443', 'tcp', '8443', '2001:db8::1'])

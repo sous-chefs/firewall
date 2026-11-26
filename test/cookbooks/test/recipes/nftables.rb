@@ -17,7 +17,6 @@ end
 
 nftables_rule 'allow world to ssh' do
   dport 22
-  source '0.0.0.0/0'
   command [:log, :accept]
   log_group 0
 end
@@ -25,7 +24,6 @@ end
 nftables_rule 'allow world to mosh' do
   protocol :udp
   dport 60000..61000
-  source '0.0.0.0/0'
 end
 
 # allow established connections
@@ -128,12 +126,12 @@ nftables_rule 'ah' do
 end
 
 nftables_rule 'esp-ipv6' do
-  source '::'
+  family :ip6
   protocol :esp
 end
 
 nftables_rule 'ah-ipv6' do
-  source '::'
+  family :ip6
   protocol :ah
 end
 

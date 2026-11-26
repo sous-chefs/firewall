@@ -34,12 +34,20 @@ when 'dbus_delete'
       names.each { |name| its('stdout') { should_not match(/\b#{Regexp.escape(name)}\b/) } }
     end
   end
-when 'nftables_delete'
+when 'nftables_delete', 'nftables_facade_delete'
   describe package('nftables') do
     it { should_not be_installed }
   end
   describe file(os.debian? ? '/etc/nftables.conf' : '/etc/sysconfig/nftables.conf') do
     it { should_not exist }
+  end
+  if input('removal_type') == 'nftables_facade_delete'
+    describe service('nftables') do
+      it { should_not be_running }
+    end
+    describe file(os.debian? ? '/etc/nftables.conf.chef-applied' : '/etc/sysconfig/nftables.conf.chef-applied') do
+      it { should_not exist }
+    end
   end
 else
   backend = input('removal_backend')
