@@ -57,3 +57,30 @@ describe command('netsh advfirewall firewall show rule name="vrrp protocol by nu
   its('exit_status') { should eq 0 }
   its('stdout') { should match(/^Protocol:\s+112\s*$/) }
 end
+
+control 'windows-firewall-profile-logging' do
+  title 'Windows firewall logging by profile'
+  desc 'Checks managed logging flags and verifies that a rule rebuild preserves omitted logging settings.'
+
+  { 'Domain' => 'True,True', 'Private' => 'True,False', 'Public' => 'False,True' }.each do |profile, flags|
+    describe powershell(<<~POWERSHELL) do
+      $ErrorActionPreference = 'Stop'
+      $profile = Get-NetFirewallProfile -PolicyStore PersistentStore -Name #{profile}
+      '{0},{1}' -f $profile.LogAllowed, $profile.LogBlocked
+    POWERSHELL
+      its('exit_status') { should eq 0 }
+      its('stdout') { should match(/^#{flags}\s*$/) }
+    end
+  end
+
+  describe powershell(<<~'POWERSHELL') do
+    $ErrorActionPreference = 'Stop'
+    $profile = Get-NetFirewallProfile -PolicyStore PersistentStore -Name Public
+    $actual = [Environment]::ExpandEnvironmentVariables($profile.LogFileName)
+    $expected = Join-Path $env:SystemRoot 'System32\LogFiles\Firewall\kitchen-public.log'
+    '{0},{1}' -f $profile.LogMaxSizeKilobytes, ($actual -eq $expected)
+  POWERSHELL
+    its('exit_status') { should eq 0 }
+    its('stdout') { should match(/^8192,True\s*$/) }
+  end
+end

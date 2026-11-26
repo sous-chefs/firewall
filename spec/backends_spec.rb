@@ -178,6 +178,22 @@ describe 'nftables rendering' do
   end
 end
 
+describe 'Windows profile logging' do
+  platform 'windows', '2019'
+  step_into :firewall
+
+  recipe do
+    firewall 'default' do
+      windows_logging domain: { allowed: true }, private: { blocked: false }
+    end
+  end
+
+  it 'passes explicit true and false through to the Windows backend' do
+    backend = chef_run.find_resource(:firewall_backend_windows, 'default')
+    expect(backend.windows_logging).to eq(domain: { allowed: true }, private: { blocked: false })
+  end
+end
+
 describe 'Windows firewall rendering' do
   platform 'windows', '2019'
   step_into :firewall_backend_windows

@@ -33,6 +33,19 @@ user 'polkitd' do
   only_if { firewalld && platform?('debian', 'ubuntu') }
 end
 
+if backend == :windows
+  # Seed local settings before the first rule rebuild so preservation is observable.
+  powershell_script 'seed Windows firewall profile logging' do
+    code <<~'POWERSHELL'
+      $ErrorActionPreference = 'Stop'
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Domain -LogAllowed False -LogBlocked True
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Private -LogAllowed True -LogBlocked True
+      Set-NetFirewallProfile -PolicyStore PersistentStore -Name Public -LogAllowed False -LogBlocked True -LogMaxSizeKilobytes 8192 -LogFileName '%SystemRoot%\System32\LogFiles\Firewall\kitchen-public.log'
+    POWERSHELL
+    not_if { ::File.exist?("#{ENV['HOME']}/windows-chef.rules") }
+  end
+end
+
 firewall 'default' do
   backend backend
   allow_ssh true
@@ -40,6 +53,7 @@ firewall 'default' do
   allow_mosh true
   allow_loopback true
   allow_icmp true
+  windows_logging(domain: { allowed: true }, private: { blocked: false }) if backend == :windows
 end
 
 firewall_rule 'ssh22' do

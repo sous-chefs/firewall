@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'base64'
+require 'json'
+
 module FirewallCookbook
   module Helpers
     module Windows
@@ -32,6 +35,54 @@ module FirewallCookbook
 
       def reset!
         shell_out!('netsh advfirewall reset')
+      end
+
+      def desired_windows_logging(profiles)
+        profiles.reject { |_profile, flags| flags.empty? }.to_h do |profile, flags|
+          [profile.to_s.capitalize, flags.to_h { |flag, value| ["Log#{flag.to_s.capitalize}", value ? 'True' : 'False'] }]
+        end
+      end
+
+      def read_windows_logging
+        output = windows_logging_powershell!(<<~POWERSHELL)
+          Get-NetFirewallProfile -PolicyStore PersistentStore |
+            Select-Object Name, LogFileName, LogMaxSizeKilobytes,
+              @{Name='LogAllowed';Expression={[string]$_.LogAllowed}},
+              @{Name='LogBlocked';Expression={[string]$_.LogBlocked}},
+              @{Name='LogIgnored';Expression={[string]$_.LogIgnored}} |
+            ConvertTo-Json -Compress
+        POWERSHELL
+        JSON.parse(output).to_h { |profile| [profile.fetch('Name'), profile.reject { |key, _value| key == 'Name' }] }
+      end
+
+      def windows_logging_changes(desired, current)
+        desired.each_with_object({}) do |(name, settings), changes|
+          profile = current.fetch(name)
+          delta = settings.reject { |key, value| value == profile.fetch(key) }
+          changes[name] = delta unless delta.empty?
+        end
+      end
+
+      def set_windows_logging!(changes)
+        return if changes.empty?
+
+        payload = Base64.strict_encode64(JSON.generate(changes))
+        windows_logging_powershell!(<<~POWERSHELL)
+          $profiles = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('#{payload}')) | ConvertFrom-Json
+          foreach ($profile in $profiles.PSObject.Properties) {
+            $settings = @{}
+            foreach ($setting in $profile.Value.PSObject.Properties) {
+              $settings[$setting.Name] = $setting.Value
+            }
+            Set-NetFirewallProfile -PolicyStore PersistentStore -Name $profile.Name @settings
+          }
+        POWERSHELL
+      end
+
+      def windows_logging_powershell!(script)
+        script = "$ErrorActionPreference = 'Stop'\n[Console]::OutputEncoding = [Text.Encoding]::UTF8\n#{script}"
+        encoded = Base64.strict_encode64(script.encode(Encoding::UTF_16LE))
+        shell_out!("powershell.exe -NoProfile -NonInteractive -EncodedCommand #{encoded}").stdout
       end
 
       def add_rule!(params)

@@ -16,6 +16,7 @@ Manages a host-wide firewall backend. The default action is `:install`.
 | `ruleset` | Standard filter table | Complete custom iptables section/position mapping |
 | `ufw_defaults` | Standard UFW defaults | Complete defaults hash, using symbol keys |
 | `windows_input_policy`, `windows_output_policy` | blockinbound, allowoutbound | Windows policy |
+| `windows_logging` | `{}` | Windows traffic logging by profile |
 
 Actions: `:install`, `:restart`, `:disable`, `:delete`; `:flush` on
 UFW/iptables/Windows and `:reload` on firewalld. Linux installation creates
@@ -35,3 +36,22 @@ end
 
 Allow access for management before applying restrictive policies. Each backend
 controls host-wide state; resource names do not provide independent firewalls.
+
+On Windows, use `:domain`, `:private` and `:public` to select profiles, and
+`:allowed` and `:blocked` to select traffic. Use `true` to enable logging and
+`false` to disable it. During normal convergence, Windows logging settings
+omitted from the resource, including the log path and maximum size, are
+preserved across rule rebuilds. Explicit `:flush` and `:delete` retain their
+reset behaviour.
+
+The resource manages local persistent policy. Group Policy can override the
+effective settings.
+
+```ruby
+firewall 'default' do
+  windows_logging(
+    domain: { allowed: true, blocked: true },
+    private: { blocked: false }
+  )
+end
+```

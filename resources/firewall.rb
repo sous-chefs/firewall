@@ -3,6 +3,7 @@
 provides :firewall
 unified_mode true
 use '_partial/_firewall'
+use '_partial/_windows_logging'
 
 property :backend, Symbol, equal_to: %i(ufw iptables firewalld windows), default: lazy {
   case node['platform_family']
@@ -31,6 +32,7 @@ property :allow_established, [true, false], default: true
          windows_input_policy windows_output_policy).each do |property|
         public_send(property, parent.public_send(property)) unless parent.public_send(property).nil?
       end
+      windows_logging parent.windows_logging if parent.backend == :windows
       action operation
     end
 
