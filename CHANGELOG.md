@@ -6,6 +6,18 @@ Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 Standardise files with files in sous-chefs/repo-management
 
+## [8.1.0](https://github.com/sous-chefs/firewall/compare/v8.0.0...v8.1.0) (2026-11-26)
+
+
+### Features
+
+* manage Windows firewall profile logging ([#341](https://github.com/sous-chefs/firewall/issues/341)) ([bbf489c](https://github.com/sous-chefs/firewall/commit/bbf489ca0a5f37a053b10c83f52c154756858c84))
+
+
+### Bug Fixes
+
+* sort UFW port arrays numerically ([#339](https://github.com/sous-chefs/firewall/issues/339)) ([e7245dd](https://github.com/sous-chefs/firewall/commit/e7245dd6bc9430fafa985c821710fddd8c3262dc))
+
 ## [8.0.0](https://github.com/sous-chefs/firewall/compare/v7.0.4...v8.0.0) (2026-11-12)
 
 
